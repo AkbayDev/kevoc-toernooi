@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kevoc Toernooi | Inloggen & Registreren</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="container" id="app-container">
+    <img src="img/logo.png" alt="Logo" class="logo">
+
+    <div class="toggle-container">
+        <div class="toggle-btn active" id="toggle-login">Inloggen</div>
+        <div class="toggle-btn" id="toggle-register">Registreren</div>
+    </div>
+
+    <div class="form-container" id="login-form">
+        <form id="form-login">
+            <input type="email" id="login-email" placeholder="E-mailadres" required />
+            <input type="password" id="login-password" placeholder="Wachtwoord" required />
+            <button type="submit">Log in</button>
+        </form>
+    </div>
+
+    <div class="form-container hidden" id="register-form">
+        <form id="form-register">
+            <input type="email" id="reg-email" placeholder="E-mailadres" required />
+            <input type="password" id="reg-password" placeholder="Wachtwoord" required />
+
+            <select id="reg-role" required>
+                <option value="" disabled selected>Kies een rol...</option>
+                <option value="gebruiker">Gebruiker</option>
+                <option value="beheerder">Hulp</option>
+            </select>
+
+            <button type="submit">Maak account</button>
+        </form>
+    </div>
+
+    <div id="message-box"></div>
+</div>
+
+<script src="js/login.js" defer></script>
+</body>
+</html>
