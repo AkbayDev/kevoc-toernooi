@@ -11,7 +11,7 @@ body {
     align-items: center;
     min-height: 100vh;
     padding: 24px;
-    background-image: url('img/background.jpg');
+    background-image: url('../img/background.jpg');
     background-size: cover;
     background-position: center;
 }
@@ -122,4 +122,24 @@ button[type="submit"]:hover {
     text-align: center;
     font-size: 14px;
     color: #111827;
+}
+
+/* --- Styling voor de klikbare tekst (links) --- */
+.toggle-text {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+}
+
+.toggle-text span, #go-to-forgot, #back-to-login {
+    color: #764ba2;
+    font-weight: bold;
+    cursor: pointer; /* Zorgt voor het handje! */
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+.toggle-text span:hover, #go-to-forgot:hover, #back-to-login:hover {
+    color: #667eea; /* Licht op als je eroverheen zweeft */
 }
