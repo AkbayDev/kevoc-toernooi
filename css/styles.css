@@ -1,0 +1,145 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 24px;
+    background-image: url('../img/background.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 420px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.12);
+    padding: 32px;
+}
+
+.logo {
+    display: block;
+    width: 120px;
+    height: auto;
+    margin: 0 auto 24px;
+}
+
+.toggle-container {
+    display: flex;
+    border-radius: 999px;
+    padding: 4px;
+    margin-bottom: 24px;
+}
+
+.toggle-btn {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #6b7280;
+    transition: all 0.2s ease;
+}
+
+.toggle-btn.active {
+    background: #ffffff;
+    color: #111827;
+    box-shadow: 0 2px 10px rgba(17, 24, 39, 0.12);
+}
+
+.form-container {
+    animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input,
+select {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    background: #ffffff;
+    color: #111827;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #111827;
+    box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.1);
+}
+
+button[type="submit"] {
+    margin-top: 8px;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    background: #111827;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+button[type="submit"]:hover {
+    background: #1f2937;
+}
+
+.hidden {
+    display: none;
+}
+
+#message-box {
+    margin-top: 16px;
+    min-height: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #111827;
+}
+
+/* --- Styling voor de klikbare tekst (links) --- */
+.toggle-text {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+}
+
+.toggle-text span, #go-to-forgot, #back-to-login {
+    color: #764ba2;
+    font-weight: bold;
+    cursor: pointer; /* Zorgt voor het handje! */
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+.toggle-text span:hover, #go-to-forgot:hover, #back-to-login:hover {
+    color: #667eea; /* Licht op als je eroverheen zweeft */
+}

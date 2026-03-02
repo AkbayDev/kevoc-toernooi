@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactieve Login & Registratie</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="container" id="app-container">
+    
+    <img src="img/logo.png" alt="Logo" class="logo">
+
+    <div class="toggle-container">
+        <div class="toggle-btn active" id="toggle-login">Inloggen</div>
+        <div class="toggle-btn" id="toggle-register">Registreren</div>
+    </div>
+    
+    <div class="form-container" id="login-form">
+        <form id="form-login">
+            <input type="email" id="login-email" placeholder="E-mailadres" required />
+            <input type="password" id="login-password" placeholder="Wachtwoord" required />
+            <button type="submit">Log in</button>
+        </form>
+        <p class="toggle-text"><span id="go-to-forgot">Wachtwoord vergeten?</span></p>
+    </div>
+
+    <div class="form-container hidden" id="register-form">
+        <form id="form-register">
+            <input type="email" id="reg-email" placeholder="E-mailadres" required />
+            <input type="password" id="reg-password" placeholder="Wachtwoord" required />
+            <select id="reg-role" required>
+                <option value="" disabled selected>Kies een rol...</option>
+                <option value="gebruiker">Normale Gebruiker</option>
+                <option value="beheerder">Beheerder</option>
+            </select>
+            <button type="submit">Maak account</button>
+        </form>
+    </div>
+
+    <div class="form-container hidden" id="forgot-form">
+        <h2>Wachtwoord Herstellen</h2>
+        
+        <form id="form-forgot-email" action="javascript:void(0);">
+            <input type="email" id="reset-email" placeholder="Vul je e-mailadres in" required />
+            <button type="submit">Stuur Herstelcode</button>
+        </form>
+
+        <form id="form-forgot-code" class="hidden" action="javascript:void(0);">
+            <p style="font-size: 13px; color: #666; text-align: center; margin-bottom: 10px;">Vul de code uit je e-mail in.</p>
+            <input type="text" id="reset-code" placeholder="6-cijferige code" required maxlength="6" />
+            <button type="submit">Verifieer Code</button>
+        </form>
+
+        <form id="form-new-password" class="hidden" action="javascript:void(0);">
+            <input type="password" id="new-password" placeholder="Kies een nieuw wachtwoord" required />
+            <button type="submit">Wachtwoord Opslaan</button>
+        </form>
+
+        <p class="toggle-text"><span id="back-to-login">Terug naar inloggen</span></p>
+    </div>
+
+    <div id="message-box"></div>
+
+</div>
+
+<script src="js/login.js" defer></script>
+</body>
+</html>
