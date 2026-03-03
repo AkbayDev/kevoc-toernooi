@@ -4,10 +4,16 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import random
 import resend
+# NIEUW: Importeer de blueprint vanuit dash.py
+from dash import dash_bp 
+
 
 app = Flask(__name__)
 # CORS zorgt ervoor dat je frontend mag praten met deze backend
 CORS(app) 
+
+# NIEUW: Registreer de blueprint zodat app.py weet dat deze routes bestaan
+app.register_blueprint(dash_bp)
 
 # --- Database Setup ---
 def init_db():
