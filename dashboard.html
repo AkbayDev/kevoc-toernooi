@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KEVOC | Dashboard</title>
+    <link rel="stylesheet" href="css/dash.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo-area">
+                <h1 class="logo-text">🏐 KEVOC</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#scores">Scores</a></li>
+                    <li><a href="#wedstrijden">Wedstrijd Rooster</a></li>
+                    <li><a href="#werkrooster">Werk Rooster</a></li>
+                </ul>
+            </nav>
+            <div class="user-menu">
+                <span id="user-display">Welkom, Gast</span>
+                <button id="logout-btn">Uitloggen</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-layout">
+
+        <section class="dash-card" data-role="all" id="scores">
+            <h2>🏆 Actuele Scores</h2>
+            <p>Hier komen de live scores van de gespeelde wedstrijden.</p>
+            <table class="data-table">
+                <tr><th>Thuis</th><th>Uit</th><th>Uitslag</th></tr>
+                <tr><td>KEVOC Heren 1</td><td>Volley Boys</td><td>3 - 1</td></tr>
+            </table>
+        </section>
+
+        <section class="dash-card" data-role="all" id="wedstrijden">
+            <h2>📅 Wedstrijd Rooster</h2>
+            <p>Overzicht van welk team op welk veld speelt en in welk tijdslot.</p>
+            <table class="data-table">
+                <tr><th>Tijd</th><th>Veld</th><th>Match</th></tr>
+                <tr><td>10:00</td><td>Veld 1</td><td>KEVOC Dames - Smashers</td></tr>
+            </table>
+        </section>
+
+        <section class="dash-card" data-role="all" id="ploeg-inschrijven">
+            <h2>📝 Ploegen & Inschrijven</h2>
+            
+            <form class="dash-form" id="form-ploeg" style="margin-bottom: 15px;">
+                <input type="text" id="ploeg-naam" placeholder="Naam van de ploeg" required>
+                <select id="ploeg-niveau" required>
+                    <option value="" disabled selected>Kies niveau...</option>
+                    <option value="Recreatief">Recreatief</option>
+                    <option value="Competitie">Competitie</option>
+                </select>
+                <button type="submit" class="btn-primary">Schrijf Ploeg In</button>
+            </form>
+            
+            <div id="ploeg-msg" style="margin-bottom: 20px; font-weight: bold; font-size: 14px;"></div>
+
+            <h3 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; color: #2c3e50;">Ingeschreven Ploegen</h3>
+            <ul class="task-list" id="ploegen-lijst">
+                </ul>
+        </section>
+
+        <section class="dash-card" data-role="all" id="hulp-inschrijven">
+            <h2>🤝 Inschrijven als Vrijwilliger / Scheids</h2>
+            <form class="dash-form" onsubmit="event.preventDefault();">
+                <input type="text" placeholder="Jouw naam" required>
+                <select required>
+                    <option value="scheids">Scheidsrechter</option>
+                    <option value="opbouw">Helpen Klaarzetten / Opbouw</option>
+                    <option value="toog">Toog / Catering</option>
+                </select>
+                <button type="submit" class="btn-primary">Ik kom helpen!</button>
+            </form>
+        </section>
+
+        <section class="dash-card" data-role="all" id="werkrooster">
+            <h2>📋 Werk Rooster</h2>
+            <p>Wie fluit welke match? Wie staat er achter de toog?</p>
+            <ul class="task-list">
+                <li><strong>10:00 - 12:00:</strong> Jan & Mieke (Toog)</li>
+                <li><strong>11:00 - Veld 2:</strong> Tom (Scheidsrechter)</li>
+            </ul>
+        </section>
+
+        <section class="dash-card admin-card hidden" data-role="beheerder" id="checklist">
+            <h2>✅ Organisatie Checklist</h2>
+            <p>Wat moet er nog gebeuren voor en tijdens het toernooi?</p>
+            <ul class="task-list">
+                <li><input type="checkbox"> Netten spannen veld 1 t/m 4</li>
+                <li><input type="checkbox"> Wisselgeld kassa controleren</li>
+                <li><input type="checkbox"> Microfoon en muziek testen</li>
+            </ul>
+        </section>
+
+        <section class="dash-card admin-card hidden" data-role="beheerder" id="acties">
+            <h2>⚡ Openstaande Acties</h2>
+            <p>Organisatorische to-do's (bijv. ploegen nabellen).</p>
+            <ul class="task-list">
+                <li>❗️ Team 'De Opslagers' bellen over inschrijvingsgeld</li>
+                <li>❗️ Bekers ophalen bij de leverancier</li>
+            </ul>
+        </section>
+
+        <section class="dash-card admin-card hidden" data-role="beheerder" id="financien">
+            <h2>💰 Financiën & Kasboek</h2>
+            
+            <div class="chart-wrapper">
+                <canvas id="financeChart"></canvas>
+                <div id="chart-center-text" class="chart-center-text">€ 0.00</div>
+            </div>
+
+            <form class="dash-form" id="form-finance" style="margin-top: 15px;">
+                <input type="text" id="fin-omschrijving" placeholder="Omschrijving (bijv. Drank aankoop)" required>
+                <input type="number" id="fin-bedrag" step="0.01" placeholder="Bedrag in €" required>
+                <select id="fin-type" required>
+                    <option value="inkomst">Inkomst</option>
+                    <option value="kost">Kost / Uitgave</option>
+                </select>
+                <button type="submit" class="btn-primary">Boeking Toevoegen</button>
+            </form>
+            <div id="finance-msg" style="margin-top: 10px; font-weight: bold; font-size: 14px;"></div>
+
+            <button id="btn-toggle-transacties" class="btn-secondary" style="margin-top: 15px; width: 100%;">Bekijk Alle Transacties</button>
+            <div id="transacties-lijst" class="hidden" style="margin-top: 10px;">
+                <ul class="task-list" id="transacties-ul">
+                    </ul>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="js/dash.js" defer></script>
+</body>
+</html>

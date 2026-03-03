@@ -72,6 +72,7 @@ ui.goToForgotBtn.addEventListener('click', () => switchTab('forgot'));
 ui.backToLoginBtn.addEventListener('click', () => switchTab('login'));
 
 // Login & Registratie
+// Zoek dit stukje in je js/login.js en pas het aan:
 ui.loginSubmit.addEventListener('submit', async (e) => {
     e.preventDefault(); 
     const email = document.getElementById('login-email').value;
@@ -79,7 +80,14 @@ ui.loginSubmit.addEventListener('submit', async (e) => {
     showMessage("Bezig met inloggen...", "info");
     try {
         const res = await sendToBackend('/login', { email, password });
-        showMessage(res.message, "success");
+        showMessage("Succesvol ingelogd! Je wordt doorgestuurd...", "success");
+        
+        // --- NIEUW: Sla de rol op en ga naar dashboard! ---
+        localStorage.setItem('userRole', res.role);
+        setTimeout(() => {
+            window.location.href = 'dashboard.html';
+        }, 1500);
+
     } catch (err) { showMessage(err.message, "error"); }
 });
 
