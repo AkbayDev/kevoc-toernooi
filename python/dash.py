@@ -1,56 +1,80 @@
-# dash.py
 from flask import Blueprint, request, jsonify
 import sqlite3
 
-# 1. Maak de Blueprint aan
-# De naam 'dash_bp' gebruiken we straks om hem te koppelen in app.py
 dash_bp = Blueprint('dash', __name__)
 
-# 2. Haal de financiële totalen op
 @dash_bp.route('/api/financien', methods=['GET'])
 def get_financien():
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
-    
-    # Bereken totale inkomsten
     cursor.execute("SELECT SUM(bedrag) FROM financien WHERE type = 'inkomst'")
     inkomsten = cursor.fetchone()[0] or 0.0
-    
-    # Bereken totale kosten
     cursor.execute("SELECT SUM(bedrag) FROM financien WHERE type = 'kost'")
     kosten = cursor.fetchone()[0] or 0.0
-    
     conn.close()
-    
-    return jsonify({
-        "inkomsten": inkomsten,
-        "kosten": kosten,
-        "winst": inkomsten - kosten
-    }), 200
+    return jsonify({"inkomsten": inkomsten, "kosten": kosten, "winst": inkomsten - kosten}), 200
 
-# 3. Voeg een nieuwe kost/inkomst toe
 @dash_bp.route('/api/financien', methods=['POST'])
 def add_financien():
     data = request.json
-    omschrijving = data.get('omschrijving')
-    bedrag = data.get('bedrag')
-    transactie_type = data.get('type')
-    
+    omschrijving, bedrag, transactie_type = data.get('omschrijving'), data.get('bedrag'), data.get('type')
     if not omschrijving or not bedrag or not transactie_type:
         return jsonify({"error": "Vul alle velden in."}), 400
-        
-    try:
-        bedrag = float(bedrag)
-    except ValueError:
-        return jsonify({"error": "Ongeldig bedrag."}), 400
+    try: bedrag = float(bedrag)
+    except ValueError: return jsonify({"error": "Ongeldig bedrag."}), 400
 
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO financien (omschrijving, bedrag, type) VALUES (?, ?, ?)", 
-        (omschrijving, bedrag, transactie_type)
-    )
+    cursor.execute("INSERT INTO financien (omschrijving, bedrag, type) VALUES (?, ?, ?)", (omschrijving, bedrag, transactie_type))
     conn.commit()
     conn.close()
-    
     return jsonify({"message": "Transactie succesvol toegevoegd!"}), 201
+
+# NIEUW: Haal de lijst met alle transacties op
+@dash_bp.route('/api/transacties', methods=['GET'])
+def get_transacties():
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    # Sorteer op id DESC (nieuwste bovenaan)
+    cursor.execute("SELECT omschrijving, bedrag, type FROM financien ORDER BY id DESC")
+    rows = cursor.fetchall()
+    conn.close()
+    
+    # Maak er een handige lijst van voor JavaScript
+    transacties = [{"omschrijving": r[0], "bedrag": r[1], "type": r[2]} for r in rows]
+    return jsonify(transacties), 200
+
+# ==========================================
+# PLOEGEN ENDPOINTS
+# ==========================================
+
+# 1. Haal alle ingeschreven ploegen op
+@dash_bp.route('/api/ploegen', methods=['GET'])
+def get_ploegen():
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    # Sorteer alfabetisch op naam
+    cursor.execute("SELECT naam, niveau FROM ploegen ORDER BY naam ASC")
+    rows = cursor.fetchall()
+    conn.close()
+    
+    ploegen = [{"naam": r[0], "niveau": r[1]} for r in rows]
+    return jsonify(ploegen), 200
+
+# 2. Schrijf een nieuwe ploeg in
+@dash_bp.route('/api/ploegen', methods=['POST'])
+def add_ploeg():
+    data = request.json
+    naam = data.get('naam')
+    niveau = data.get('niveau')
+
+    if not naam or not niveau:
+        return jsonify({"error": "Vul de naam en het niveau in."}), 400
+
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO ploegen (naam, niveau) VALUES (?, ?)", (naam, niveau))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": f"Ploeg '{naam}' is succesvol ingeschreven!"}), 201

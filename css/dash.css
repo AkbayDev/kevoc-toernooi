@@ -7,7 +7,7 @@
 }
 
 body {
-    background-color: #f4f6f9;
+    
     color: #333;
     padding-bottom: 50px;
 }
@@ -202,3 +202,44 @@ nav ul li a:hover {
     .header-container { flex-direction: column; gap: 10px; }
     nav ul { flex-wrap: wrap; justify-content: center; }
 }
+
+/* --- Grafiek Styling --- */
+.chart-wrapper {
+    position: relative;
+    height: 250px;
+    width: 250px;
+    margin: 0 auto; /* Centreert de grafiek */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chart-center-text {
+    position: absolute;
+    font-size: 24px;
+    font-weight: bold;
+    pointer-events: none; /* Zorgt dat je nog over de grafiek kunt hoveren */
+}
+
+/* --- Transactielijst Styling --- */
+.btn-secondary {
+    background-color: #7f8c8d;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.btn-secondary:hover { background-color: #95a5a6; }
+
+.transactie-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+}
+
+.text-green { color: #27ae60; font-weight: bold; }
+.text-red { color: #e74c3c; font-weight: bold; }

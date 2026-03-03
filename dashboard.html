@@ -26,14 +26,6 @@
         </div>
     </header>
 
-    <div class="dev-tools">
-        <label>🛠 Test Weergave als: </label>
-        <select id="role-tester">
-            <option value="gebruiker">Normale Gebruiker</option>
-            <option value="beheerder">Beheerder</option>
-        </select>
-    </div>
-
     <main class="dashboard-layout">
 
         <section class="dash-card" data-role="all" id="scores">
@@ -55,16 +47,23 @@
         </section>
 
         <section class="dash-card" data-role="all" id="ploeg-inschrijven">
-            <h2>📝 Ploeg Inschrijven</h2>
-            <form class="dash-form" onsubmit="event.preventDefault();">
-                <input type="text" placeholder="Naam van de ploeg" required>
-                <select required>
+            <h2>📝 Ploegen & Inschrijven</h2>
+            
+            <form class="dash-form" id="form-ploeg" style="margin-bottom: 15px;">
+                <input type="text" id="ploeg-naam" placeholder="Naam van de ploeg" required>
+                <select id="ploeg-niveau" required>
                     <option value="" disabled selected>Kies niveau...</option>
-                    <option value="recreatief">Recreatief</option>
-                    <option value="competitie">Competitie</option>
+                    <option value="Recreatief">Recreatief</option>
+                    <option value="Competitie">Competitie</option>
                 </select>
                 <button type="submit" class="btn-primary">Schrijf Ploeg In</button>
             </form>
+            
+            <div id="ploeg-msg" style="margin-bottom: 20px; font-weight: bold; font-size: 14px;"></div>
+
+            <h3 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; color: #2c3e50;">Ingeschreven Ploegen</h3>
+            <ul class="task-list" id="ploegen-lijst">
+                </ul>
         </section>
 
         <section class="dash-card" data-role="all" id="hulp-inschrijven">
@@ -110,19 +109,28 @@
 
         <section class="dash-card admin-card hidden" data-role="beheerder" id="financien">
             <h2>💰 Financiën & Kasboek</h2>
-            <div class="finance-grid">
-                <div class="finance-box green">Inkomsten: € 1.250,00</div>
-                <div class="finance-box red">Kosten: € 430,00</div>
+            
+            <div class="chart-wrapper">
+                <canvas id="financeChart"></canvas>
+                <div id="chart-center-text" class="chart-center-text">€ 0.00</div>
             </div>
-            <form class="dash-form" style="margin-top: 15px;" onsubmit="event.preventDefault();">
-                <input type="text" placeholder="Omschrijving (bijv. Drank aankoop)" required>
-                <input type="number" placeholder="Bedrag in €" required>
-                <select>
+
+            <form class="dash-form" id="form-finance" style="margin-top: 15px;">
+                <input type="text" id="fin-omschrijving" placeholder="Omschrijving (bijv. Drank aankoop)" required>
+                <input type="number" id="fin-bedrag" step="0.01" placeholder="Bedrag in €" required>
+                <select id="fin-type" required>
                     <option value="inkomst">Inkomst</option>
                     <option value="kost">Kost / Uitgave</option>
                 </select>
                 <button type="submit" class="btn-primary">Boeking Toevoegen</button>
             </form>
+            <div id="finance-msg" style="margin-top: 10px; font-weight: bold; font-size: 14px;"></div>
+
+            <button id="btn-toggle-transacties" class="btn-secondary" style="margin-top: 15px; width: 100%;">Bekijk Alle Transacties</button>
+            <div id="transacties-lijst" class="hidden" style="margin-top: 10px;">
+                <ul class="task-list" id="transacties-ul">
+                    </ul>
+            </div>
         </section>
 
     </main>
