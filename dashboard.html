@@ -10,7 +10,7 @@
     <header>
         <div class="header-container">
             <div class="logo-area">
-                <h1 class="logo-text">🏐 KEVOC</h1>
+                <img src="img/logo.png" alt="Logo" class="logo">    
             </div>
             <nav>
                 <ul>
@@ -29,7 +29,7 @@
     <main class="dashboard-layout">
 
         <section class="dash-card" data-role="all" id="scores">
-            <h2>🏆 Actuele Scores</h2>
+            <h2>Actuele Scores</h2>
             <p>Hier komen de live scores van de gespeelde wedstrijden.</p>
             <table class="data-table">
                 <tr><th>Thuis</th><th>Uit</th><th>Uitslag</th></tr>
@@ -38,7 +38,7 @@
         </section>
 
         <section class="dash-card" data-role="all" id="wedstrijden">
-            <h2>📅 Wedstrijd Rooster</h2>
+            <h2>Wedstrijd Rooster</h2>
             <p>Overzicht van welk team op welk veld speelt en in welk tijdslot.</p>
             <table class="data-table">
                 <tr><th>Tijd</th><th>Veld</th><th>Match</th></tr>
@@ -47,7 +47,7 @@
         </section>
 
         <section class="dash-card" data-role="all" id="ploeg-inschrijven">
-            <h2>📝 Ploegen & Inschrijven</h2>
+            <h2>Ploegen & Inschrijven</h2>
             
             <form class="dash-form" id="form-ploeg" style="margin-bottom: 15px;">
                 <input type="text" id="ploeg-naam" placeholder="Naam van de ploeg" required>
@@ -67,7 +67,7 @@
         </section>
 
         <section class="dash-card" data-role="all" id="hulp-inschrijven">
-            <h2>🤝 Inschrijven als Vrijwilliger / Scheids</h2>
+            <h2>Inschrijven als Vrijwilliger / Scheids</h2>
             <form class="dash-form" onsubmit="event.preventDefault();">
                 <input type="text" placeholder="Jouw naam" required>
                 <select required>
@@ -80,7 +80,7 @@
         </section>
 
         <section class="dash-card" data-role="all" id="werkrooster">
-            <h2>📋 Werk Rooster</h2>
+            <h2>Werk Rooster</h2>
             <p>Wie fluit welke match? Wie staat er achter de toog?</p>
             <ul class="task-list">
                 <li><strong>10:00 - 12:00:</strong> Jan & Mieke (Toog)</li>
@@ -89,7 +89,7 @@
         </section>
 
         <section class="dash-card admin-card hidden" data-role="beheerder" id="checklist">
-            <h2>✅ Organisatie Checklist</h2>
+            <h2>Organisatie Checklist</h2>
             <p>Wat moet er nog gebeuren voor en tijdens het toernooi?</p>
             <ul class="task-list">
                 <li><input type="checkbox"> Netten spannen veld 1 t/m 4</li>
@@ -99,16 +99,16 @@
         </section>
 
         <section class="dash-card admin-card hidden" data-role="beheerder" id="acties">
-            <h2>⚡ Openstaande Acties</h2>
+            <h2>Openstaande Acties</h2>
             <p>Organisatorische to-do's (bijv. ploegen nabellen).</p>
             <ul class="task-list">
-                <li>❗️ Team 'De Opslagers' bellen over inschrijvingsgeld</li>
-                <li>❗️ Bekers ophalen bij de leverancier</li>
+                <li>Team 'De Opslagers' bellen over inschrijvingsgeld</li>
+                <li>Bekers ophalen bij de leverancier</li>
             </ul>
         </section>
 
         <section class="dash-card admin-card hidden" data-role="beheerder" id="financien">
-            <h2>💰 Financiën & Kasboek</h2>
+            <h2>Financiën & Kasboek</h2>
             
             <div class="chart-wrapper">
                 <canvas id="financeChart"></canvas>

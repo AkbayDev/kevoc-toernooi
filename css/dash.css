@@ -7,17 +7,36 @@
 }
 
 body {
-    
-    color: #333;
+    color: #111827;
     padding-bottom: 50px;
+    background-image: url('../img/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+/* Overlay zodat kaarten leesbaar blijven op de achtergrond */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 24, 39, 0.45);
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Alles boven de overlay */
+header, .dashboard-layout, .dev-tools {
+    position: relative;
+    z-index: 1;
 }
 
 /* --- Header Styling --- */
 header {
-    background-color: #2c3e50;
-    color: white;
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
     padding: 15px 0;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -33,10 +52,17 @@ header {
 }
 
 .logo-text {
-    font-size: 24px;
-    font-weight: bold;
-    color: #f1c40f;
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
     letter-spacing: 1px;
+}
+
+.logo {
+    display: block;
+    width: 120px;
+    height: auto;
+    margin-top: 0 auto 24px;
 }
 
 nav ul {
@@ -46,14 +72,14 @@ nav ul {
 }
 
 nav ul li a {
-    color: white;
+    color: #000000;
     text-decoration: none;
     font-weight: 500;
-    transition: color 0.3s;
+    transition: color 0.2s ease;
 }
 
 nav ul li a:hover {
-    color: #f1c40f;
+    color: #3a7ee4;
 }
 
 .user-menu {
@@ -63,21 +89,24 @@ nav ul li a:hover {
 }
 
 #logout-btn {
-    background-color: #e74c3c;
-    color: white;
-    border: none;
+    background-color: transparent;
+    color: #9ca3af;
+    border: 1px solid #374151;
     padding: 8px 15px;
-    border-radius: 5px;
+    border-radius: 10px;
     cursor: pointer;
-    font-weight: bold;
-    transition: background 0.3s;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
 }
 
 #logout-btn:hover {
-    background-color: #c0392b;
+    background-color: #3a7ee4;
+    color: #0a0a0a;
+    border-color: #3367af;
 }
 
-/* --- Dev Tools (Test Schakelaar) --- */
+/* --- Dev Tools --- */
 .dev-tools {
     background-color: #fff3cd;
     color: #856404;
@@ -87,37 +116,44 @@ nav ul li a:hover {
     border-bottom: 1px solid #ffeeba;
 }
 
-/* --- Dashboard Layout (Stacked Cards) --- */
+/* --- Dashboard Layout --- */
 .dashboard-layout {
-    max-width: 800px; /* Houdt de kaarten mooi gecentreerd en leesbaar */
+    max-width: 800px;
     margin: 40px auto;
     display: flex;
     flex-direction: column;
-    gap: 25px;
+    gap: 20px;
     padding: 0 20px;
 }
 
 /* --- Card Styling --- */
 .dash-card {
-    background: white;
-    border-radius: 8px;
-    padding: 25px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    transition: transform 0.2s;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.12);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dash-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 35px rgba(17, 24, 39, 0.16);
 }
 
 .dash-card h2 {
-    color: #2c3e50;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
+    color: #111827;
+    border-bottom: 2px solid #f3f4f6;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    font-size: 18px;
+    font-weight: 700;
 }
 
 .admin-card {
-    border-left: 5px solid #f39c12; /* Oranje randje om admin functies te markeren */
+    border-left: 4px solid #111827;
 }
 
-/* --- Tabellen, Lijsten & Formulieren --- */
+/* --- Tabellen --- */
 .data-table {
     width: 100%;
     border-collapse: collapse;
@@ -127,53 +163,95 @@ nav ul li a:hover {
 .data-table th, .data-table td {
     padding: 12px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
 }
 
 .data-table th {
-    background-color: #f8f9fa;
-    color: #2c3e50;
+    background-color: #f9fafb;
+    color: #374151;
+    font-weight: 600;
 }
 
+.data-table tr:hover td {
+    background-color: #f9fafb;
+}
+
+/* --- Formulieren --- */
 .dash-form {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
     margin-top: 15px;
 }
 
 .dash-form input, .dash-form select {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 15px;
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 14px;
+    background: #ffffff;
+    color: #111827;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.dash-form input:focus, .dash-form select:focus {
+    outline: none;
+    border-color: #111827;
+    box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
+}
+
+/* --- Knoppen --- */
 .btn-primary {
-    background-color: #3498db;
+    background-color: #111827;
     color: white;
     border: none;
-    padding: 12px;
-    border-radius: 5px;
+    padding: 12px 16px;
+    border-radius: 10px;
     cursor: pointer;
-    font-weight: bold;
-    font-size: 15px;
+    font-weight: 700;
+    font-size: 14px;
+    transition: background 0.2s ease;
 }
 
-.btn-primary:hover { background-color: #2980b9; }
+.btn-primary:hover {
+    background-color: #1f2937;
+}
 
+.btn-secondary {
+    background-color: transparent;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #f9fafb;
+    border-color: #9ca3af;
+}
+
+/* --- Takenlijst --- */
 .task-list {
     list-style: none;
     margin-top: 10px;
 }
 
 .task-list li {
-    background: #f8f9fa;
+    background: #f9fafb;
     margin-bottom: 8px;
-    padding: 10px;
-    border-radius: 5px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    border: 1px solid #f3f4f6;
 }
 
+/* --- Financiën Grid --- */
 .finance-grid {
     display: flex;
     gap: 15px;
@@ -182,33 +260,28 @@ nav ul li a:hover {
 .finance-box {
     flex: 1;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 12px;
     color: white;
-    font-weight: bold;
+    font-weight: 700;
     text-align: center;
     font-size: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.finance-box.green { background-color: #27ae60; }
-.finance-box.red { background-color: #e74c3c; }
+.finance-box.green { background-color: #059669; }
+.finance-box.red   { background-color: #dc2626; }
 
-/* --- Utility Classes --- */
+/* --- Utility --- */
 .hidden {
     display: none !important;
 }
 
-/* --- Responsive --- */
-@media (max-width: 600px) {
-    .header-container { flex-direction: column; gap: 10px; }
-    nav ul { flex-wrap: wrap; justify-content: center; }
-}
-
-/* --- Grafiek Styling --- */
+/* --- Grafiek --- */
 .chart-wrapper {
     position: relative;
     height: 250px;
     width: 250px;
-    margin: 0 auto; /* Centreert de grafiek */
+    margin: 0 auto;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -218,28 +291,25 @@ nav ul li a:hover {
     position: absolute;
     font-size: 24px;
     font-weight: bold;
-    pointer-events: none; /* Zorgt dat je nog over de grafiek kunt hoveren */
+    pointer-events: none;
+    color: #111827;
 }
 
-/* --- Transactielijst Styling --- */
-.btn-secondary {
-    background-color: #7f8c8d;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.3s;
-}
-
-.btn-secondary:hover { background-color: #95a5a6; }
-
+/* --- Transactielijst --- */
 .transactie-item {
     display: flex;
     justify-content: space-between;
     font-size: 14px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
 }
 
-.text-green { color: #27ae60; font-weight: bold; }
-.text-red { color: #e74c3c; font-weight: bold; }
+.text-green { color: #059669; font-weight: bold; }
+.text-red   { color: #dc2626; font-weight: bold; }
+
+/* --- Responsive --- */
+@media (max-width: 600px) {
+    .header-container { flex-direction: column; gap: 10px; }
+    nav ul { flex-wrap: wrap; justify-content: center; }
+    .finance-grid { flex-direction: column; }
+}
