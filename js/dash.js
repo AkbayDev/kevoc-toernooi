@@ -212,7 +212,7 @@ cards.forEach(card => {
                 const li = document.createElement('li');
                 
                 // Een leuk detail: blauw label voor recreatief, rood voor competitie
-                const badgeColor = p.niveau === 'Competitie' ? '#e74c3c' : '#3498db';
+                const badgeColor = p.niveau === 'senior' ? '#e74c3c' : '#3498db';
                 
                 li.innerHTML = `
                     <strong>${p.naam}</strong> 
@@ -233,6 +233,7 @@ cards.forEach(card => {
             e.preventDefault();
             const naam = document.getElementById('ploeg-naam').value;
             const niveau = document.getElementById('ploeg-niveau').value;
+            const categorie = document.getElementById('ploeg-categorie').value;
 
             ploegMsg.style.color = "#2980b9";
             ploegMsg.textContent = "Bezig met inschrijven...";
@@ -241,7 +242,11 @@ cards.forEach(card => {
                 const res = await fetch(`${CONFIG.apiBaseUrl}/ploegen`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ naam, niveau })
+                    body: JSON.stringify({ 
+                        naam: naam, 
+                        niveau: niveau, 
+                        categorie: categorie 
+                    })
                 });
                 const result = await res.json();
                 

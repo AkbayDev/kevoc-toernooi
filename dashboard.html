@@ -57,8 +57,18 @@
                 <input type="text" id="ploeg-naam" placeholder="Naam van de ploeg" required>
                 <select id="ploeg-niveau" required>
                     <option value="" disabled selected>Kies niveau...</option>
-                    <option value="Recreatief">Recreatief</option>
-                    <option value="Competitie">Competitie</option>
+                    <option value="senior">Senior</option>
+                    <option value="jeugd">Jeugd</option>
+                </select>
+                <select id="ploeg-categorie" required>
+                    <option value="" disabled selected>Kies categorie...</option>
+                    <option value="heren">Heren</option>
+                    <option value="dames">Dames</option>
+                </select>
+                <select id="ploeg-betaalstatus" required>
+                    <option value="" disabled selected>Kies betaalstatus...</option>
+                    <option value="betaald">Betaald</option>
+                    <option value="niet-betaald">Niet betaald</option>
                 </select>
                 <button type="submit" class="btn-primary">Schrijf Ploeg In</button>
             </form>
