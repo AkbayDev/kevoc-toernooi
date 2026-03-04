@@ -61,8 +61,19 @@ def init_db():
                 INSERT OR IGNORE INTO rollen (rol) 
                 VALUES ('beheerder'), ('gebruiker'), ('hulp')
             ''')
+        
+            # 3. maak een vrijwilligers  tabel
+        cursor.execute("""
+                CREATE TABLE IF NOT EXISTS vrijwilligers (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    naam TEXT NOT NULL,
+                    tijdslot TEXT NOT NULL,
+                    job TEXT NOT NULL,
+                    inschrijfdatum  DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
         conn.commit()
-
+          
 init_db()
 
 # --- ROUTES ---

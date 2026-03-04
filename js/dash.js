@@ -225,7 +225,9 @@ cards.forEach(card => {
         } catch (err) { console.error("Fout bij laden ploegen:", err); }
     }
 
-    // Functie: Stuur het formulier door naar Python
+    // ==========================================
+    //  Functie: Stuur het formulier door naar Python
+    // ==========================================
     if (formPloeg) {
         formPloeg.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -258,6 +260,34 @@ cards.forEach(card => {
             }
         });
     }
+
+
+    // ==========================================
+    // VRIJWILLIGERS INSCHRIJVEN LOGICA
+    // ==========================================
+
+    document.querySelector('#hulp-inschrijven form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const naam     = this.querySelector('input').value;
+        const tijdslot = this.querySelectorAll('select')[0].value;
+        const job      = this.querySelectorAll('select')[1].value;
+
+        const response = await fetch('/api/vrijwilligers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ naam, tijdslot, job })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert(result.message);
+            this.reset();
+        } else {
+            alert('Fout: ' + result.error);
+        }
+    });
 
     // Start de applicatie
     laadFinancien();
