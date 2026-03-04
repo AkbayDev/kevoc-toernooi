@@ -5,6 +5,7 @@ import sqlite3
 import random
 import resend
 import contextlib
+from database import get_db_connection  # Importeer je helper
 
 # Importeer de Blueprint vanuit dash.py
 from dash import dash_bp 
@@ -17,16 +18,6 @@ app.register_blueprint(dash_bp)
 DB_NAME = 'users.db'  # Verander dit hier 1x om overal de naam aan te passen
 resend.api_key = "re_123456789_VUL_DIT_IN"
 
-# --- DATABASE HELPER ---
-@contextlib.contextmanager
-def get_db_connection():
-    """Beheert de database connectie en sluit deze automatisch af."""
-    conn = sqlite3.connect(DB_NAME)
-    conn.row_factory = sqlite3.Row  # Zorgt dat we resultaten als dicts kunnen lezen
-    try:
-        yield conn
-    finally:
-        conn.close()
 
 def init_db():
     with get_db_connection() as conn:
@@ -38,6 +29,8 @@ def init_db():
             role TEXT NOT NULL, 
             reset_code TEXT
         )''')
+        
+          
         cursor.execute('''CREATE TABLE IF NOT EXISTS financien (
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             omschrijving TEXT NOT NULL, 
@@ -48,6 +41,7 @@ def init_db():
         cursor.execute('''CREATE TABLE IF NOT EXISTS ploegen (
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             ploeg TEXT NOT NULL, 
+            betaalstatus TEXT NOT NULL,
             niveau TEXT NOT NULL,
             categorie TEXT NOT NULL
         )''')
@@ -61,6 +55,7 @@ def init_db():
                 INSERT OR IGNORE INTO rollen (rol) 
                 VALUES ('beheerder'), ('gebruiker'), ('hulp')
             ''')
+        
         
             # 3. maak een vrijwilligers  tabel
         cursor.execute("""
