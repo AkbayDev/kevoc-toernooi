@@ -109,5 +109,36 @@ def add_vrijwilliger():
     cursor.execute("INSERT INTO vrijwilligers (naam, tijdslot, job) VALUES (?, ?, ?)", (naam, tijdslot, job))
     conn.commit()
     conn.close()
-
+    
     return jsonify({"message": f"{naam} is succesvol ingeschreven!"}), 201
+
+#---------------------------------------------
+# vrijwilliger status update endpoint
+#---------------------------------------------
+
+@dash_bp.route('/api/vrijwilligers/<int:id>/status', methods=['PATCH'])
+def update_vrijwilliger_status(id):
+    data = request.json
+    status = data.get('status')
+
+    if status not in ('afwachting', 'geaccepteerd', 'geweigerd'):
+        return jsonify({"error": "Ongeldige status."}), 400
+
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute("UPDATE vrijwilligers SET status = ? WHERE id = ?", (status, id))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": "Status bijgewerkt."}), 200
+
+@dash_bp.route('/api/vrijwilligers', methods=['GET'])
+def get_vrijwilligers():
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, naam, tijdslot, job, status FROM vrijwilligers ORDER BY id DESC")
+    rows = cursor.fetchall()
+    conn.close()
+
+    vrijwilligers = [{"id": r[0], "naam": r[1], "tijdslot": r[2], "job": r[3], "status": r[4]} for r in rows]
+    return jsonify(vrijwilligers), 200
