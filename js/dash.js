@@ -271,28 +271,43 @@ cards.forEach(card => {
     // VRIJWILLIGERS INSCHRIJVEN LOGICA
     // ==========================================
 
-    document.querySelector('#hulp-inschrijven form').addEventListener('submit', async function(e) {
-        e.preventDefault();
+        if (formVrijwilligers) {
+        formVrijwilligers.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const naam = document.getElementById('vrijwilliger-naam').value;
+            const tijdslot = document.getElementById('vrijwilliger-tijdslot').value;
+            const job = document.getElementById('vrijwilliger-job').value;
 
-        const naam     = this.querySelector('input').value;
-        const tijdslot = this.querySelectorAll('select')[0].value;
-        const job      = this.querySelectorAll('select')[1].value;
+            ploegMsg.style.color = "#2980b9";
+            ploegMsg.textContent = "Bezig met inschrijven...";
 
-        const response = await fetch('/api/vrijwilligers', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ naam, tijdslot, job })
+            try {
+                const res = await fetch(`${CONFIG.apiBaseUrl}/ploegen`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        naam: naam, 
+                        niveau: niveau, 
+                        categorie: categorie 
+                    })
+                });
+                const result = await res.json();
+                
+                if (!res.ok) throw new Error(result.error);
+
+                ploegMsg.style.color = "#27ae60";
+                ploegMsg.textContent = result.message;
+                formPloeg.reset(); // Maak invulvelden leeg
+                
+                laadPloegen(); // Herlaad direct de HTML lijst!
+                
+                setTimeout(() => ploegMsg.textContent = "", 3000);
+            } catch (err) {
+                ploegMsg.style.color = "#e74c3c";
+                ploegMsg.textContent = err.message;
+            }
         });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            alert(result.message);
-            this.reset();
-        } else {
-            alert('Fout: ' + result.error);
-        }
-    });
+    }
 
     // Start de applicatie
     laadFinancien();
