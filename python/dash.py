@@ -49,32 +49,42 @@ def get_transacties():
 # ==========================================
 
 # 1. Haal alle ingeschreven ploegen op
+# 1. Haal alle ingeschreven ploegen op
 @dash_bp.route('/api/ploegen', methods=['GET'])
 def get_ploegen():
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
-    # Sorteer alfabetisch op naam
-    cursor.execute("SELECT naam, niveau FROM ploegen ORDER BY naam ASC")
+    
+    # FOUT was: SELECT naam, niveau... ORDER BY naam
+    # GOED is:
+    cursor.execute("SELECT ploeg, niveau FROM ploegen ORDER BY ploeg ASC")
     rows = cursor.fetchall()
     conn.close()
     
+    # We sturen het wel als 'naam' terug naar JavaScript, want daar verwacht je JS code dat (p.naam)
     ploegen = [{"naam": r[0], "niveau": r[1]} for r in rows]
     return jsonify(ploegen), 200
 
+
 # 2. Schrijf een nieuwe ploeg in
+
 @dash_bp.route('/api/ploegen', methods=['POST'])
 def add_ploeg():
     data = request.json
+    
+    # Gebruik de sleutels die vanuit JavaScript gestuurd worden
     naam = data.get('naam')
     niveau = data.get('niveau')
     categorie = data.get('categorie')
 
-    if not naam or not niveau:
-        return jsonify({"error": "Vul de naam en het niveau in."}), 400
+    # Voeg ook validatie toe voor categorie
+    if not naam or not niveau or not categorie:
+        return jsonify({"error": "Vul alle velden in."}), 400
 
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO ploegen (naam, niveau,categorie) VALUES (?, ?, ?)", (naam, niveau, categorie))
+    # In de database heet de kolom 'ploeg', dat is prima
+    cursor.execute("INSERT INTO ploegen (ploeg, niveau, categorie) VALUES (?, ?, ?)", (naam, niveau, categorie))
     conn.commit()
     conn.close()
 

@@ -240,7 +240,11 @@ cards.forEach(card => {
                 const res = await fetch(`${CONFIG.apiBaseUrl}/ploegen`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ naam, niveau })
+                    body: JSON.stringify({ 
+                        naam: naam, 
+                        niveau: niveau, 
+                        categorie: categorie 
+                    })
                 });
                 const result = await res.json();
                 
