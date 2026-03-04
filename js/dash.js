@@ -19,15 +19,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Pas interface aan op basis van rol
-    userDisplay.textContent = `Welkom, ${currentRole === 'beheerder' ? 'Beheerder' : 'Gebruiker'}`;
-    cards.forEach(card => {
-        const requiredRole = card.getAttribute('data-role');
-        if (requiredRole === 'all' || requiredRole === currentRole) {
-            card.classList.remove('hidden');
-        } else {
-            card.classList.add('hidden');
-        }
-    });
+  // 1. Maak een vertaalsetje voor de weergave van de namen
+const roleTranslations = {
+    'beheerder': 'Beheerder',
+    'hulp': 'Hulpverlener',
+    'gebruiker': 'Gebruiker'
+};
+
+// 2. Pas de welkomsttekst aan (gebruik de vertaling of 'Gast' als de rol onbekend is)
+const displayName = roleTranslations[currentRole] || 'Gast';
+userDisplay.textContent = `Welkom, ${displayName}`;
+
+// 3. Filter de kaarten
+cards.forEach(card => {
+    const requiredRole = card.getAttribute('data-role');
+    
+    // De kaart is zichtbaar als:
+    // - De rol 'all' is
+    // - OF de rol exact overeenkomt met de huidige gebruiker
+    if (requiredRole === 'all' || requiredRole === currentRole) {
+        card.classList.remove('hidden');
+    } else {
+        card.classList.add('hidden');
+    }
+});
 
     // Uitloggen
     logoutBtn.addEventListener('click', () => {
