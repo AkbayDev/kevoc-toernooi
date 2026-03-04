@@ -51,7 +51,6 @@ def init_db():
             niveau TEXT NOT NULL,
             categorie TEXT NOT NULL
         )''')
-        
         cursor.execute('''CREATE TABLE IF NOT EXISTS rollen (
                 id INTEGER PRIMARY KEY AUTOINCREMENT, 
                 rol TEXT UNIQUE NOT NULL

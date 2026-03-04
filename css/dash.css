@@ -51,6 +51,64 @@ header {
     padding: 0 20px;
 }
 
+/* --- Dashboard Footer Styling --- */
+.dashboard-footer {
+    background-color: rgba(0, 0, 0, 0.3); /* Zelfde transparantie als containers */
+    color: white;
+    padding: 20px 0;
+    margin-top: 40px;
+    border-top: 2px solid #3498db; /* Accentkleur van het dashboard */
+    width: 100%;
+    border-radius: 8px 8px 0 0;
+    backdrop-filter: blur(10px);
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.footer-content p {
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+.footer-links a {
+    color: #3498db; /* Accentkleur voor links */
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 0.9em;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: #2980b9; /* Donkerdere blauw op hover */
+    text-decoration: underline;
+}
+
+/* Kleur voor het specifieke woord in de footer */
+#brand-name {
+    color: #3498db; /* De blauwe accentkleur van je dashboard */
+    font-weight: bold; /* Optioneel: maakt het woord ook dikgedrukt */
+}
+
+/* Responsieve footer voor mobiel */
+@media screen and (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .footer-links a {
+        margin: 0 10px;
+    }
+}
+
 .logo-text {
     font-size: 22px;
     font-weight: 700;
