@@ -78,3 +78,36 @@ def add_ploeg():
     conn.close()
 
     return jsonify({"message": f"Ploeg '{naam}' is succesvol ingeschreven!"}), 201
+
+# ==========================================
+# VRIJWILLIGERS ENDPOINTS
+# ==========================================
+
+@dash_bp.route('/api/vrijwilligers', methods=['GET'])
+def get_vrijwilligers():
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT naam, tijdslot, job FROM vrijwilligers ORDER BY id DESC")
+    rows = cursor.fetchall()
+    conn.close()
+
+    vrijwilligers = [{"naam": r[0], "tijdslot": r[1], "job": r[2]} for r in rows]
+    return jsonify(vrijwilligers), 200
+
+@dash_bp.route('/api/vrijwilligers', methods=['POST'])
+def add_vrijwilliger():
+    data = request.json
+    naam = data.get('naam')
+    tijdslot = data.get('tijdslot')
+    job = data.get('job')
+
+    if not naam or not tijdslot or not job:
+        return jsonify({"error": "Vul alle velden in."}), 400
+
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO vrijwilligers (naam, tijdslot, job) VALUES (?, ?, ?)", (naam, tijdslot, job))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": f"{naam} is succesvol ingeschreven!"}), 201

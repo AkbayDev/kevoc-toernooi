@@ -46,6 +46,10 @@
             </table>
         </section>
 
+        <! #--------------------------
+            # PLOEG INSCHRIJVEN
+            #-------------------------- -!> 
+
         <section class="dash-card" data-role="all" id="ploeg-inschrijven">
             <h2>Ploegen & Inschrijven</h2>
             
@@ -65,12 +69,23 @@
             <ul class="task-list" id="ploegen-lijst">
                 </ul>
         </section>
+        
+        <! #---------------------------------
+            # VRIJWILLIGERS INSCHRIJVEN
+            #--------------------------------- -!>
 
-        <section class="dash-card" data-role="all" id="hulp-inschrijven">
+       <section class="dash-card" data-role="all" id="hulp-inschrijven">
             <h2>Inschrijven als Vrijwilliger / Scheids</h2>
-            <form class="dash-form" onsubmit="event.preventDefault();">
+            <form class="dash-form">
                 <input type="text" placeholder="Jouw naam" required>
                 <select required>
+                    <option value="" disabled selected>Kies een tijdslot</option>
+                    <option value="voormiddag">Voormiddag</option>
+                    <option value="namiddag">Namiddag</option>
+                    <option value="hele_dag">Hele dag</option>
+                </select>
+                <select required>
+                    <option value="" disabled selected>Kies een job</option>
                     <option value="scheids">Scheidsrechter</option>
                     <option value="opbouw">Helpen Klaarzetten / Opbouw</option>
                     <option value="toog">Toog / Catering</option>
@@ -87,6 +102,10 @@
                 <li><strong>11:00 - Veld 2:</strong> Tom (Scheidsrechter)</li>
             </ul>
         </section>
+
+        <! #---------------------------------
+            # BEHEERDER SPECIFIEKE SECTIES
+            #--------------------------------- -!>
 
         <section class="dash-card admin-card hidden" data-role="beheerder" id="checklist">
             <h2>Organisatie Checklist</h2>
@@ -106,6 +125,10 @@
                 <li>Bekers ophalen bij de leverancier</li>
             </ul>
         </section>
+
+        <!  #--------------------------
+            # FINANCIËN
+            #-------------------------- -!>
 
         <section class="dash-card admin-card hidden" data-role="beheerder" id="financien">
             <h2>Financiën & Kasboek</h2>
