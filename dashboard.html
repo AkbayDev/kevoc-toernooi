@@ -86,15 +86,15 @@
 
        <section class="dash-card" data-role="all" id="hulp-inschrijven">
             <h2>Inschrijven als Vrijwilliger / Scheids</h2>
-            <form class="dash-form">
-                <input type="text" placeholder="Jouw naam" required>
-                <select required>
+            <form class="dash-form" id="form-vrijwilliger">
+                <input type="text" id="vrijwilliger-naam" placeholder="Jouw naam" required>
+                <select id="vrijwilliger-tijdslot" required>
                     <option value="" disabled selected>Kies een tijdslot</option>
                     <option value="voormiddag">Voormiddag</option>
                     <option value="namiddag">Namiddag</option>
                     <option value="hele_dag">Hele dag</option>
                 </select>
-                <select required>
+                <select id="vrijwilliger-job" required>
                     <option value="" disabled selected>Kies een job</option>
                     <option value="scheids">Scheidsrechter</option>
                     <option value="opbouw">Helpen Klaarzetten / Opbouw</option>
