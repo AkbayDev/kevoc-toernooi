@@ -47,7 +47,7 @@ def init_db():
         )''')
         cursor.execute('''CREATE TABLE IF NOT EXISTS ploegen (
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            ploeg TEXT NOT NULL, 
+            naam TEXT NOT NULL, 
             niveau TEXT NOT NULL,
             categorie TEXT NOT NULL
         )''')

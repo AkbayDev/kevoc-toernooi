@@ -67,13 +67,14 @@ def add_ploeg():
     data = request.json
     naam = data.get('naam')
     niveau = data.get('niveau')
+    categorie = data.get('categorie')
 
     if not naam or not niveau:
         return jsonify({"error": "Vul de naam en het niveau in."}), 400
 
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO ploegen (naam, niveau) VALUES (?, ?)", (naam, niveau))
+    cursor.execute("INSERT INTO ploegen (naam, niveau,categorie) VALUES (?, ?, ?)", (naam, niveau, categorie))
     conn.commit()
     conn.close()
 
