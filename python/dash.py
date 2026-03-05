@@ -67,20 +67,19 @@ def get_transacties():
 def get_ploegen():
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT ploeg, niveau FROM ploegen ORDER BY ploeg ASC")
+        cursor.execute("SELECT * FROM ploegen")
         rows = cursor.fetchall()
     
-    ploegen = [{"naam": r["ploeg"], "niveau": r["niveau"], "betaalstatus": r["betaalstatus"]} for r in rows]
+    ploegen = [{"naam": r["ploeg"], "niveau": r["niveau"],"categorie": r["categorie"], "betaalstatus": r["betaalstatus"]} for r in rows]
     return jsonify(ploegen), 200
 
 
 @dash_bp.route('/api/ploegen', methods=['POST'])
 def add_ploeg():
-    data = request.json
-    naam = data.get('naam')
-    niveau = data.get('niveau')
-    categorie = data.get('categorie')
-    betaalstatus = data.get('betaalstatus')
+    naam = request.json.get('naam')
+    niveau = request.json.get('niveau')
+    categorie = request.json.get('categorie')
+    betaalstatus = request.json.get('betaalstatus')
 
     if not naam or not niveau or not categorie:
         return jsonify({"error": "Vul alle velden in."}), 400
