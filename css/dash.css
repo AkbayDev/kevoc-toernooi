@@ -309,6 +309,18 @@ nav ul li a:hover {
     border: 1px solid #f3f4f6;
 }
 
+/* --- StatusBadges --- */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.status-afwachting  { background-color: #fef3c7; color: #9e430a; }
+.status-geaccepteerd { background-color: #d1fae5; color: #065f46; }
+.status-geweigerd   { background-color: #fee2e2; color: #991b1b; }
+
 /* --- Financiën Grid --- */
 .finance-grid {
     display: flex;
