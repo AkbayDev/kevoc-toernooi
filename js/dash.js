@@ -235,6 +235,7 @@ cards.forEach(card => {
             const naam = document.getElementById('ploeg-naam').value;
             const niveau = document.getElementById('ploeg-niveau').value;
             const categorie = document.getElementById('ploeg-categorie').value;
+            const betaalstatus = document.getElementById('ploeg-betaalstatus').value;
 
             ploegMsg.style.color = "#2980b9";
             ploegMsg.textContent = "Bezig met inschrijven...";
@@ -246,7 +247,8 @@ cards.forEach(card => {
                     body: JSON.stringify({ 
                         naam: naam, 
                         niveau: niveau, 
-                        categorie: categorie 
+                        categorie: categorie, 
+                        betaalstatus: betaalstatus
                     })
                 });
                 const result = await res.json();
@@ -271,6 +273,8 @@ cards.forEach(card => {
     // ==========================================
     // VRIJWILLIGERS INSCHRIJVEN LOGICA
     // ==========================================
+
+        const formVrijwilligers = document.getElementById('form-vrijwilligers');
 
         if (formVrijwilligers) {
         formVrijwilligers.addEventListener('submit', async (e) => {
@@ -308,6 +312,81 @@ cards.forEach(card => {
                 ploegMsg.textContent = err.message;
             }
         });
+
+        // ==========================================
+    // WEDSTRIJD ROOSTER LOGICA
+    // ==========================================
+    const btnGenereerRooster = document.getElementById('btn-genereer-rooster');
+    const roosterMsg = document.getElementById('rooster-msg');
+    const roosterTbody = document.getElementById('rooster-tbody');
+    const adminRoosterControls = document.getElementById('admin-rooster-controls');
+
+    // Toon de 'Genereer' knop alleen als de ingelogde user een beheerder is
+    if (currentRole === 'beheerder' && adminRoosterControls) {
+        adminRoosterControls.classList.remove('hidden');
+    }
+
+    // Functie: Haal het huidige opgeslagen rooster op uit Python
+    async function laadRooster() {
+        if (!roosterTbody) return;
+        try {
+            const res = await fetch(`${CONFIG.apiBaseUrl}/rooster`);
+            const data = await res.json();
+
+            roosterTbody.innerHTML = ''; // Maak tabel eerst leeg
+
+            if (data.length === 0) {
+                roosterTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Het toernooischema is nog niet gegenereerd.</td></tr>';
+                return;
+            }
+
+            // Loop door alle wedstrijden en bouw de tabel op
+            data.forEach(match => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${match.starttijd}</strong><br><span style="font-size:12px; color:#7f8c8d;">Ronde ${match.ronde}</span></td>
+                    <td><span style="background-color: #3498db; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">${match.reeks}</span></td>
+                    <td><strong>Veld ${match.veld}</strong></td>
+                    <td>${match.thuis_ploeg} <br> <span style="font-size:10px; color:#95a5a6;">vs</span> <br> ${match.uit_ploeg}</td>
+                    <td><em>${match.scheidsrechter || '-'}</em></td>
+                `;
+                roosterTbody.appendChild(tr);
+            });
+        } catch (err) {
+            console.error("Fout bij laden rooster:", err);
+            roosterTbody.innerHTML = '<tr><td colspan="5" style="color:#e74c3c; text-align:center;">Fout bij ophalen rooster.</td></tr>';
+        }
+    }
+
+    // Functie: Stuur opdracht naar Python om het algoritme te laten lopen
+    if (btnGenereerRooster) {
+        btnGenereerRooster.addEventListener('click', async () => {
+            btnGenereerRooster.disabled = true; // Blokkeer knop tijdelijk tegen dubbelklikken
+            roosterMsg.style.color = "#2980b9";
+            roosterMsg.textContent = "Aan het puzzelen... 🧩";
+
+            try {
+                const res = await fetch(`${CONFIG.apiBaseUrl}/rooster/genereer`, {
+                    method: 'POST'
+                });
+                const result = await res.json();
+
+                if (!res.ok) throw new Error(result.error);
+
+                roosterMsg.style.color = "#27ae60";
+                roosterMsg.textContent = result.message;
+
+                laadRooster(); // Herlaad de HTML tabel direct!
+
+                setTimeout(() => roosterMsg.textContent = "", 4000);
+            } catch (err) {
+                roosterMsg.style.color = "#e74c3c";
+                roosterMsg.textContent = err.message;
+            } finally {
+                btnGenereerRooster.disabled = false; // Zet knop weer aan
+            }
+        });
+    }
     }
 
     // ==========================================
@@ -360,4 +439,5 @@ laadVrijwilligers();
     // Start de applicatie
     laadFinancien();
     laadPloegen();
+    laadRooster();
 });
