@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const CONFIG = { apiBaseUrl: 'http://127.0.0.1:5000/api' };
+   const CONFIG = { apiBaseUrl: 'http://127.0.0.1:5000/api' };
 
     const cards = document.querySelectorAll('.dash-card');
     const userDisplay = document.getElementById('user-display');
@@ -195,6 +195,7 @@ cards.forEach(card => {
     const formPloeg = document.getElementById('form-ploeg');
     const ploegMsg = document.getElementById('ploeg-msg');
     const ploegenLijst = document.getElementById('ploegen-lijst');
+   
 
     // Functie: Haal de ploegen op en toon ze
     async function laadPloegen() {
@@ -274,28 +275,37 @@ cards.forEach(card => {
     // ==========================================
     // VRIJWILLIGERS INSCHRIJVEN LOGICA
     // ==========================================
-
+        
         const formVrijwilligers = document.getElementById('form-vrijwilligers');
 
         if (formVrijwilligers) {
-        formVrijwilligers.addEventListener('submit', async (e) => {
+            formVrijwilligers.addEventListener('submit', async (e) => {
             e.preventDefault();
             const naam = document.getElementById('vrijwilliger-naam').value;
             const tijdslot = document.getElementById('vrijwilliger-tijdslot').value;
             const job = document.getElementById('vrijwilliger-job').value;
 
-            ploegMsg.style.color = "#2980b9";
-            ploegMsg.textContent = "Bezig met inschrijven...";
+        
 
             try {
+                const res = await fetch(`${CONFIG.apiBaseUrl}/vrijwilligers`, {
                 const res = await fetch(`${CONFIG.apiBaseUrl}/vrijwilligers`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         naam: naam, 
                         tijdslot: tijdslot, 
+                        job: job
+                        tijdslot: tijdslot, 
                         job: job 
                     })
+                });
+                
+
+                
+                } catch (err) {
+                    console.error("Fout bij inschrijven vrijwilliger:", err);
+                }
                 });                
                 
             } catch (err) {
@@ -442,7 +452,7 @@ cards.forEach(card => {
     // ==========================================
 
     async function laadVrijwilligers() {
-    const response = await fetch('/api/vrijwilligers');
+    const response = await fetch(`${CONFIG.apiBaseUrl}/vrijwilligers`);
     const data = await response.json();
 
     const tbody = document.getElementById('vrijwilligers-lijst');
@@ -467,7 +477,7 @@ cards.forEach(card => {
 }
 
     async function wijzigStatus(id, status) {
-        const response = await fetch(`/api/vrijwilligers/${id}/status`, {
+        const response = await fetch(`${CONFIG.apiBaseUrl}/vrijwilligers/${id}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status })

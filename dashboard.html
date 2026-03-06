@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KEVOC | Dashboard</title>
     <link rel="stylesheet" href="css/dash.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
@@ -86,7 +87,7 @@
 
        <section class="dash-card" data-role="all" id="hulp-inschrijven">
             <h2>Inschrijven als Vrijwilliger / Scheids</h2>
-            <form class="dash-form" id="form-vrijwilliger">
+            <form class="dash-form" id="form-vrijwilligers">
                 <input type="text" id="vrijwilliger-naam" placeholder="Jouw naam" required>
                 <select id="vrijwilliger-tijdslot" required>
                     <option value="" disabled selected>Kies een tijdslot</option>
@@ -118,7 +119,7 @@
             # BEHEERDER overzicht vrijwilligers lijst
             #------------------------------------------ -!>
 
-        <section class="dash-card admin-card" data-role="admin" id="vrijwilligers-overzicht">
+        <section class="dash-card beheerder-card" data-role="beheerder" id="vrijwilligers-overzicht">
             <h2>Vrijwilligers Overzicht</h2>
             <table class="data-table">
                 <thead>

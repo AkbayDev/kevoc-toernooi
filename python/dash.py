@@ -101,10 +101,10 @@ def add_ploeg():
 def get_vrijwilligers():
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT naam, tijdslot, job FROM vrijwilligers ORDER BY id DESC")
+        cursor.execute("SELECT id, naam, tijdslot, job FROM vrijwilligers ORDER BY id DESC")
         rows = cursor.fetchall()
 
-    vrijwilligers = [{"naam": r["naam"], "tijdslot": r["tijdslot"], "job": r["job"]} for r in rows]
+    vrijwilligers = [{"id": r["id"], "naam": r["naam"], "tijdslot": r["tijdslot"], "job": r["job"],} for r in rows]
     return jsonify(vrijwilligers), 200
 
 
@@ -127,3 +127,16 @@ def add_vrijwilliger():
         conn.commit()
 
     return jsonify({"message": f"{naam} is succesvol ingeschreven!"}), 201
+
+@dash_bp.route('/api/vrijwilligers/<int:id>/status', methods=['PATCH'])
+def update_vrijwilliger_status(id):
+    new_status = request.json.get('status')
+    if new_status not in ['geaccepteerd', 'afgewezen', 'in behandeling']:
+        return jsonify({"error": "Ongeldige status."}), 400
+
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE vrijwilligers SET status = ? WHERE id = ?", (new_status, id))
+        conn.commit()
+
+    return jsonify({"message": "Status succesvol bijgewerkt!"}), 200

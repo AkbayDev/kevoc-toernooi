@@ -207,7 +207,7 @@ nav ul li a:hover {
     font-weight: 700;
 }
 
-.admin-card {
+.beheerder-card {
     border-left: 4px solid #111827;
 }
 
@@ -257,7 +257,7 @@ nav ul li a:hover {
 .dash-form input:focus, .dash-form select:focus {
     outline: none;
     border-color: #111827;
-    box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
+    box-shadow: 0 0 0 3px rgba(252, 253, 255, 0.08);
 }
 
 /* --- Knoppen --- */
