@@ -64,7 +64,7 @@ def init_db():
                     naam TEXT NOT NULL,
                     tijdslot TEXT NOT NULL,
                     job TEXT NOT NULL,
-                    status TEXT DEFAULT 'afwachtend',
+                    status TEXT NOT NULL DEFAULT 'afwachtend',
                     inschrijfdatum  DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
             """)
