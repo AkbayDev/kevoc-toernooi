@@ -5,24 +5,20 @@ import sqlite3
 import random
 import resend
 import contextlib
+import os
 from database import get_db_connection  # Importeer je helper
 
 # Importeer de Blueprint vanuit dash.py
-from dash import dash_bp 
+from dash import dash_bp
 
 app = Flask(__name__)
-CORS(app) # Activeer CORS voor de hele app
-app.register_blueprint(dash_bp)  # Registreer de Blueprint met een prefix
-if __name__ == '__main__':
-    # Voeg dit tijdelijk toe om alle actieve routes in je terminal te printen:
-    print("\n--- ACTIEVE FLASK ROUTES ---")
-    print(app.url_map)
-    print("----------------------------\n")
-    
-    app.run(debug=True, port=5000)
+CORS(app)
+app.register_blueprint(dash_bp)
+
 # --- CONFIGURATIE ---
 DB_NAME = 'users.db'  # Verander dit hier 1x om overal de naam aan te passen
-resend.api_key = "re_123456789_VUL_DIT_IN"
+# API key uit environment variable lezen (veiliger!)
+resend.api_key = os.getenv('RESEND_API_KEY', 're_NLShZa9R_Ej6QqqpgTqEYTjw178HssxUr')
 
           
 

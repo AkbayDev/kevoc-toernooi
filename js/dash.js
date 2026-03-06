@@ -202,9 +202,9 @@ cards.forEach(card => {
         try {
             const res = await fetch(`${CONFIG.apiBaseUrl}/ploegen`);
             const data = await res.json();
-            
+
             ploegenLijst.innerHTML = ''; // Maak de lijst eerst leeg
-            
+
             if (data.length === 0) {
                 ploegenLijst.innerHTML = '<li>Er zijn nog geen ploegen ingeschreven.</li>';
                 return;
@@ -213,12 +213,12 @@ cards.forEach(card => {
             // Teken elke ploeg op het scherm
             data.forEach(p => {
                 const li = document.createElement('li');
-                
+
                 // Een leuk detail: blauw label voor recreatief, rood voor competitie
                 const badgeColor = p.niveau === 'senior' ? '#e74c3c' : '#3498db';
-                
+
                 li.innerHTML = `
-                    <strong>${p.naam}</strong> 
+                    <strong>${p.naam}</strong>
                     <span style="background-color: ${badgeColor}; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; float: right;">
                         ${p.niveau}
                     </span>
@@ -246,23 +246,23 @@ cards.forEach(card => {
                 const res = await fetch(`${CONFIG.apiBaseUrl}/ploegen`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        naam: naam, 
-                        niveau: niveau, 
-                        categorie: categorie, 
+                    body: JSON.stringify({
+                        naam: naam,
+                        niveau: niveau,
+                        categorie: categorie,
                         betaalstatus: betaalstatus
                     })
                 });
                 const result = await res.json();
-                
+
                 if (!res.ok) throw new Error(result.error);
 
                 ploegMsg.style.color = "#27ae60";
                 ploegMsg.textContent = result.message;
                 formPloeg.reset(); // Maak invulvelden leeg
-                
+
                 laadPloegen(); // Herlaad direct de HTML lijst!
-                
+
                 setTimeout(() => ploegMsg.textContent = "", 3000);
             } catch (err) {
                 ploegMsg.style.color = "#e74c3c";
@@ -327,7 +327,7 @@ cards.forEach(card => {
             <td><span class="status-badge status-${v.status}">${v.status}</span></td>
             <td>
                 <button class="btn-secondary" onclick="wijzigStatus(${v.id}, 'geaccepteerd')">✓</button>
-                <button class="btn-secondary" onclick="wijzigStatus(${v.id}, 'geweigerd')">✗</button>
+                <button class="btn-secondary" onclick="wijzigStatus(${v.id}, 'afgewezen')">✗</button>
             </td>
         </tr>
     `).join('');
@@ -440,7 +440,7 @@ laadVrijwilligers();
         if (!btnGenereer) return;
         btnGenereer.disabled = true;
         btnGenereer.innerText = "Bezig met berekenen...";
-        
+
         try {
             // Aangepast: Gebruikt nu netjes CONFIG.apiBaseUrl
             const response = await fetch(`${CONFIG.apiBaseUrl}/rooster`, {
@@ -449,9 +449,9 @@ laadVrijwilligers();
                     'Content-Type': 'application/json'
                 }
             });
-            
+
             const result = await response.json();
-            
+
             if (response.ok) {
                 alert(result.message);
                 laadRooster(); // Herlaad direct
@@ -465,6 +465,14 @@ laadVrijwilligers();
             btnGenereer.disabled = false;
             btnGenereer.innerText = "Genereer Nieuw Rooster";
         }
+    }
+
+    // Button listeners
+    if (btnGenereer) {
+        btnGenereer.addEventListener('click', genereerRooster);
+    }
+    if (btnVervers) {
+        btnVervers.addEventListener('click', laadRooster);
     }
 
 

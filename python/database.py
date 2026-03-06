@@ -1,11 +1,6 @@
 # python/database.py
 import sqlite3
 import contextlib
-from flask import Flask, request, jsonify
-from flask_cors import CORS # Importeer CORS
-
-app = Flask(__name__)
-CORS(app) # Activeer CORS voor de hele app
 
 DATABASE_NAAM = 'users.db'
 

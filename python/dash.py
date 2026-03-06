@@ -7,7 +7,7 @@ dash_bp = Blueprint('dash', __name__)
 # FINANCIËN ENDPOINTS
 # ==========================================
 
-@dash_bp.route('/financien', methods=['GET'])
+@dash_bp.route('/api/financien', methods=['GET'])
 def get_financien():
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -20,7 +20,7 @@ def get_financien():
     return jsonify({"inkomsten": inkomsten, "kosten": kosten, "winst": inkomsten - kosten}), 200
 
 
-@dash_bp.route('/financien', methods=['POST'])
+@dash_bp.route('/api/financien', methods=['POST'])
 def add_financien():
     data = request.json
     omschrijving = data.get('omschrijving')
@@ -46,7 +46,7 @@ def add_financien():
     return jsonify({"message": "Transactie succesvol toegevoegd!"}), 201
 
 
-@dash_bp.route('/transacties', methods=['GET'])
+@dash_bp.route('/api/transacties', methods=['GET'])
 def get_transacties():
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -62,7 +62,7 @@ def get_transacties():
 # PLOEGEN ENDPOINTS
 # ==========================================
 
-@dash_bp.route('/ploegen', methods=['GET'])
+@dash_bp.route('/api/ploegen', methods=['GET'])
 def get_ploegen():
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -73,7 +73,7 @@ def get_ploegen():
     return jsonify(ploegen), 200
 
 
-@dash_bp.route('/ploegen', methods=['POST'])
+@dash_bp.route('/api/ploegen', methods=['POST'])
 def add_ploeg():
     naam = request.json.get('naam')
     niveau = request.json.get('niveau')
@@ -97,7 +97,7 @@ def add_ploeg():
 # VRIJWILLIGERS ENDPOINTS
 # ==========================================
 
-@dash_bp.route('/vrijwilligers', methods=['GET'])
+@dash_bp.route('/api/vrijwilligers', methods=['GET'])
 def get_vrijwilligers():
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -108,7 +108,7 @@ def get_vrijwilligers():
     return jsonify(vrijwilligers), 200
 
 
-@dash_bp.route('/vrijwilligers', methods=['POST'])
+@dash_bp.route('/api/vrijwilligers', methods=['POST'])
 def add_vrijwilliger():
     data = request.json
     naam = data.get('naam')
@@ -141,79 +141,98 @@ def update_vrijwilliger_status(id):
 
     return jsonify({"message": "Status succesvol bijgewerkt!"}), 200
 
-@dash_bp.route('/rooster', methods=['POST'])
+@dash_bp.route('/api/rooster', methods=['POST'])
 def genereer_rooster():
     """
     Dit is de 'magische' knop voor de beheerder.
     Haalt ploegen op, berekent het rooster, en slaat het op in de database.
     """
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # 1. Haal alle ploegen op
-    cursor.execute("SELECT naam, niveau FROM ploegen")
-    ploegen_db = cursor.fetchall()
-    
-    # Maak er een handige lijst van dicts van voor de logica
-    alle_ploegen = [{"naam": row["naam"], "niveau": row["niveau"]} for row in ploegen_db]
-    
-    if not alle_ploegen:
-        conn.close()
-        return jsonify({"error": "Er zijn nog geen ploegen ingeschreven!"}), 400
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
 
-    # 2. Laat logica.py het zware rekenwerk doen!
-    dagplanning = logica.genereer_volledige_dagplanning(alle_ploegen)
-    
-    # 3. Opslaan in de database
-    try:
-        # Wis eerst het oude rooster zodat we met een schone lei beginnen
-        cursor.execute("DELETE FROM wedstrijden")
-        
-        # Loop door de planning en sla elke wedstrijd op
-        for blok in dagplanning:
-            if blok["status"] == "fout":
-                continue # Sla blokken met te veel ploegen even over
-                
-            tijdsblok = blok["tijdsblok"]
-            starttijd = blok["starttijd"]
-            
-            for reeks in blok["reeksen"]:
-                reeks_naam = reeks["reeks"]
-                for match in reeks["wedstrijden"]:
-                    cursor.execute('''
-                        INSERT INTO wedstrijden (tijdsblok, starttijd, reeks, ronde, veld, thuis_ploeg, uit_ploeg, scheidsrechter)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                    ''', (
-                        tijdsblok, starttijd, reeks_naam, match["ronde"], match["veld"], 
-                        match["thuis"], match["uit"], match["scheids"]
-                    ))
-                    
-        conn.commit()
-        return jsonify({"message": "Het toernooischema is succesvol berekend en opgeslagen!"}), 200
-        
-    except Exception as e:
-        return jsonify({"error": f"Fout bij opslaan: {str(e)}"}), 500
-    finally:
-        conn.close()
+        # 1. Haal alle ploegen op
+        cursor.execute("SELECT ploeg AS naam, niveau FROM ploegen")
+        ploegen_db = cursor.fetchall()
+
+        # Maak er een handige lijst van dicts van voor de logica
+        alle_ploegen = [{"naam": row["naam"], "niveau": row["niveau"]} for row in ploegen_db]
+
+        if not alle_ploegen:
+            return jsonify({"error": "Er zijn nog geen ploegen ingeschreven!"}), 400
+
+        # 2. Laat logica.py het zware rekenwerk doen! (stub versie - zal vervangen worden met echte implementatie)
+        # Voor nu: genereer een basis rooster
+        dagplanning = genereer_basis_rooster(alle_ploegen)
+
+        # 3. Opslaan in de database
+        try:
+            # Wis eerst het oude rooster zodat we met een schone lei beginnen
+            cursor.execute("DELETE FROM wedstrijden")
+
+            # Loop door de planning en sla elke wedstrijd op
+            for blok in dagplanning:
+                if blok.get("status") == "fout":
+                    continue # Sla blokken met te veel ploegen even over
+
+                tijdsblok = blok["tijdsblok"]
+                starttijd = blok["starttijd"]
+
+                for reeks in blok.get("reeksen", []):
+                    reeks_naam = reeks["reeks"]
+                    for match in reeks["wedstrijden"]:
+                        cursor.execute('''
+                            INSERT INTO wedstrijden (tijdsblok, starttijd, reeks, ronde, veld, thuis_ploeg, uit_ploeg, scheidsrechter)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        ''', (
+                            tijdsblok, starttijd, reeks_naam, match["ronde"], match["veld"],
+                            match["thuis"], match["uit"], match.get("scheids", "-")
+                        ))
+
+            conn.commit()
+            return jsonify({"message": "Het toernooischema is succesvol berekend en opgeslagen!"}), 200
+
+        except Exception as e:
+            return jsonify({"error": f"Fout bij opslaan: {str(e)}"}), 500
 
 
-@dash_bp.route('/rooster', methods=['GET'])
+def genereer_basis_rooster(alle_ploegen):
+    """
+    Genereer een basis rooster totdat de echte logica.py functie beschikbaar is.
+    """
+    return [
+        {
+            "tijdsblok": "10:00-12:00",
+            "starttijd": "10:00",
+            "status": "ok",
+            "reeksen": [
+                {
+                    "reeks": "A",
+                    "wedstrijden": [
+                        {"ronde": 1, "veld": 1, "thuis": alle_ploegen[0]["naam"] if len(alle_ploegen) > 0 else "TBD",
+                         "uit": alle_ploegen[1]["naam"] if len(alle_ploegen) > 1 else "TBD", "scheids": "-"}
+                    ]
+                }
+            ]
+        }
+    ]
+
+
+@dash_bp.route('/api/rooster', methods=['GET'])
 def get_rooster():
     """
     Haalt het actuele rooster uit de database om te tonen op het dashboard.
     """
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Haal alles netjes gesorteerd op
-    cursor.execute('''
-        SELECT id, tijdsblok, starttijd, reeks, ronde, veld, thuis_ploeg, uit_ploeg, scheidsrechter, uitslag 
-        FROM wedstrijden 
-        ORDER BY starttijd ASC, veld ASC, ronde ASC
-    ''')
-    wedstrijden = cursor.fetchall()
-    conn.close()
-    
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+
+        # Haal alles netjes gesorteerd op
+        cursor.execute('''
+            SELECT id, tijdsblok, starttijd, reeks, ronde, veld, thuis_ploeg, uit_ploeg, scheidsrechter, uitslag
+            FROM wedstrijden
+            ORDER BY starttijd ASC, veld ASC, ronde ASC
+        ''')
+        wedstrijden = cursor.fetchall()
+
     # Zet om naar JSON
     resultaat = [dict(row) for row in wedstrijden]
     return jsonify(resultaat), 200
