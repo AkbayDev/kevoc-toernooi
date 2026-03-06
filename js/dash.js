@@ -313,7 +313,6 @@ cards.forEach(card => {
                 ploegMsg.textContent = err.message;
             }
         });
-        }
 
         // ==========================================
     // WEDSTRIJD ROOSTER LOGICA
