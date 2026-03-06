@@ -42,11 +42,9 @@ def init_db():
             niveau TEXT NOT NULL,
             categorie TEXT NOT NULL
         )''')
-    cursor.execute('''
-                INSERT OR IGNORE INTO ploegen (ploeg, niveau, categorie, betaalstatus) 
-                VALUES ('club1', 'senioren', 'heren', 'betaald'), ('club2', 'senioren', 'dames', 'niet-betaald'), ('club3', 'senioren', 'senioren', 'betaald')
-            ''')
-     
+    
+    cursor.execute('''DELETE FROM ploegen WHERE id > 2 ''') # Verwijder bestaande rollen om duplicaten te voorkomen
+    
     cursor.execute('''CREATE TABLE IF NOT EXISTS rollen (
                 id INTEGER PRIMARY KEY AUTOINCREMENT, 
                 rol TEXT UNIQUE NOT NULL
@@ -66,6 +64,7 @@ def init_db():
                     naam TEXT NOT NULL,
                     tijdslot TEXT NOT NULL,
                     job TEXT NOT NULL,
+                    status TEXT DEFAULT 'afwachtend',
                     inschrijfdatum  DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
             """)
@@ -89,6 +88,5 @@ def init_db():
     conn.commit()
     conn.close()
 
-if __name__ == '__main__':
-    init_db()
-    print("Database succesvol geïnitialiseerd!")
+init_db()
+print("Database succesvol geïnitialiseerd!")

@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const CONFIG = { apiBaseUrl: 'http://127.0.0.1:5000/api' };
+   const CONFIG = { apiBaseUrl: 'http://127.0.0.1:5000/api' };
 
     const cards = document.querySelectorAll('.dash-card');
     const userDisplay = document.getElementById('user-display');
@@ -193,7 +193,7 @@ cards.forEach(card => {
     const formPloeg = document.getElementById('form-ploeg');
     const ploegMsg = document.getElementById('ploeg-msg');
     const ploegenLijst = document.getElementById('ploegen-lijst');
-    const formVrijwilligers = document.getElementById('hulp-inschrijven');
+   
 
     // Functie: Haal de ploegen op en toon ze
     async function laadPloegen() {
@@ -273,44 +273,34 @@ cards.forEach(card => {
     // ==========================================
     // VRIJWILLIGERS INSCHRIJVEN LOGICA
     // ==========================================
-
+        
         const formVrijwilligers = document.getElementById('form-vrijwilligers');
 
         if (formVrijwilligers) {
-        formVrijwilligers.addEventListener('submit', async (e) => {
+            formVrijwilligers.addEventListener('submit', async (e) => {
             e.preventDefault();
             const naam = document.getElementById('vrijwilliger-naam').value;
             const tijdslot = document.getElementById('vrijwilliger-tijdslot').value;
             const job = document.getElementById('vrijwilliger-job').value;
 
-            ploegMsg.style.color = "#2980b9";
-            ploegMsg.textContent = "Bezig met inschrijven...";
+        
 
             try {
-                const res = await fetch(`${CONFIG.apiBaseUrl}/ploegen`, {
+                const res = await fetch(`${CONFIG.apiBaseUrl}/vrijwilligers`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         naam: naam, 
-                        niveau: niveau, 
-                        categorie: categorie 
+                        tijdslot: tijdslot, 
+                        job: job
                     })
                 });
-                const result = await res.json();
                 
-                if (!res.ok) throw new Error(result.error);
 
-                ploegMsg.style.color = "#27ae60";
-                ploegMsg.textContent = result.message;
-                formPloeg.reset(); // Maak invulvelden leeg
                 
-                laadPloegen(); // Herlaad direct de HTML lijst!
-                
-                setTimeout(() => ploegMsg.textContent = "", 3000);
-            } catch (err) {
-                ploegMsg.style.color = "#e74c3c";
-                ploegMsg.textContent = err.message;
-            }
+                } catch (err) {
+                    console.error("Fout bij inschrijven vrijwilliger:", err);
+                }
         });
 
         // ==========================================
@@ -363,7 +353,7 @@ cards.forEach(card => {
         btnGenereerRooster.addEventListener('click', async () => {
             btnGenereerRooster.disabled = true; // Blokkeer knop tijdelijk tegen dubbelklikken
             roosterMsg.style.color = "#2980b9";
-            roosterMsg.textContent = "Aan het puzzelen... 🧩";
+            roosterMsg.textContent = "Aan het puzzelen... ";
 
             try {
                 const res = await fetch(`${CONFIG.apiBaseUrl}/rooster/genereer`, {
@@ -376,7 +366,7 @@ cards.forEach(card => {
                 roosterMsg.style.color = "#27ae60";
                 roosterMsg.textContent = result.message;
 
-                laadRooster(); // Herlaad de HTML tabel direct!
+                laadRooster(); // Herlaad de HTML tabel direct
 
                 setTimeout(() => roosterMsg.textContent = "", 4000);
             } catch (err) {
@@ -394,7 +384,7 @@ cards.forEach(card => {
     // ==========================================
 
     async function laadVrijwilligers() {
-    const response = await fetch('/api/vrijwilligers');
+    const response = await fetch(`${CONFIG.apiBaseUrl}/vrijwilligers`);
     const data = await response.json();
 
     const tbody = document.getElementById('vrijwilligers-lijst');
@@ -419,7 +409,7 @@ cards.forEach(card => {
 }
 
     async function wijzigStatus(id, status) {
-        const response = await fetch(`/api/vrijwilligers/${id}/status`, {
+        const response = await fetch(`${CONFIG.apiBaseUrl}/vrijwilligers/${id}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status })
