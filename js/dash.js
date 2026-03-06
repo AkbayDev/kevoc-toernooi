@@ -276,36 +276,25 @@ cards.forEach(card => {
     // VRIJWILLIGERS INSCHRIJVEN LOGICA
     // ==========================================
         
+ 
         const formVrijwilligers = document.getElementById('form-vrijwilligers');
 
         if (formVrijwilligers) {
-            formVrijwilligers.addEventListener('submit', async (e) => {
+        formVrijwilligers.addEventListener('submit', async (e) => {
             e.preventDefault();
             const naam = document.getElementById('vrijwilliger-naam').value;
             const tijdslot = document.getElementById('vrijwilliger-tijdslot').value;
             const job = document.getElementById('vrijwilliger-job').value;
 
-        
-
             try {
-                const res = await fetch(`${CONFIG.apiBaseUrl}/vrijwilligers`, {
                 const res = await fetch(`${CONFIG.apiBaseUrl}/vrijwilligers`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         naam: naam, 
                         tijdslot: tijdslot, 
-                        job: job
-                        tijdslot: tijdslot, 
                         job: job 
                     })
-                });
-                
-
-                
-                } catch (err) {
-                    console.error("Fout bij inschrijven vrijwilliger:", err);
-                }
                 });                
                 
             } catch (err) {
@@ -313,6 +302,7 @@ cards.forEach(card => {
                 ploegMsg.textContent = err.message;
             }
         });
+        }
 
         // ==========================================
     // WEDSTRIJD ROOSTER LOGICA
