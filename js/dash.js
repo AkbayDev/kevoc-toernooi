@@ -308,29 +308,30 @@ cards.forEach(card => {
     // WEDSTRIJD ROOSTER LOGICA
     // ==========================================
 
-        document.addEventListener('DOMContentLoaded', function() {
+
     const container = document.getElementById('rooster-container');
     const btnGenereer = document.getElementById('btn-genereer');
     const btnVervers = document.getElementById('btn-ververs');
 
     // Functie om het rooster op te halen en te tonen (GET)
     async function laadRooster() {
+        if (!container) return; // Voorkomt fouten als je op een andere pagina zit
         container.innerHTML = '<p class="text-muted">Rooster wordt geladen...</p>';
         try {
-            const response = await fetch('/rooster');
-            
+            // Aangepast: Gebruikt nu netjes CONFIG.apiBaseUrl
+            const response = await fetch(`${CONFIG.apiBaseUrl}/rooster`);
+            const data = await response.json();
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            const data = await response.json();
 
             if (data.length === 0) {
                 container.innerHTML = '<div class="alert alert-warning">Er is nog geen rooster. Klik op "Genereer Nieuw Rooster" om te starten.</div>';
                 return;
             }
 
-            // Groepeer wedstrijden per starttijd
             const gegroepeerd = data.reduce((acc, match) => {
                 const tijd = match.starttijd || match.tijdsblok;
                 if (!acc[tijd]) {
@@ -348,62 +349,55 @@ cards.forEach(card => {
         }
     }
 
-    // Functie om de gegroepeerde data om te zetten in HTML tabellen
+    // Functie om de gegroepeerde data om te zetten in HTML kaarten
     function renderRooster(gegroepeerdeData) {
-        let html = '';
+        let html = '<div class="kalender-grid">';
 
         for (const [tijd, wedstrijden] of Object.entries(gegroepeerdeData)) {
             html += `
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-dark text-white">
-                        <h4 class="mb-0">🕒 Starttijd: ${tijd}</h4>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Veld</th>
-                                    <th>Reeks / Ronde</th>
-                                    <th>Thuisploeg</th>
-                                    <th>Uitploeg</th>
-                                    <th>Scheidsrechter</th>
-                                    <th>Uitslag</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                <div class="tijd-slot">
+                    <div class="slot-header">🕒 ${tijd}</div>
+                    <div class="match-cards">
             `;
 
             wedstrijden.forEach(match => {
                 html += `
-                    <tr>
-                        <td><strong>${match.veld || '-'}</strong></td>
-                        <td>${match.reeks || '-'} (Ronde ${match.ronde || '-'})</td>
-                        <td>${match.thuis_ploeg || '-'}</td>
-                        <td>${match.uit_ploeg || '-'}</td>
-                        <td>${match.scheidsrechter || '-'}</td>
-                        <td><strong>${match.uitslag || '-'}</strong></td>
-                    </tr>
+                    <div class="match-card">
+                        <div class="match-info">
+                            <span class="badge-veld">Veld ${match.veld || '-'}</span>
+                            <span style="float: right;">${match.reeks || '-'} (R. ${match.ronde || '-'})</span>
+                        </div>
+                        <div class="match-teams">
+                            ${match.thuis_ploeg || '-'} <br>
+                            <span style="color:#9ca3af; font-size:12px;">vs</span> <br>
+                            ${match.uit_ploeg || '-'}
+                        </div>
+                        <div class="match-info mt-2">
+                            Scheids: ${match.scheidsrechter || '-'}
+                        </div>
+                    </div>
                 `;
             });
 
             html += `
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             `;
         }
-
+        
+        html += '</div>';
         container.innerHTML = html;
     }
 
     // Functie om een nieuw rooster te genereren (POST)
     async function genereerRooster() {
+        if (!btnGenereer) return;
         btnGenereer.disabled = true;
         btnGenereer.innerText = "Bezig met berekenen...";
         
         try {
-            const response = await fetch('/rooster', {
+            // Aangepast: Gebruikt nu netjes CONFIG.apiBaseUrl
+            const response = await fetch(`${CONFIG.apiBaseUrl}/rooster`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -414,7 +408,7 @@ cards.forEach(card => {
             
             if (response.ok) {
                 alert(result.message);
-                laadRooster(); // Herlaad de tabel direct
+                laadRooster(); // Herlaad direct
             } else {
                 alert(`Fout: ${result.error}`);
             }
@@ -427,45 +421,42 @@ cards.forEach(card => {
         }
     }
 
-    // Event listeners koppelen aan de knoppen
-    btnGenereer.addEventListener('click', genereerRooster);
-    btnVervers.addEventListener('click', laadRooster);
-
-    // Initial load: laad het rooster meteen zodra de pagina opent
-    laadRooster();
-});
+    // Koppel de knoppen als ze op deze pagina bestaan
+    if (btnGenereer) btnGenereer.addEventListener('click', genereerRooster);
+    if (btnVervers) btnVervers.addEventListener('click', laadRooster);
 
 
     // ==========================================
     // VRIJWILLIGERS lijst LOGICA
     // ==========================================
-
     async function laadVrijwilligers() {
-    const response = await fetch(`${CONFIG.apiBaseUrl}/vrijwilligers`);
-    const data = await response.json();
+        const tbody = document.getElementById('vrijwilligers-lijst');
+        if (!tbody) return; // Veiligheidscheck
 
-    const tbody = document.getElementById('vrijwilligers-lijst');
+        const response = await fetch(`${CONFIG.apiBaseUrl}/vrijwilligers`);
+        const data = await response.json();
 
-    if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5">Nog geen inschrijvingen.</td></tr>';
-        return;
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5">Nog geen inschrijvingen.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = data.map(v => `
+            <tr>
+                <td>${v.naam}</td>
+                <td>${v.tijdslot}</td>
+                <td>${v.job}</td>
+                <td><span class="status-badge status-${v.status}">${v.status}</span></td>
+                <td>
+                    <button class="btn-secondary" onclick="wijzigStatus(${v.id}, 'geaccepteerd')">✓</button>
+                    <button class="btn-secondary" onclick="wijzigStatus(${v.id}, 'geweigerd')">✗</button>
+                </td>
+            </tr>
+        `).join('');
     }
 
-    tbody.innerHTML = data.map(v => `
-        <tr>
-            <td>${v.naam}</td>
-            <td>${v.tijdslot}</td>
-            <td>${v.job}</td>
-            <td><span class="status-badge status-${v.status}">${v.status}</span></td>
-            <td>
-                <button class="btn-secondary" onclick="wijzigStatus(${v.id}, 'geaccepteerd')">✓</button>
-                <button class="btn-secondary" onclick="wijzigStatus(${v.id}, 'geweigerd')">✗</button>
-            </td>
-        </tr>
-    `).join('');
-}
-
-    async function wijzigStatus(id, status) {
+    // Zorg dat deze globaal beschikbaar is voor de onclick in HTML
+    window.wijzigStatus = async function(id, status) {
         const response = await fetch(`${CONFIG.apiBaseUrl}/vrijwilligers/${id}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
@@ -475,15 +466,18 @@ cards.forEach(card => {
         const result = await response.json();
 
         if (response.ok) {
-            laadVrijwilligers(); // herlaad de lijst
+            laadVrijwilligers();
         } else {
             alert('Fout: ' + result.error);
         }
-    }
+    };
 
-laadVrijwilligers();
 
-    // Start de applicatie
+    // ==========================================
+    // INITIALISATIE: Alles inladen
+    // ==========================================
+    laadVrijwilligers();
     laadFinancien();
     laadPloegen();
+    laadRooster();
 });

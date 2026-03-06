@@ -12,7 +12,7 @@ from dash import dash_bp
 
 app = Flask(__name__)
 CORS(app) # Activeer CORS voor de hele app
-app.register_blueprint(dash_bp, url_prefix='/api')  # Registreer de Blueprint met een prefix
+app.register_blueprint(dash_bp)  # Registreer de Blueprint met een prefix
 if __name__ == '__main__':
     # Voeg dit tijdelijk toe om alle actieve routes in je terminal te printen:
     print("\n--- ACTIEVE FLASK ROUTES ---")
