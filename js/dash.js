@@ -193,6 +193,7 @@ cards.forEach(card => {
     const formPloeg = document.getElementById('form-ploeg');
     const ploegMsg = document.getElementById('ploeg-msg');
     const ploegenLijst = document.getElementById('ploegen-lijst');
+    const formVrijwilligers = document.getElementById('hulp-inschrijven');
 
     // Functie: Haal de ploegen op en toon ze
     async function laadPloegen() {
