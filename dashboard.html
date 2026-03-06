@@ -47,9 +47,7 @@
             </table>
         </section>
 
-        <! #--------------------------
-            # PLOEG INSCHRIJVEN
-            #-------------------------- -!> 
+        <!-- PLOEG INSCHRIJVEN --> 
 
         <section class="dash-card" data-role="all" id="ploeg-inschrijven">
             <h2>Ploegen & Inschrijven</h2>
@@ -81,9 +79,7 @@
                 </ul>
         </section>
         
-        <! #---------------------------------
-            # VRIJWILLIGERS INSCHRIJVEN
-            #--------------------------------- -!>
+        <!-- VRIJWILLIGERS INSCHRIJVEN -->
 
        <section class="dash-card" data-role="all" id="hulp-inschrijven">
             <h2>Inschrijven als Vrijwilliger / Scheids</h2>
@@ -132,9 +128,7 @@
             </ul>
         </section>
 
-        <! #---------------------------------
-            # BEHEERDER SPECIFIEKE SE CTIES
-            #--------------------------------- -!>
+        <!-- BEHEERDER SPECIFIEKE SECTIES -->
 
         <section class="dash-card admin-card hidden" data-role="beheerder" id="checklist">
             <h2>Organisatie Checklist</h2>
@@ -155,40 +149,23 @@
             </ul>
         </section>
 
-          <!  #--------------------------
-            # WEDSTRIJDEN
-            #-------------------------- -!>
+        <!-- WEDSTRIJDEN -->
         
-        <section class="dash-card" data-role="all" id="wedstrijden">
-            <h2>📅 Wedstrijd Rooster</h2>
-            <p>Overzicht van welk team op welk veld speelt en in welk tijdslot.</p>
+    <section class="dash-card admin-card hidden" data-role="beheerder" id="toernooi-dashboard">
+        <h2>🏆 Toernooi Schema</h2>
+        
+        <div class="mb-4">
+            <button id="btn-genereer" class="btn btn-primary">Genereer Nieuw Rooster</button>
+            <button id="btn-ververs" class="btn btn-outline-secondary">Ververs Rooster</button>
+        </div>
 
-            <div id="admin-rooster-controls" class="hidden" style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
-                <button id="btn-genereer-rooster" class="btn-primary" style="background-color: #f39c12;">⚙️ Genereer Nieuw Schema</button>
-                <span id="rooster-msg" style="margin-left: 10px; font-weight: bold; font-size: 14px;"></span>
-            </div>
+        <div id="rooster-container">
+            <p class="text-muted">Laden van wedstrijdschema...</p>
+        </div>
+    </section> 
 
-            <div style="overflow-x: auto;">
-                <table class="data-table" id="rooster-tabel">
-                    <thead>
-                        <tr>
-                            <th>Tijd</th>
-                            <th>Reeks</th>
-                            <th>Veld</th>
-                            <th>Match</th>
-                            <th>Scheids</th>
-                        </tr>
-                    </thead>
-                    <tbody id="rooster-tbody">
-                        <tr><td colspan="5" style="text-align: center;">Laden...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
 
-        <!  #--------------------------
-            # FINANCIËN
-            #-------------------------- -!>
+        <!-- FINANCIËN -->
 
         <section class="dash-card admin-card hidden" data-role="beheerder" id="financien">
             <h2>Financiën & Kasboek</h2>

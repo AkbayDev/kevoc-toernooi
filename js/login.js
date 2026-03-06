@@ -100,7 +100,7 @@ ui.registerSubmit.addEventListener('submit', async (e) => {
     try {
         const res = await sendToBackend('/register', { email, password, role });
         showMessage(res.message, "success");
-        ui.registerSubmit.reset();
+        document.getElementById('form-register').reset();
     } catch (err) { showMessage(err.message, "error"); }
 });
 
