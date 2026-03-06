@@ -50,6 +50,7 @@ cards.forEach(card => {
         window.location.href = 'index.html'; 
     });
 
+    
     // Financiën Ophalen
    // --- GRAFIEK & FINANCIËN LOGICA ---
     let financeChart; // We slaan de grafiek hierin op zodat we hem kunnen updaten
@@ -68,6 +69,7 @@ cards.forEach(card => {
 
             // 2. Teken of update de grafiek
             const ctx = document.getElementById('financeChart').getContext('2d');
+            const Chart = window.Chart; // Zorg dat Chart.js beschikbaar is
             
             if (financeChart) {
                 // Als de grafiek al bestaat, pas alleen de data aan
