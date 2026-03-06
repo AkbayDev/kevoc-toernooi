@@ -288,26 +288,16 @@ cards.forEach(card => {
             ploegMsg.textContent = "Bezig met inschrijven...";
 
             try {
-                const res = await fetch(`${CONFIG.apiBaseUrl}/ploegen`, {
+                const res = await fetch(`${CONFIG.apiBaseUrl}/vrijwilligers`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         naam: naam, 
-                        niveau: niveau, 
-                        categorie: categorie 
+                        tijdslot: tijdslot, 
+                        job: job 
                     })
-                });
-                const result = await res.json();
+                });                
                 
-                if (!res.ok) throw new Error(result.error);
-
-                ploegMsg.style.color = "#27ae60";
-                ploegMsg.textContent = result.message;
-                formPloeg.reset(); // Maak invulvelden leeg
-                
-                laadPloegen(); // Herlaad direct de HTML lijst!
-                
-                setTimeout(() => ploegMsg.textContent = "", 3000);
             } catch (err) {
                 ploegMsg.style.color = "#e74c3c";
                 ploegMsg.textContent = err.message;
@@ -318,107 +308,134 @@ cards.forEach(card => {
         // ==========================================
     // WEDSTRIJD ROOSTER LOGICA
     // ==========================================
-    // Pak de nieuwe container (zorg dat id="rooster-kalender" in je HTML staat)
-const kalenderContainer = document.getElementById('rooster-kalender');
-const btnGenereerRooster = document.getElementById('btn-genereer-rooster');
-const roosterMsg = document.getElementById('rooster-msg');
-const adminRoosterControls = document.getElementById('admin-rooster-controls');
 
-// 1. Toon de 'Genereer' knop alleen voor beheerders
-if (typeof currentRole !== 'undefined' && currentRole === 'beheerder' && adminRoosterControls) {
-    adminRoosterControls.classList.remove('hidden');
-}
+        document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('rooster-container');
+    const btnGenereer = document.getElementById('btn-genereer');
+    const btnVervers = document.getElementById('btn-ververs');
 
-// 2. Functie: Haal het rooster op en bouw de "kalender"
-async function laadRooster() {
-    if (!kalenderContainer) return;
-    
-    try {
-        const res = await fetch(`${CONFIG.apiBaseUrl}/rooster`);
-        const data = await res.json();
+    // Functie om het rooster op te halen en te tonen (GET)
+    async function laadRooster() {
+        container.innerHTML = '<p class="text-muted">Rooster wordt geladen...</p>';
+        try {
+            const response = await fetch('/rooster');
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
 
-        kalenderContainer.innerHTML = ''; // Maak de container leeg
+            if (data.length === 0) {
+                container.innerHTML = '<div class="alert alert-warning">Er is nog geen rooster. Klik op "Genereer Nieuw Rooster" om te starten.</div>';
+                return;
+            }
 
-        if (data.length === 0) {
-            kalenderContainer.innerHTML = '<p style="text-align:center; padding:20px;">Het toernooischema is nog niet gegenereerd.</p>';
-            return;
+            // Groepeer wedstrijden per starttijd
+            const gegroepeerd = data.reduce((acc, match) => {
+                const tijd = match.starttijd || match.tijdsblok;
+                if (!acc[tijd]) {
+                    acc[tijd] = [];
+                }
+                acc[tijd].push(match);
+                return acc;
+            }, {});
+
+            renderRooster(gegroepeerd);
+
+        } catch (error) {
+            console.error("Fout bij ophalen rooster:", error);
+            container.innerHTML = `<div class="alert alert-danger">Kon het rooster niet laden: ${error.message}</div>`;
         }
+    }
 
-        // --- STAP: Groepeer de data per starttijd ---
-        const gegroepeerdPerTijd = data.reduce((acc, match) => {
-            if (!acc[match.starttijd]) acc[match.starttijd] = [];
-            acc[match.starttijd].push(match);
-            return acc;
-        }, {});
+    // Functie om de gegroepeerde data om te zetten in HTML tabellen
+    function renderRooster(gegroepeerdeData) {
+        let html = '';
 
-        // --- STAP: Bouw de HTML blokken per tijdslot ---
-        Object.keys(gegroepeerdPerTijd).sort().forEach(tijd => {
-            const tijdslotDiv = document.createElement('div');
-            tijdslotDiv.className = 'tijd-slot';
-
-            // Maak de kaartjes voor alle wedstrijden in dit tijdslot
-            const matchesHtml = gegroepeerdPerTijd[tijd].map(match => `
-                <div class="match-card">
-                    <div class="match-info">
-                        <span class="badge-veld">Veld ${match.veld}</span> 
-                        <span style="color:#3498db; font-weight:bold; margin-left:5px;">${match.reeks}</span>
+        for (const [tijd, wedstrijden] of Object.entries(gegroepeerdeData)) {
+            html += `
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-dark text-white">
+                        <h4 class="mb-0">🕒 Starttijd: ${tijd}</h4>
                     </div>
-                    <div class="match-teams">
-                        ${match.thuis_ploeg} <br>
-                        <small style="color:#bdc3c7; font-weight:normal;">vs</small><br>
-                        ${match.uit_ploeg}
-                    </div>
-                    <div class="match-info" style="border-top: 1px solid #eee; margin-top:5px; pt:5px;">
-                        <small>Ref: ${match.scheidsrechter || '-'}</small>
-                        <small style="float:right;">Ronde ${match.ronde}</small>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Veld</th>
+                                    <th>Reeks / Ronde</th>
+                                    <th>Thuisploeg</th>
+                                    <th>Uitploeg</th>
+                                    <th>Scheidsrechter</th>
+                                    <th>Uitslag</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            wedstrijden.forEach(match => {
+                html += `
+                    <tr>
+                        <td><strong>${match.veld || '-'}</strong></td>
+                        <td>${match.reeks || '-'} (Ronde ${match.ronde || '-'})</td>
+                        <td>${match.thuis_ploeg || '-'}</td>
+                        <td>${match.uit_ploeg || '-'}</td>
+                        <td>${match.scheidsrechter || '-'}</td>
+                        <td><strong>${match.uitslag || '-'}</strong></td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            `).join('');
-
-            tijdslotDiv.innerHTML = `
-                <div class="slot-header">🕒 ${tijd}</div>
-                <div class="match-cards">${matchesHtml}</div>
             `;
-            kalenderContainer.appendChild(tijdslotDiv);
-        });
-
-    } catch (err) {
-        console.error("Fout bij laden rooster:", err);
-        kalenderContainer.innerHTML = '<p style="color:#e74c3c; text-align:center;">Fout bij ophalen rooster.</p>';
-    }
-}
-
-// 3. Functie: De 'Genereer' knop actie
-if (btnGenereerRooster) {
-    btnGenereerRooster.addEventListener('click', async () => {
-        if(!confirm("Weet je het zeker? Het oude schema wordt verwijderd.")) return;
-
-        btnGenereerRooster.disabled = true;
-        roosterMsg.style.color = "#2980b9";
-        roosterMsg.textContent = "Aan het puzzelen... 🧩";
-
-        try {
-            const res = await fetch(`${CONFIG.apiBaseUrl}/rooster/genereer`, { method: 'POST' });
-            const result = await res.json();
-
-            if (!res.ok) throw new Error(result.error);
-
-            roosterMsg.style.color = "#27ae60";
-            roosterMsg.textContent = "Schema succesvol gegenereerd!";
-            
-            laadRooster(); // Ververs direct de weergave!
-
-            setTimeout(() => roosterMsg.textContent = "", 4000);
-        } catch (err) {
-            roosterMsg.style.color = "#e74c3c";
-            roosterMsg.textContent = err.message;
-        } finally {
-            btnGenereerRooster.disabled = false;
         }
-    });
-}
 
-// Start direct met laden
+        container.innerHTML = html;
+    }
+
+    // Functie om een nieuw rooster te genereren (POST)
+    async function genereerRooster() {
+        btnGenereer.disabled = true;
+        btnGenereer.innerText = "Bezig met berekenen...";
+        
+        try {
+            const response = await fetch('/rooster', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                alert(result.message);
+                laadRooster(); // Herlaad de tabel direct
+            } else {
+                alert(`Fout: ${result.error}`);
+            }
+        } catch (error) {
+            console.error("Fout bij genereren:", error);
+            alert("Er is een netwerkfout opgetreden tijdens het genereren.");
+        } finally {
+            btnGenereer.disabled = false;
+            btnGenereer.innerText = "Genereer Nieuw Rooster";
+        }
+    }
+
+    // Event listeners koppelen aan de knoppen
+    btnGenereer.addEventListener('click', genereerRooster);
+    btnVervers.addEventListener('click', laadRooster);
+
+    // Initial load: laad het rooster meteen zodra de pagina opent
+    laadRooster();
+});
+
 
     // ==========================================
     // VRIJWILLIGERS lijst LOGICA
@@ -470,5 +487,4 @@ laadVrijwilligers();
     // Start de applicatie
     laadFinancien();
     laadPloegen();
-    laadRooster();
 });

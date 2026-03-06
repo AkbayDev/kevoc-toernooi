@@ -54,6 +54,11 @@ def init_db():
                 VALUES ('beheerder'), ('gebruiker'), ('hulp')
             ''')
         
+    cursor.execute('''
+                INSERT OR IGNORE INTO rollen (rol) 
+                VALUES ('dev')
+            ''')
+           
         
             # 3. maak een vrijwilligers  tabel
     cursor.execute("""
@@ -82,9 +87,15 @@ def init_db():
         )
     ''')
     
+    cursor.execute('''  INSERT OR IGNORE INTO wedstrijden (tijdsblok, starttijd, reeks, ronde, veld, thuis_ploeg, uit_ploeg) VALUES
+        ('10:00-12:00', '10:00', 'A', 1, 1, 'Ploeg A', 'Ploeg B'),
+        ('10:00-12:00', '10:00', 'A', 1, 2, 'Ploeg C', 'Ploeg D'),
+        ('14:00-16:00', '14:00', 'B', 1, 1, 'Ploeg E', 'Ploeg F'),
+        ('14:00-16:00', '14:00', 'B', 1, 2, 'Ploeg G', 'Ploeg H')
+    ''')
+    
     conn.commit()
     conn.close()
 
-if __name__ == '__main__':
-    init_db()
-    print("Database succesvol geïnitialiseerd!")
+init_db()
+print("Database succesvol geïnitialiseerd!")

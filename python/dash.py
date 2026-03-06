@@ -3,12 +3,11 @@ from flask import Blueprint, request, jsonify
 from database import get_db_connection  # Importeer je helper
 
 dash_bp = Blueprint('dash', __name__)
-
 # ==========================================
 # FINANCIËN ENDPOINTS
 # ==========================================
 
-@dash_bp.route('/api/financien', methods=['GET'])
+@dash_bp.route('/financien', methods=['GET'])
 def get_financien():
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -21,7 +20,7 @@ def get_financien():
     return jsonify({"inkomsten": inkomsten, "kosten": kosten, "winst": inkomsten - kosten}), 200
 
 
-@dash_bp.route('/api/financien', methods=['POST'])
+@dash_bp.route('/financien', methods=['POST'])
 def add_financien():
     data = request.json
     omschrijving = data.get('omschrijving')
@@ -47,7 +46,7 @@ def add_financien():
     return jsonify({"message": "Transactie succesvol toegevoegd!"}), 201
 
 
-@dash_bp.route('/api/transacties', methods=['GET'])
+@dash_bp.route('/transacties', methods=['GET'])
 def get_transacties():
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -63,7 +62,7 @@ def get_transacties():
 # PLOEGEN ENDPOINTS
 # ==========================================
 
-@dash_bp.route('/api/ploegen', methods=['GET'])
+@dash_bp.route('/ploegen', methods=['GET'])
 def get_ploegen():
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -74,7 +73,7 @@ def get_ploegen():
     return jsonify(ploegen), 200
 
 
-@dash_bp.route('/api/ploegen', methods=['POST'])
+@dash_bp.route('/ploegen', methods=['POST'])
 def add_ploeg():
     naam = request.json.get('naam')
     niveau = request.json.get('niveau')
@@ -98,7 +97,7 @@ def add_ploeg():
 # VRIJWILLIGERS ENDPOINTS
 # ==========================================
 
-@dash_bp.route('/api/vrijwilligers', methods=['GET'])
+@dash_bp.route('/vrijwilligers', methods=['GET'])
 def get_vrijwilligers():
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -109,7 +108,7 @@ def get_vrijwilligers():
     return jsonify(vrijwilligers), 200
 
 
-@dash_bp.route('/api/vrijwilligers', methods=['POST'])
+@dash_bp.route('/vrijwilligers', methods=['POST'])
 def add_vrijwilliger():
     data = request.json
     naam = data.get('naam')

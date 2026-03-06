@@ -11,9 +11,15 @@ from database import get_db_connection  # Importeer je helper
 from dash import dash_bp 
 
 app = Flask(__name__)
-CORS(app) 
-app.register_blueprint(dash_bp, ) 
-
+CORS(app) # Activeer CORS voor de hele app
+app.register_blueprint(dash_bp, url_prefix='/api')  # Registreer de Blueprint met een prefix
+if __name__ == '__main__':
+    # Voeg dit tijdelijk toe om alle actieve routes in je terminal te printen:
+    print("\n--- ACTIEVE FLASK ROUTES ---")
+    print(app.url_map)
+    print("----------------------------\n")
+    
+    app.run(debug=True, port=5000)
 # --- CONFIGURATIE ---
 DB_NAME = 'users.db'  # Verander dit hier 1x om overal de naam aan te passen
 resend.api_key = "re_123456789_VUL_DIT_IN"

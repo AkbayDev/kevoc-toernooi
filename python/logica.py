@@ -9,7 +9,7 @@ dash_bp = Blueprint('dash', __name__)
 # ROOSTER / DAGPLANNING ENDPOINTS
 # ==========================================
 
-@dash_bp.route('api/rooster', methods=['POST'])
+@dash_bp.route('/rooster', methods=['POST'])
 def genereer_rooster():
     """
     Dit is de 'magische' knop voor de beheerder.
@@ -65,7 +65,7 @@ def genereer_rooster():
         conn.close()
 
 
-@dash_bp.route('/api/rooster', methods=['GET'])
+@dash_bp.route('/rooster', methods=['GET'])
 def get_rooster():
     """
     Haalt het actuele rooster uit de database om te tonen op het dashboard.

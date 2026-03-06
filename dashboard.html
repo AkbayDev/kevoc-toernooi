@@ -137,7 +137,7 @@
         </section>
 
         <! #---------------------------------
-            # BEHEERDER SPECIFIEKE SE CTIES
+            # BEHEERDER SPECIFIEKE SECTIES
             #--------------------------------- -!>
 
         <section class="dash-card admin-card hidden" data-role="beheerder" id="checklist">
@@ -163,18 +163,18 @@
             # WEDSTRIJDEN
             #-------------------------- -!>
         
-    <section class="dash-card" data-role="all" id="wedstrijden">
-    <h2>📅 Wedstrijd Rooster</h2>
-    
-    <div id="admin-rooster-controls" class="hidden" style="margin-bottom: 20px;">
-        <button id="btn-genereer-rooster" class="btn-primary">⚙️ Genereer Nieuw Schema</button>
-        <span id="rooster-msg"></span>
-    </div>
+    <section class="dash-card admin-card hidden" data-role="beheerder" id="toernooi-dashboard" class="container mt-4">
+        <h2>🏆 Toernooi Schema</h2>
+        
+        <div class="mb-4">
+            <button id="btn-genereer" class="btn btn-primary">Genereer Nieuw Rooster</button>
+            <button id="btn-ververs" class="btn btn-outline-secondary">Ververs Rooster</button>
+        </div>
 
-    <div id="rooster-kalender" class="kalender-grid">
-        <p style="text-align: center;">Laden...</p>
-    </div>
-</section>
+        <div id="rooster-container">
+            <p class="text-muted">Laden van wedstrijdschema...</p>
+        </div>
+    </section> 
 
 
         <!  #--------------------------
