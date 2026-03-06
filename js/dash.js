@@ -303,7 +303,53 @@ cards.forEach(card => {
                 }
         });
 
-        // ==========================================
+    // ==========================================
+    // VRIJWILLIGERS lijst LOGICA
+    // ==========================================
+
+    async function laadVrijwilligers() {
+    const response = await fetch(`${CONFIG.apiBaseUrl}/vrijwilligers`);
+    const data = await response.json();
+
+    const tbody = document.getElementById('vrijwilligers-lijst');
+
+    if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5">Nog geen inschrijvingen.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = data.map(v => `
+        <tr>
+            <td>${v.naam}</td>
+            <td>${v.tijdslot}</td>
+            <td>${v.job}</td>
+            <td><span class="status-badge status-${v.status}">${v.status}</span></td>
+            <td>
+                <button class="btn-secondary" onclick="wijzigStatus(${v.id}, 'geaccepteerd')">✓</button>
+                <button class="btn-secondary" onclick="wijzigStatus(${v.id}, 'geweigerd')">✗</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+    async function wijzigStatus(id, status) {
+        const response = await fetch(`${CONFIG.apiBaseUrl}/vrijwilligers/${id}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            laadVrijwilligers(); 
+        } else {
+            alert('Fout: ' + result.error);
+        }
+    }
+laadVrijwilligers();
+
+    // ==========================================
     // WEDSTRIJD ROOSTER LOGICA
     // ==========================================
     const btnGenereerRooster = document.getElementById('btn-genereer-rooster');
@@ -379,52 +425,8 @@ cards.forEach(card => {
     }
     }
 
-    // ==========================================
-    // VRIJWILLIGERS lijst LOGICA
-    // ==========================================
 
-    async function laadVrijwilligers() {
-    const response = await fetch(`${CONFIG.apiBaseUrl}/vrijwilligers`);
-    const data = await response.json();
 
-    const tbody = document.getElementById('vrijwilligers-lijst');
-
-    if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5">Nog geen inschrijvingen.</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = data.map(v => `
-        <tr>
-            <td>${v.naam}</td>
-            <td>${v.tijdslot}</td>
-            <td>${v.job}</td>
-            <td><span class="status-badge status-${v.status}">${v.status}</span></td>
-            <td>
-                <button class="btn-secondary" onclick="wijzigStatus(${v.id}, 'geaccepteerd')">✓</button>
-                <button class="btn-secondary" onclick="wijzigStatus(${v.id}, 'geweigerd')">✗</button>
-            </td>
-        </tr>
-    `).join('');
-}
-
-    async function wijzigStatus(id, status) {
-        const response = await fetch(`${CONFIG.apiBaseUrl}/vrijwilligers/${id}/status`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status })
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            laadVrijwilligers(); // herlaad de lijst
-        } else {
-            alert('Fout: ' + result.error);
-        }
-    }
-
-laadVrijwilligers();
 
     // Start de applicatie
     laadFinancien();

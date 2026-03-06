@@ -43,8 +43,8 @@ def init_db():
             categorie TEXT NOT NULL
         )''')
     
-    cursor.execute('''DELETE FROM ploegen WHERE id > 2 ''') # Verwijder bestaande rollen om duplicaten te voorkomen
-    
+
+        
     cursor.execute('''CREATE TABLE IF NOT EXISTS rollen (
                 id INTEGER PRIMARY KEY AUTOINCREMENT, 
                 rol TEXT UNIQUE NOT NULL

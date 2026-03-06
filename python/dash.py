@@ -105,7 +105,7 @@ def get_vrijwilligers():
         cursor.execute("SELECT id, naam, tijdslot, job FROM vrijwilligers ORDER BY id DESC")
         rows = cursor.fetchall()
 
-    vrijwilligers = [{"id": r["id"], "naam": r["naam"], "tijdslot": r["tijdslot"], "job": r["job"],} for r in rows]
+    vrijwilligers = [{"id": r["id"], "naam": r["naam"], "tijdslot": r["tijdslot"], "job": r["job"], } for r in rows]
     return jsonify(vrijwilligers), 200
 
 
