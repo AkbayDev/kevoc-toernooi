@@ -313,82 +313,112 @@ cards.forEach(card => {
                 ploegMsg.textContent = err.message;
             }
         });
+        }
 
         // ==========================================
     // WEDSTRIJD ROOSTER LOGICA
     // ==========================================
-    const btnGenereerRooster = document.getElementById('btn-genereer-rooster');
-    const roosterMsg = document.getElementById('rooster-msg');
-    const roosterTbody = document.getElementById('rooster-tbody');
-    const adminRoosterControls = document.getElementById('admin-rooster-controls');
+    // Pak de nieuwe container (zorg dat id="rooster-kalender" in je HTML staat)
+const kalenderContainer = document.getElementById('rooster-kalender');
+const btnGenereerRooster = document.getElementById('btn-genereer-rooster');
+const roosterMsg = document.getElementById('rooster-msg');
+const adminRoosterControls = document.getElementById('admin-rooster-controls');
 
-    // Toon de 'Genereer' knop alleen als de ingelogde user een beheerder is
-    if (currentRole === 'beheerder' && adminRoosterControls) {
-        adminRoosterControls.classList.remove('hidden');
-    }
+// 1. Toon de 'Genereer' knop alleen voor beheerders
+if (typeof currentRole !== 'undefined' && currentRole === 'beheerder' && adminRoosterControls) {
+    adminRoosterControls.classList.remove('hidden');
+}
 
-    // Functie: Haal het huidige opgeslagen rooster op uit Python
-    async function laadRooster() {
-        if (!roosterTbody) return;
-        try {
-            const res = await fetch(`${CONFIG.apiBaseUrl}/rooster`);
-            const data = await res.json();
+// 2. Functie: Haal het rooster op en bouw de "kalender"
+async function laadRooster() {
+    if (!kalenderContainer) return;
+    
+    try {
+        const res = await fetch(`${CONFIG.apiBaseUrl}/rooster`);
+        const data = await res.json();
 
-            roosterTbody.innerHTML = ''; // Maak tabel eerst leeg
+        kalenderContainer.innerHTML = ''; // Maak de container leeg
 
-            if (data.length === 0) {
-                roosterTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Het toernooischema is nog niet gegenereerd.</td></tr>';
-                return;
-            }
-
-            // Loop door alle wedstrijden en bouw de tabel op
-            data.forEach(match => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${match.starttijd}</strong><br><span style="font-size:12px; color:#7f8c8d;">Ronde ${match.ronde}</span></td>
-                    <td><span style="background-color: #3498db; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">${match.reeks}</span></td>
-                    <td><strong>Veld ${match.veld}</strong></td>
-                    <td>${match.thuis_ploeg} <br> <span style="font-size:10px; color:#95a5a6;">vs</span> <br> ${match.uit_ploeg}</td>
-                    <td><em>${match.scheidsrechter || '-'}</em></td>
-                `;
-                roosterTbody.appendChild(tr);
-            });
-        } catch (err) {
-            console.error("Fout bij laden rooster:", err);
-            roosterTbody.innerHTML = '<tr><td colspan="5" style="color:#e74c3c; text-align:center;">Fout bij ophalen rooster.</td></tr>';
+        if (data.length === 0) {
+            kalenderContainer.innerHTML = '<p style="text-align:center; padding:20px;">Het toernooischema is nog niet gegenereerd.</p>';
+            return;
         }
-    }
 
-    // Functie: Stuur opdracht naar Python om het algoritme te laten lopen
-    if (btnGenereerRooster) {
-        btnGenereerRooster.addEventListener('click', async () => {
-            btnGenereerRooster.disabled = true; // Blokkeer knop tijdelijk tegen dubbelklikken
-            roosterMsg.style.color = "#2980b9";
-            roosterMsg.textContent = "Aan het puzzelen... 🧩";
+        // --- STAP: Groepeer de data per starttijd ---
+        const gegroepeerdPerTijd = data.reduce((acc, match) => {
+            if (!acc[match.starttijd]) acc[match.starttijd] = [];
+            acc[match.starttijd].push(match);
+            return acc;
+        }, {});
 
-            try {
-                const res = await fetch(`${CONFIG.apiBaseUrl}/rooster/genereer`, {
-                    method: 'POST'
-                });
-                const result = await res.json();
+        // --- STAP: Bouw de HTML blokken per tijdslot ---
+        Object.keys(gegroepeerdPerTijd).sort().forEach(tijd => {
+            const tijdslotDiv = document.createElement('div');
+            tijdslotDiv.className = 'tijd-slot';
 
-                if (!res.ok) throw new Error(result.error);
+            // Maak de kaartjes voor alle wedstrijden in dit tijdslot
+            const matchesHtml = gegroepeerdPerTijd[tijd].map(match => `
+                <div class="match-card">
+                    <div class="match-info">
+                        <span class="badge-veld">Veld ${match.veld}</span> 
+                        <span style="color:#3498db; font-weight:bold; margin-left:5px;">${match.reeks}</span>
+                    </div>
+                    <div class="match-teams">
+                        ${match.thuis_ploeg} <br>
+                        <small style="color:#bdc3c7; font-weight:normal;">vs</small><br>
+                        ${match.uit_ploeg}
+                    </div>
+                    <div class="match-info" style="border-top: 1px solid #eee; margin-top:5px; pt:5px;">
+                        <small>Ref: ${match.scheidsrechter || '-'}</small>
+                        <small style="float:right;">Ronde ${match.ronde}</small>
+                    </div>
+                </div>
+            `).join('');
 
-                roosterMsg.style.color = "#27ae60";
-                roosterMsg.textContent = result.message;
-
-                laadRooster(); // Herlaad de HTML tabel direct!
-
-                setTimeout(() => roosterMsg.textContent = "", 4000);
-            } catch (err) {
-                roosterMsg.style.color = "#e74c3c";
-                roosterMsg.textContent = err.message;
-            } finally {
-                btnGenereerRooster.disabled = false; // Zet knop weer aan
-            }
+            tijdslotDiv.innerHTML = `
+                <div class="slot-header">🕒 ${tijd}</div>
+                <div class="match-cards">${matchesHtml}</div>
+            `;
+            kalenderContainer.appendChild(tijdslotDiv);
         });
+
+    } catch (err) {
+        console.error("Fout bij laden rooster:", err);
+        kalenderContainer.innerHTML = '<p style="color:#e74c3c; text-align:center;">Fout bij ophalen rooster.</p>';
     }
-    }
+}
+
+// 3. Functie: De 'Genereer' knop actie
+if (btnGenereerRooster) {
+    btnGenereerRooster.addEventListener('click', async () => {
+        if(!confirm("Weet je het zeker? Het oude schema wordt verwijderd.")) return;
+
+        btnGenereerRooster.disabled = true;
+        roosterMsg.style.color = "#2980b9";
+        roosterMsg.textContent = "Aan het puzzelen... 🧩";
+
+        try {
+            const res = await fetch(`${CONFIG.apiBaseUrl}/rooster/genereer`, { method: 'POST' });
+            const result = await res.json();
+
+            if (!res.ok) throw new Error(result.error);
+
+            roosterMsg.style.color = "#27ae60";
+            roosterMsg.textContent = "Schema succesvol gegenereerd!";
+            
+            laadRooster(); // Ververs direct de weergave!
+
+            setTimeout(() => roosterMsg.textContent = "", 4000);
+        } catch (err) {
+            roosterMsg.style.color = "#e74c3c";
+            roosterMsg.textContent = err.message;
+        } finally {
+            btnGenereerRooster.disabled = false;
+        }
+    });
+}
+
+// Start direct met laden
 
     // ==========================================
     // VRIJWILLIGERS lijst LOGICA

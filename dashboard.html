@@ -163,32 +163,19 @@
             # WEDSTRIJDEN
             #-------------------------- -!>
         
-        <section class="dash-card" data-role="all" id="wedstrijden">
-            <h2>📅 Wedstrijd Rooster</h2>
-            <p>Overzicht van welk team op welk veld speelt en in welk tijdslot.</p>
+    <section class="dash-card" data-role="all" id="wedstrijden">
+    <h2>📅 Wedstrijd Rooster</h2>
+    
+    <div id="admin-rooster-controls" class="hidden" style="margin-bottom: 20px;">
+        <button id="btn-genereer-rooster" class="btn-primary">⚙️ Genereer Nieuw Schema</button>
+        <span id="rooster-msg"></span>
+    </div>
 
-            <div id="admin-rooster-controls" class="hidden" style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
-                <button id="btn-genereer-rooster" class="btn-primary" style="background-color: #f39c12;">⚙️ Genereer Nieuw Schema</button>
-                <span id="rooster-msg" style="margin-left: 10px; font-weight: bold; font-size: 14px;"></span>
-            </div>
+    <div id="rooster-kalender" class="kalender-grid">
+        <p style="text-align: center;">Laden...</p>
+    </div>
+</section>
 
-            <div style="overflow-x: auto;">
-                <table class="data-table" id="rooster-tabel">
-                    <thead>
-                        <tr>
-                            <th>Tijd</th>
-                            <th>Reeks</th>
-                            <th>Veld</th>
-                            <th>Match</th>
-                            <th>Scheids</th>
-                        </tr>
-                    </thead>
-                    <tbody id="rooster-tbody">
-                        <tr><td colspan="5" style="text-align: center;">Laden...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
 
         <!  #--------------------------
             # FINANCIËN

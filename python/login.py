@@ -12,7 +12,7 @@ from dash import dash_bp
 
 app = Flask(__name__)
 CORS(app) 
-app.register_blueprint(dash_bp)
+app.register_blueprint(dash_bp, ) 
 
 # --- CONFIGURATIE ---
 DB_NAME = 'users.db'  # Verander dit hier 1x om overal de naam aan te passen

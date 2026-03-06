@@ -42,10 +42,6 @@ def init_db():
             niveau TEXT NOT NULL,
             categorie TEXT NOT NULL
         )''')
-    cursor.execute('''
-                INSERT OR IGNORE INTO ploegen (ploeg, niveau, categorie, betaalstatus) 
-                VALUES ('club1', 'senioren', 'heren', 'betaald'), ('club2', 'senioren', 'dames', 'niet-betaald'), ('club3', 'senioren', 'senioren', 'betaald')
-            ''')
      
     cursor.execute('''CREATE TABLE IF NOT EXISTS rollen (
                 id INTEGER PRIMARY KEY AUTOINCREMENT, 
