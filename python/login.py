@@ -18,59 +18,7 @@ app.register_blueprint(dash_bp)
 DB_NAME = 'users.db'  # Verander dit hier 1x om overal de naam aan te passen
 resend.api_key = "re_123456789_VUL_DIT_IN"
 
-
-def init_db():
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            email TEXT UNIQUE NOT NULL, 
-            password TEXT NOT NULL, 
-            role TEXT NOT NULL, 
-            reset_code TEXT
-        )''')
-        
           
-        cursor.execute('''CREATE TABLE IF NOT EXISTS financien (
-            id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            omschrijving TEXT NOT NULL, 
-            bedrag REAL NOT NULL, 
-            type TEXT NOT NULL, 
-            datum TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )''')
-        cursor.execute('''CREATE TABLE IF NOT EXISTS ploegen (
-            id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            ploeg TEXT NOT NULL, 
-            betaalstatus TEXT NOT NULL,
-            niveau TEXT NOT NULL,
-            categorie TEXT NOT NULL
-        )''')
-        cursor.execute('''CREATE TABLE IF NOT EXISTS rollen (
-                id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                rol TEXT UNIQUE NOT NULL
-            )''')
-            
-            # 2. Gebruik INSERT OR IGNORE om duplicaten te voorkomen
-        cursor.execute('''
-                INSERT OR IGNORE INTO rollen (rol) 
-                VALUES ('beheerder'), ('gebruiker'), ('hulp')
-            ''')
-        
-        
-            # 3. maak een vrijwilligers  tabel
-        cursor.execute("""
-                CREATE TABLE IF NOT EXISTS vrijwilligers (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    naam TEXT NOT NULL,
-                    tijdslot TEXT NOT NULL,
-                    job TEXT NOT NULL,
-                    status TEXT NOT NULL DEFAULT 'afwachting',
-                    inschrijfdatum  DATETIME DEFAULT CURRENT_TIMESTAMP
-                )
-            """)
-        conn.commit()
-          
-init_db()
 
 # --- ROUTES ---
 
