@@ -1,4 +1,3 @@
-# dash.py
 from flask import Blueprint, request, jsonify
 from database import get_db_connection  # Importeer je helper
 

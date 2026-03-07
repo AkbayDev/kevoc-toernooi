@@ -8,12 +8,26 @@ import contextlib
 import os
 from database import get_db_connection  # Importeer je helper
 
+# Importeer al je opgesplitste Blueprints
+from routes.financien import financien_bp
+from routes.ploegen import ploegen_bp
+from routes.vrijwilligers import vrijwilligers_bp
+from routes.rooster import rooster_bp
+
 # Importeer de Blueprint vanuit dash.py
 from dash import dash_bp
 
 app = Flask(__name__)
 CORS(app)
-app.register_blueprint(dash_bp)
+
+# Registreer de blueprints en plak er in één keer '/api' voor!
+app.register_blueprint(financien_bp, url_prefix='/api')
+app.register_blueprint(ploegen_bp, url_prefix='/api')
+app.register_blueprint(vrijwilligers_bp, url_prefix='/api')
+app.register_blueprint(rooster_bp, url_prefix='/api')
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)
 
 # --- CONFIGURATIE ---
 DB_NAME = 'users.db'  # Verander dit hier 1x om overal de naam aan te passen
