@@ -141,6 +141,10 @@ def update_vrijwilliger_status(id):
 
     return jsonify({"message": "Status succesvol bijgewerkt!"}), 200
 
+# ==========================================
+# ROOSTER ENDPOINTS
+# ==========================================
+
 @dash_bp.route('/api/rooster', methods=['POST'])
 def genereer_rooster():
     """
