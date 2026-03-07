@@ -295,11 +295,16 @@ cards.forEach(card => {
                         tijdslot: tijdslot, 
                         job: job 
                     })
-                });                
+                });
+                const result = await res.json();
+
+                if (!res.ok) throw new Error(result.error);
+                vrijwilligersMsg.textContent = result.message;
+                formVrijwilligers.reset();                
+                laadVrijwilligers(); // Herlaad direct de HTML lijst!
                 
             } catch (err) {
-                ploegMsg.style.color = "#e74c3c";
-                ploegMsg.textContent = err.message;
+                vrijwilligersMsg.textContent = err.message;
             }
         });
         }
