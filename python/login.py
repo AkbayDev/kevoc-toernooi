@@ -15,7 +15,7 @@ from routes.vrijwilligers import vrijwilligers_bp
 from routes.rooster import rooster_bp
 
 # Importeer de Blueprint vanuit dash.py
-from dash import dash_bp
+from routes.dash import dash_bp
 
 app = Flask(__name__)
 CORS(app)
