@@ -13,6 +13,7 @@ from routes.financien import financien_bp
 from routes.ploegen import ploegen_bp
 from routes.vrijwilligers import vrijwilligers_bp
 from routes.rooster import rooster_bp
+from routes.werkrooster import werkrooster_bp
 from routes.login import login_bp
 
 app = Flask(__name__)
@@ -23,10 +24,11 @@ app.register_blueprint(financien_bp, url_prefix='/api')
 app.register_blueprint(ploegen_bp, url_prefix='/api')
 app.register_blueprint(vrijwilligers_bp, url_prefix='/api')
 app.register_blueprint(rooster_bp, url_prefix='/api')
-app.register_blueprint(login_bp, url_prefix='/api')  # <-- Deze was je kwijt!
+app.register_blueprint(werkrooster_bp, url_prefix='/api')
+app.register_blueprint(login_bp, url_prefix='/api')
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=False, port=5000)
 
 # --- CONFIGURATIE ---
 DB_NAME = 'users.db'  # Verander dit hier 1x om overal de naam aan te passen

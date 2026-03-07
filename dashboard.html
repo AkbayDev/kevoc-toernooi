@@ -152,7 +152,7 @@
         <!-- WEDSTRIJDEN -->
         
     <section class="dash-card admin-card hidden" data-role="beheerder" id="toernooi-dashboard">
-        <h2>🏆 Toernooi Schema</h2>
+        <h2>Toernooi Schema</h2>
         
         <div class="mb-4">
             <button id="btn-genereer" class="btn btn-primary">Genereer Nieuw Rooster</button>
@@ -162,10 +162,20 @@
         <div id="rooster-container">
             <p class="text-muted">Laden van wedstrijdschema...</p>
         </div>
-    </section> 
+    </section>
 
+    <section class="dash-card admin-card hidden" data-role="beheerder" id="werkrooster-sectie">
+        <h2>Werkrooster Inplannen</h2>
+        <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Plan geaccepteerde vrijwilligers in op verschillende jobrollen en tijdsloten.</p>
+        
+        <div id="werkrooster-msg" style="margin-bottom: 15px; font-weight: bold; font-size: 14px;"></div>
+        
+        <div id="werkrooster-grid" style="overflow-x: auto;">
+            <p class="text-muted">Laden van werkrooster...</p>
+        </div>
+    </section>
 
-        <!-- FINANCIËN -->
+    <!-- FINANCIËN -->
 
         <section class="dash-card admin-card hidden" data-role="beheerder" id="financien">
             <h2>Financiën & Kasboek</h2>

@@ -102,3 +102,18 @@ def reset_password():
             return jsonify({"message": "Wachtwoord gewijzigd!"}), 200
             
     return jsonify({"error": "Fout. Probeer opnieuw."}), 400
+
+@login_bp.route('/users/<email>/role', methods=['PATCH'])
+def update_user_role(email):
+    data = request.json
+    new_role = data.get('role')
+    
+    if new_role not in ['beheerder', 'hulp', 'gebruiker', 'dev']:
+        return jsonify({"error": "Ongeldige rol."}), 400
+    
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET role = ? WHERE email = ?", (new_role, email))
+        conn.commit()
+    
+    return jsonify({"message": f"Rol voor {email} gewijzigd naar {new_role}!"}), 200

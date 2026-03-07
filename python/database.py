@@ -5,7 +5,7 @@ import contextlib
 DATABASE_NAAM = 'users.db'
 
 def get_db_connection():
-    conn = sqlite3.connect(DATABASE_NAAM)
+    conn = sqlite3.connect(DATABASE_NAAM, timeout=5.0)
     # Zorgt ervoor dat we kolommen bij naam kunnen aanspreken ipv nummers (bijv. row['naam'])
     conn.row_factory = sqlite3.Row 
     return conn
@@ -90,6 +90,18 @@ def init_db():
         ('10:00-12:00', '10:00', 'A', 1, 2, 'Ploeg C', 'Ploeg D'),
         ('14:00-16:00', '14:00', 'B', 1, 1, 'Ploeg E', 'Ploeg F'),
         ('14:00-16:00', '14:00', 'B', 1, 2, 'Ploeg G', 'Ploeg H')
+    ''')
+    
+    # NIEUW: Tabel voor werkrooster
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS werkrooster (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            vrijwilliger_id INTEGER,
+            tijdslot TEXT NOT NULL,
+            jobrol TEXT NOT NULL,
+            opmerking TEXT,
+            FOREIGN KEY (vrijwilliger_id) REFERENCES vrijwilligers(id)
+        )
     ''')
     
     conn.commit()

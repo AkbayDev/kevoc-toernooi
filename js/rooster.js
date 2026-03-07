@@ -41,7 +41,7 @@ function renderRooster(gegroepeerdeData, container) {
         html += `
             <div class="tijd-slot" style="margin-bottom: 20px;">
                 <h3 class="slot-header" style="background: #34495e; color: white; padding: 10px; border-radius: 5px;">
-                    🕒 ${tijd}
+                    Tijd: ${tijd}
                 </h3>
                 <div class="match-cards" style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px;">
                     ${wedstrijden.map(match => {
