@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, Blueprint, request, jsonify
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
@@ -8,37 +8,11 @@ import contextlib
 import os
 from database import get_db_connection  # Importeer je helper
 
-# Importeer al je opgesplitste Blueprints
-from routes.financien import financien_bp
-from routes.ploegen import ploegen_bp
-from routes.vrijwilligers import vrijwilligers_bp
-from routes.rooster import rooster_bp
-
-# Importeer de Blueprint vanuit dash.py
-from routes.dash import dash_bp
-
-app = Flask(__name__)
-CORS(app)
-
-# Registreer de blueprints en plak er in één keer '/api' voor!
-app.register_blueprint(financien_bp, url_prefix='/api')
-app.register_blueprint(ploegen_bp, url_prefix='/api')
-app.register_blueprint(vrijwilligers_bp, url_prefix='/api')
-app.register_blueprint(rooster_bp, url_prefix='/api')
-
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
-
-# --- CONFIGURATIE ---
-DB_NAME = 'users.db'  # Verander dit hier 1x om overal de naam aan te passen
-# API key uit environment variable lezen (veiliger!)
-resend.api_key = os.getenv('RESEND_API_KEY', 're_NLShZa9R_Ej6QqqpgTqEYTjw178HssxUr')
-
+login_bp = Blueprint('login', __name__)
           
 
-# --- ROUTES ---
 
-@app.route('/api/register', methods=['POST'])
+@login_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
     email, password, role = data.get('email'), data.get('password'), data.get('role')
@@ -59,7 +33,7 @@ def register():
         
     return jsonify({"message": f"Account aangemaakt als {role}!"}), 201
 
-@app.route('/api/login', methods=['POST'])
+@login_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
     email, password = data.get('email'), data.get('password')
@@ -74,7 +48,7 @@ def login():
         
     return jsonify({"error": "Ongeldig e-mailadres of wachtwoord."}), 401
 
-@app.route('/api/forgot-password', methods=['POST'])
+@login_bp.route('/forgot-password', methods=['POST'])
 def forgot_password():
     email = request.json.get('email')
     
@@ -98,7 +72,7 @@ def forgot_password():
                 
     return jsonify({"message": "Als dit adres bestaat, is er een mail gestuurd."}), 200
 
-@app.route('/api/verify-code', methods=['POST'])
+@login_bp.route('/verify-code', methods=['POST'])
 def verify_code():
     data = request.json
     with get_db_connection() as conn:
@@ -111,7 +85,7 @@ def verify_code():
         
     return jsonify({"error": "Ongeldige code."}), 400
 
-@app.route('/api/reset-password', methods=['POST'])
+@login_bp.route('/reset-password', methods=['POST'])
 def reset_password():
     data = request.json
     with get_db_connection() as conn:
@@ -128,6 +102,3 @@ def reset_password():
             return jsonify({"message": "Wachtwoord gewijzigd!"}), 200
             
     return jsonify({"error": "Fout. Probeer opnieuw."}), 400
-
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
