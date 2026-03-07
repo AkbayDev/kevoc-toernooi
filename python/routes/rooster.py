@@ -11,9 +11,9 @@ def genereer_round_robin(ploegenlijst):
     if len(ploegenlijst) < 2:
         return []
 
-    # Als het aantal ploegen oneven is, voegen we een 'Rust' ploeg toe
+    # Een 'Rust' ploeg toevoegen bij een oneven aantal
     if len(ploegenlijst) % 2 != 0:
-        ploegenlijst.append({"naam": "Rust (Vrij)", "niveau": ploegenlijst[0]["niveau"]})
+        ploegenlijst.append({"naam": "Rust (Vrij)"})
 
     aantal_ploegen = len(ploegenlijst)
     rondes = []
@@ -24,7 +24,6 @@ def genereer_round_robin(ploegenlijst):
             thuis = ploegenlijst[i]
             uit = ploegenlijst[aantal_ploegen - 1 - i]
             
-            # Voeg de wedstrijd toe (sla over als iemand tegen 'Rust' speelt)
             if thuis["naam"] != "Rust (Vrij)" and uit["naam"] != "Rust (Vrij)":
                 wedstrijden_in_ronde.append({
                     "ronde": ronde + 1,
@@ -33,28 +32,27 @@ def genereer_round_robin(ploegenlijst):
                 })
         
         rondes.append(wedstrijden_in_ronde)
-        # Roteer ploegen voor de volgende ronde (de eerste ploeg blijft staan)
         ploegenlijst.insert(1, ploegenlijst.pop())
 
     return rondes
 
-def plan_wedstrijden_in(rondes_per_niveau):
+def plan_wedstrijden_in(rondes_per_reeks):
     """
     Verdeelt de gemaakte rondes over de tijd en beschikbare velden.
     """
     start_tijd = datetime.strptime("10:00", "%H:%M")
-    wedstrijd_duur = timedelta(minutes=30) # Elke wedstrijd duurt 30 min
-    aantal_velden = 4 # Pas dit aan naar hoeveel velden jullie hebben!
+    wedstrijd_duur = timedelta(minutes=45) # Elke wedstrijd duurt 45 min
+    aantal_velden = 3 
     
     geplande_wedstrijden = []
     huidige_tijd = start_tijd
     
     # We voegen alle wedstrijden uit alle reeksen (niveaus) samen in 1 grote wachtrij
     wachtrij = []
-    for niveau, rondes in rondes_per_niveau.items():
+    for reeks, rondes in rondes_per_reeks.items():
         for ronde_wedstrijden in rondes:
             for match in ronde_wedstrijden:
-                match["reeks"] = niveau # Label toevoegen
+                match["reeks"] = reeks # Label toevoegen
                 wachtrij.append(match)
 
     # Wedstrijden inplannen op velden
@@ -91,31 +89,37 @@ def genereer_rooster():
         cursor = conn.cursor()
         
         # 1. Haal alle ploegen op
-        cursor.execute("SELECT ploeg AS naam, niveau FROM ploegen")
+        cursor.execute("SELECT ploeg AS naam, niveau, categorie FROM ploegen")
         ploegen_db = cursor.fetchall()
         
         if len(ploegen_db) < 2:
             return jsonify({"error": "Er zijn te weinig ploegen ingeschreven om een rooster te maken!"}), 400
 
-        # 2. Groepeer ploegen op hun niveau (zodat competitiespelers niet tegen recreanten spelen)
-        ploegen_per_niveau = {}
+        # 2. Groepeer ploegen op hun gender en niveau (zodat competitiespelers niet tegen recreanten spelen)
+        ploegen_per_reeks = {}
         for row in ploegen_db:
             niv = row["niveau"]
-            if niv not in ploegen_per_niveau:
-                ploegen_per_niveau[niv] = []
-            ploegen_per_niveau[niv].append({"naam": row["naam"], "niveau": niv})
+            cat = row["categorie"] # Bijv. "Heren" of "Dames"
+            
+            # Maak een mooie label aan, bijv: "Heren - Competitie"
+            reeks_naam = f"{cat} - {niv}".title() 
+            
+            if reeks_naam not in ploegen_per_reeks:
+                ploegen_per_reeks[reeks_naam] = []
+                
+            ploegen_per_reeks[reeks_naam].append({"naam": row["naam"]})
 
-        # 3. Genereer de rondes per niveau
-        rondes_per_niveau = {}
-        for niv, ploegen in ploegen_per_niveau.items():
-            rondes_per_niveau[niv] = genereer_round_robin(ploegen)
+        # 3. Genereer de rondes per REEKS (dus Heren en Dames blijven strak gescheiden)
+        rondes_per_reeks = {}
+        for reeks_naam, ploegen in ploegen_per_reeks.items():
+            rondes_per_reeks[reeks_naam] = genereer_round_robin(ploegen)
 
         # 4. Plan alles in op tijd en veld
-        compleet_rooster = plan_wedstrijden_in(rondes_per_niveau)
+        compleet_rooster = plan_wedstrijden_in(rondes_per_reeks)
 
         # 5. Opslaan in de database
         try:
-            cursor.execute("DELETE FROM wedstrijden") # Oude rooster wissen
+            cursor.execute("DELETE FROM wedstrijden") 
             
             for match in compleet_rooster:
                 cursor.execute('''
