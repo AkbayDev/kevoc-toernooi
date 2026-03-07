@@ -131,7 +131,7 @@ def add_vrijwilliger():
 @dash_bp.route('/api/vrijwilligers/<int:id>/status', methods=['PATCH'])
 def update_vrijwilliger_status(id):
     new_status = request.json.get('status')
-    if new_status not in ['geaccepteerd', 'afgewezen', 'in behandeling']:
+    if new_status not in ['afwachtend', 'geaccepteerd', 'afgewezen', 'in behandeling']:
         return jsonify({"error": "Ongeldige status."}), 400
 
     with get_db_connection() as conn:
