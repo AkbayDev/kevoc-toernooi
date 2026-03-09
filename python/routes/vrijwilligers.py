@@ -41,7 +41,36 @@ def update_vrijwilliger_status(id):
 
     with get_db_connection() as conn:
         cursor = conn.cursor()
+        
+        # Haal vrijwilliger info op
+        cursor.execute("SELECT id, naam, tijdslot, job FROM vrijwilligers WHERE id = ?", (id,))
+        vrijwilliger = cursor.fetchone()
+        
+        if not vrijwilliger:
+            return jsonify({"error": "Vrijwilliger niet gevonden."}), 404
+        
+        # Update status
         cursor.execute("UPDATE vrijwilligers SET status = ? WHERE id = ?", (new_status, id))
+        
+        # Als geaccepteerd: probeer automatisch in werkrooster in te plannen
+        message = "Status succesvol bijgewerkt!"
+        if new_status == 'geaccepteerd':
+            # Check of deze combinatie al bezet is
+            cursor.execute(
+                "SELECT id FROM werkrooster WHERE tijdslot = ? AND jobrol = ?",
+                (vrijwilliger['tijdslot'], vrijwilliger['job'])
+            )
+            
+            if cursor.fetchone() is None:
+                # Vrij dus toevoegen aan werkrooster
+                cursor.execute(
+                    "INSERT INTO werkrooster (vrijwilliger_id, jobrol, tijdslot) VALUES (?, ?, ?)",
+                    (id, vrijwilliger['job'], vrijwilliger['tijdslot'])
+                )
+                message = f"Status geaccepteerd en automatisch ingepland op {vrijwilliger['tijdslot']}!"
+            else:
+                message = f"Status geaccepteerd maar {vrijwilliger['tijdslot']} is al bezet - handmatig inplannen nodig."
+        
         conn.commit()
 
-    return jsonify({"message": "Status succesvol bijgewerkt!"}), 200
+    return jsonify({"message": message}), 200

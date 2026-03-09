@@ -1,4 +1,5 @@
 import { CONFIG } from './api.js';
+import { herlaadWerkrooster } from './werkrooster.js';
 
 async function laadVrijwilligers() {
     const vrijwilligersLijst = document.getElementById('vrijwilligers-lijst');
@@ -75,7 +76,8 @@ export function initVrijwilligers() {
                         body: JSON.stringify({ status })
                     });
                     if (res.ok) {
-                        laadVrijwilligers(); 
+                        laadVrijwilligers();
+                        await herlaadWerkrooster();
                     } else {
                         const result = await res.json();
                         alert('Fout: ' + result.error);

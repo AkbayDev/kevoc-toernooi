@@ -26,6 +26,10 @@ async function laadWerkrooster() {
     }
 }
 
+export async function herlaadWerkrooster() {
+    await laadWerkrooster();
+}
+
 function renderWerkrooster(roosterData, beschikbareVrijwilligers, container) {
     let html = '<table class="data-table" style="width: 100%; border-collapse: collapse;">';
     
