@@ -85,13 +85,6 @@ def init_db():
         )
     ''')
     
-    cursor.execute('''  INSERT OR IGNORE INTO wedstrijden (tijdsblok, starttijd, reeks, ronde, veld, thuis_ploeg, uit_ploeg) VALUES
-        ('10:00-12:00', '10:00', 'A', 1, 1, 'Ploeg A', 'Ploeg B'),
-        ('10:00-12:00', '10:00', 'A', 1, 2, 'Ploeg C', 'Ploeg D'),
-        ('14:00-16:00', '14:00', 'B', 1, 1, 'Ploeg E', 'Ploeg F'),
-        ('14:00-16:00', '14:00', 'B', 1, 2, 'Ploeg G', 'Ploeg H')
-    ''')
-    
     # NIEUW: Tabel voor werkrooster
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS werkrooster (
