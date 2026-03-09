@@ -48,7 +48,7 @@ def plan_wedstrijden_in(rondes_per_reeks, scheidsrechters):
     
     aantal_velden = 3 
     
-    # Trackers: We houden de klok bij per veld én per team
+    # Trackers: We houden de klok bij per veld en per team
     velden_beschikbaar = {veld_nr: start_tijd for veld_nr in range(1, aantal_velden + 1)}
     team_beschikbaar = {} 
     voorkeurs_velden = {} 

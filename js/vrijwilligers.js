@@ -1,5 +1,27 @@
 import { CONFIG } from './api.js';
 import { herlaadWerkrooster } from './werkrooster.js';
+import { laadRooster } from './rooster.js';
+
+// Laad beschikbare wedstrijden voor scheidsrechters
+async function laadBeschikbareWedstrijden() {
+    try {
+        const res = await fetch(`${CONFIG.apiBaseUrl}/wedstrijden/beschikbaar`);
+        const wedstrijden = await res.json();
+        const dropdown = document.getElementById('vrijwilliger-wedstrijd');
+        
+        if (dropdown) {
+            dropdown.innerHTML = '<option value="" disabled selected>Kies een wedstrijd...</option>';
+            wedstrijden.forEach(w => {
+                const option = document.createElement('option');
+                option.value = w.id;
+                option.textContent = w.display;
+                dropdown.appendChild(option);
+            });
+        }
+    } catch (err) {
+        console.error("Fout bij laden wedstrijden:", err);
+    }
+}
 
 async function laadVrijwilligers() {
     const vrijwilligersLijst = document.getElementById('vrijwilligers-lijst');
@@ -9,7 +31,7 @@ async function laadVrijwilligers() {
         const data = await res.json();
 
         if (data.length === 0) {
-            vrijwilligersLijst.innerHTML = '<tr><td colspan="5">Nog geen inschrijvingen.</td></tr>';
+            vrijwilligersLijst.innerHTML = '<tr><td colspan="6">Nog geen inschrijvingen.</td></tr>';
             return;
         }
 
@@ -18,6 +40,7 @@ async function laadVrijwilligers() {
                 <td>${v.naam}</td>
                 <td>${v.tijdslot}</td>
                 <td>${v.job}</td>
+                <td>${v.wedstrijd_info || '-'}</td>
                 <td><span class="status-badge status-${v.status}">${v.status}</span></td>
                 <td>
                     <button class="btn-secondary btn-status" data-id="${v.id}" data-status="geaccepteerd">✓</button>
@@ -30,17 +53,45 @@ async function laadVrijwilligers() {
 
 export function initVrijwilligers() {
     laadVrijwilligers();
+    laadBeschikbareWedstrijden();
+    
     const formVrijwilligers = document.getElementById('form-vrijwilligers');
     const vrijwilligersMsg = document.getElementById('vrijwilligers-msg');
     const vrijwilligersLijst = document.getElementById('vrijwilligers-lijst');
+    const jobrolDropdown = document.getElementById('vrijwilliger-job');
+    const wedstrijdDropdown = document.getElementById('vrijwilliger-wedstrijd');
+
+    // Event listener op jobrol dropdown
+    if (jobrolDropdown) {
+        jobrolDropdown.addEventListener('change', (e) => {
+            if (e.target.value === 'Scheidsrechter') {
+                if (wedstrijdDropdown) {
+                    wedstrijdDropdown.style.display = 'block';
+                    wedstrijdDropdown.required = true;
+                }
+            } else {
+                if (wedstrijdDropdown) {
+                    wedstrijdDropdown.style.display = 'none';
+                    wedstrijdDropdown.required = false;
+                    wedstrijdDropdown.value = '';
+                }
+            }
+        });
+    }
 
     if (formVrijwilligers) {
         formVrijwilligers.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const job = document.getElementById('vrijwilliger-job').value;
+            const wedstrijd_id = job === 'Scheidsrechter' 
+                ? document.getElementById('vrijwilliger-wedstrijd').value 
+                : null;
+
             const payload = {
                 naam: document.getElementById('vrijwilliger-naam').value,
                 tijdslot: document.getElementById('vrijwilliger-tijdslot').value,
-                job: document.getElementById('vrijwilliger-job').value
+                job: job,
+                wedstrijd_id: wedstrijd_id ? parseInt(wedstrijd_id) : null
             };
 
             try {
@@ -53,8 +104,13 @@ export function initVrijwilligers() {
                 if (!res.ok) throw new Error(result.error);
                 
                 if (vrijwilligersMsg) vrijwilligersMsg.textContent = result.message;
-                formVrijwilligers.reset();                
-                laadVrijwilligers();
+                formVrijwilligers.reset();
+                if (wedstrijdDropdown) {
+                    wedstrijdDropdown.style.display = 'none';
+                    wedstrijdDropdown.required = false;
+                }
+                await laadVrijwilligers();
+                await laadBeschikbareWedstrijden();
             } catch (err) {
                 if (vrijwilligersMsg) vrijwilligersMsg.textContent = err.message;
             }
@@ -75,14 +131,24 @@ export function initVrijwilligers() {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ status })
                     });
-                    if (res.ok) {
-                        laadVrijwilligers();
-                        await herlaadWerkrooster();
-                    } else {
-                        const result = await res.json();
-                        alert('Fout: ' + result.error);
+                    const result = await res.json();
+                    if (!res.ok) throw new Error(result.error);
+                    
+                    if (vrijwilligersMsg) {
+                        vrijwilligersMsg.style.color = '#27ae60';
+                        vrijwilligersMsg.textContent = result.message;
                     }
-                } catch (err) { console.error("Fout bij wijzigen status:", err); }
+                    setTimeout(() => { if (vrijwilligersMsg) vrijwilligersMsg.textContent = ''; }, 3000);
+                    laadVrijwilligers();
+                    await herlaadWerkrooster();
+                    await laadRooster();
+                    await laadBeschikbareWedstrijden();
+                } catch (err) {
+                    if (vrijwilligersMsg) {
+                        vrijwilligersMsg.style.color = '#e74c3c';
+                        vrijwilligersMsg.textContent = err.message;
+                    }
+                }
             }
         });
     }

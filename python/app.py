@@ -32,5 +32,5 @@ if __name__ == '__main__':
 
 # --- CONFIGURATIE ---
 DB_NAME = 'users.db'  # Verander dit hier 1x om overal de naam aan te passen
-# API key uit environment variable lezen (veiliger!)
+# API key uit environment variable lezen
 resend.api_key = os.getenv('RESEND_API_KEY', 're_NLShZa9R_Ej6QqqpgTqEYTjw178HssxUr')

@@ -101,11 +101,15 @@
                     <option value="Coordinator">Coordinator</option>
                     <option value="Opzetten tafel & T-shirts">Opzetten tafel & T-shirts</option>
                     <option value="Klaarzetten Velden">Klaarzetten Velden</option>
-                    <option value="Verwelkoming & Score keeping">Verwelkoming & Score keeping</option>
+                    <option value="Scheidsrechter">Scheidsrechter</option>
                     <option value="Afbreken velden & opruimen zaal">Afbreken velden & opruimen zaal</option>
+                </select>
+                <select id="vrijwilliger-wedstrijd" style="display: none;" required>
+                    <option value="" disabled selected>Kies een wedstrijd...</option>
                 </select>
                 <button type="submit" class="btn-primary">Ik kom helpen!</button>
             </form>
+            <div id="vrijwilligers-msg" style="margin-bottom: 15px; font-weight: bold; font-size: 14px;"></div>
         </section>
 
         <section class="dash-card beheerder-card" data-role="beheerder" id="vrijwilligers-overzicht">
@@ -116,12 +120,13 @@
                         <th>Naam</th>
                         <th>Tijdslot</th>
                         <th>Job</th>
+                        <th>Wedstrijd</th>
                         <th>Status</th>
                         <th>Actie</th>
                     </tr>
                 </thead>
                 <tbody id="vrijwilligers-lijst">
-                    <tr><td colspan="5">Laden...</td></tr>
+                    <tr><td colspan="6">Laden...</td></tr>
                 </tbody>
             </table>
         </section>

@@ -5,7 +5,7 @@ const JOBROLLEN = [
     'Coordinator',
     'Opzetten tafel & T-shirts',
     'Klaarzetten Velden',
-    'Verwelkoming & Score keeping',
+    'Scheidsrechter',
     'Afbreken velden & opruimen zaal'
 ];
 
@@ -120,7 +120,6 @@ export function initWerkrooster() {
                         werkroosterMsg.style.color = '#27ae60';
                         werkroosterMsg.textContent = result.message;
                     }
-                    setTimeout(() => { if (werkroosterMsg) werkroosterMsg.textContent = ''; }, 3000);
                     laadWerkrooster();
                 } catch (err) {
                     if (werkroosterMsg) {
@@ -146,7 +145,6 @@ export function initWerkrooster() {
                         werkroosterMsg.style.color = '#27ae60';
                         werkroosterMsg.textContent = result.message;
                     }
-                    setTimeout(() => { if (werkroosterMsg) werkroosterMsg.textContent = ''; }, 3000);
                     laadWerkrooster();
                 } catch (err) {
                     if (werkroosterMsg) {

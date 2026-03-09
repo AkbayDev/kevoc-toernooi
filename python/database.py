@@ -65,7 +65,9 @@ def init_db():
                     tijdslot TEXT NOT NULL,
                     job TEXT NOT NULL,
                     status TEXT NOT NULL DEFAULT 'afwachtend',
-                    inschrijfdatum  DATETIME DEFAULT CURRENT_TIMESTAMP
+                    wedstrijd_id INTEGER DEFAULT NULL,
+                    inschrijfdatum  DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (wedstrijd_id) REFERENCES wedstrijden(id)
                 )
             """)
     
@@ -96,6 +98,22 @@ def init_db():
             FOREIGN KEY (vrijwilliger_id) REFERENCES vrijwilligers(id)
         )
     ''')
+    
+    # Update bestaande jobrollen
+    cursor.execute(
+        "UPDATE vrijwilligers SET job = ? WHERE job = ?",
+        ('Scheidsrechter', 'Verwelkoming & Score keeping')
+    )
+    cursor.execute(
+        "UPDATE werkrooster SET jobrol = ? WHERE jobrol = ?",
+        ('Scheidsrechter', 'Verwelkoming & Score keeping')
+    )
+    
+    # Voeg wedstrijd_id kolom toe as deze nog niet bestaat (voor bestaande databases)
+    try:
+        cursor.execute("ALTER TABLE vrijwilligers ADD COLUMN wedstrijd_id INTEGER DEFAULT NULL")
+    except:
+        pass  # Kolom bestaat al
     
     conn.commit()
     conn.close()
