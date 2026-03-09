@@ -483,3 +483,38 @@ nav ul li a:hover {
     border: 2px dashed #d1d5db;
     margin-top: 10px;
 }
+/* --- Tijdslot Agenda Styling --- */
+.slot-header {
+    border-bottom: 2px solid #f3f4f6;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+
+.slot-title {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 8px;
+}
+
+.slot-agenda {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.tijd-highlight {
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: #f3f4f6;
+    margin-right: 4px;
+}
+
+/* Subtiele kleuren voor de tijdstippen */
+.text-orange { color: #d97706; }
+.text-green { color: #059669; }
+.text-gray { color: #4b5563; }

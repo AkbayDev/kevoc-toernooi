@@ -36,50 +36,102 @@ def genereer_round_robin(ploegenlijst):
 
     return rondes
 
-def plan_wedstrijden_in(rondes_per_reeks):
+def plan_wedstrijden_in(rondes_per_reeks, scheidsrechters):
     """
-    Verdeelt de gemaakte rondes over de tijd en beschikbare velden.
+    Verdeelt de gemaakte rondes over de tijd en beschikbare velden,
+    inclusief opwarming en slimme veldtoewijzing (voorkeursvelden per reeks).
     """
     start_tijd = datetime.strptime("10:00", "%H:%M")
-    wedstrijd_duur = timedelta(minutes=45) # Elke wedstrijd duurt 45 min
+    wedstrijd_duur = timedelta(minutes=45) 
+    opwarming_duur = timedelta(minutes=10)
+    # Totaal is nu 55 minuten per slot
+    
     aantal_velden = 3 
     
-    geplande_wedstrijden = []
-    huidige_tijd = start_tijd
+    # Trackers: We houden de klok bij per veld én per team
+    velden_beschikbaar = {veld_nr: start_tijd for veld_nr in range(1, aantal_velden + 1)}
+    team_beschikbaar = {} 
+    voorkeurs_velden = {} 
     
-    # We voegen alle wedstrijden uit alle reeksen (niveaus) samen in 1 grote wachtrij
+    # 1. Haal alle wedstrijden uit elkaar, maar mix ze netjes per ronde
     wachtrij = []
-    for reeks, rondes in rondes_per_reeks.items():
-        for ronde_wedstrijden in rondes:
-            for match in ronde_wedstrijden:
-                match["reeks"] = reeks # Label toevoegen
-                wachtrij.append(match)
+    max_rondes = max((len(r) for r in rondes_per_reeks.values()), default=0)
+    
+    for ronde_idx in range(max_rondes):
+        for reeks, rondes in rondes_per_reeks.items():
+            if ronde_idx < len(rondes):
+                for match in rondes[ronde_idx]:
+                    match["reeks"] = reeks
+                    wachtrij.append(match)
 
-    # Wedstrijden inplannen op velden
-    while wachtrij:
-        eind_tijd = huidige_tijd + wedstrijd_duur
-        tijdsblok_str = f"{huidige_tijd.strftime('%H:%M')}-{eind_tijd.strftime('%H:%M')}"
-        starttijd_str = huidige_tijd.strftime('%H:%M')
+    geplande_wedstrijden = []
+    scheids_teller = 0
 
-        # Vul de velden voor dit tijdsblok (1 t/m max aantal velden)
-        for veld_nr in range(1, aantal_velden + 1):
-            if not wachtrij:
-                break # Geen wedstrijden meer over
+    # 2. Plan elke wedstrijd slim in
+    for match in wachtrij:
+        thuis = match["thuis"]
+        uit = match["uit"]
+        reeks = match["reeks"]
+        
+        # Initialiseer trackers voor nieuwe teams of reeksen
+        if thuis not in team_beschikbaar: team_beschikbaar[thuis] = start_tijd
+        if uit not in team_beschikbaar: team_beschikbaar[uit] = start_tijd
+        if reeks not in voorkeurs_velden: voorkeurs_velden[reeks] = {v: 0 for v in range(1, aantal_velden + 1)}
+        
+        # Wanneer kunnen BEIDE teams op zijn vroegst weer spelen?
+        vroegste_team_tijd = max(team_beschikbaar[thuis], team_beschikbaar[uit])
+        
+        # We zoeken nu het beste veld
+        beste_veld = 1
+        beste_starttijd = datetime.max
+        
+        for veld_id, v_tijd in velden_beschikbaar.items():
+            mogelijke_start = max(v_tijd, vroegste_team_tijd)
             
-            match = wachtrij.pop(0)
-            geplande_wedstrijden.append({
-                "tijdsblok": tijdsblok_str,
-                "starttijd": starttijd_str,
-                "reeks": match["reeks"],
-                "ronde": match["ronde"],
-                "veld": veld_nr,
-                "thuis_ploeg": match["thuis"],
-                "uit_ploeg": match["uit"],
-                "scheidsrechter": "TBD" # Kan later handmatig ingevuld worden
-            })
-            
-        # Schuif de tijd op voor de volgende lichting wedstrijden
-        huidige_tijd += wedstrijd_duur
+            if mogelijke_start < beste_starttijd:
+                beste_starttijd = mogelijke_start
+                beste_veld = veld_id
+            elif mogelijke_start == beste_starttijd:
+                if voorkeurs_velden[reeks][veld_id] > voorkeurs_velden[reeks][beste_veld]:
+                    beste_veld = veld_id
+
+        # Veld is gekozen, nu de tijden definitief berekenen
+        start_opwarming = beste_starttijd
+        aftrap = start_opwarming + opwarming_duur
+        eind_match = aftrap + wedstrijd_duur
+        
+        # Bepaal dagdeel voor de scheidsrechter
+        match_dagdeel = "voormiddag" if start_opwarming.hour < 13 else "namiddag"
+        
+        # Filter beschikbare scheidsrechters
+        beschikbare_scheids = [s["naam"] for s in scheidsrechters if s["tijdslot"] in [match_dagdeel, "hele_dag"]]
+        
+        toegewezen_scheids = "TBD"
+        if beschikbare_scheids:
+            toegewezen_scheids = beschikbare_scheids[scheids_teller % len(beschikbare_scheids)]
+            scheids_teller += 1
+
+        tijdsblok_str = f"{start_opwarming.strftime('%H:%M')} - {eind_match.strftime('%H:%M')}"
+        
+        # DE ENIGE APPEND (de "TBD" kopie is nu verwijderd!)
+        geplande_wedstrijden.append({
+            "tijdsblok": tijdsblok_str,
+            "starttijd": start_opwarming.strftime('%H:%M'), 
+            "reeks": reeks,
+            "ronde": match["ronde"],
+            "veld": beste_veld,
+            "thuis_ploeg": thuis,
+            "uit_ploeg": uit,
+            "scheidsrechter": toegewezen_scheids 
+        })
+        
+        # Klokken updaten voor de volgende ronde in de loop
+        velden_beschikbaar[beste_veld] = eind_match
+        team_beschikbaar[thuis] = eind_match
+        team_beschikbaar[uit] = eind_match
+        
+        # Geef deze reeks "punten" voor dit veld
+        voorkeurs_velden[reeks][beste_veld] += 1
 
     return geplande_wedstrijden
 
@@ -94,6 +146,14 @@ def genereer_rooster():
         
         if len(ploegen_db) < 2:
             return jsonify({"error": "Er zijn te weinig ploegen ingeschreven om een rooster te maken!"}), 400
+        
+        cursor.execute('''
+            SELECT naam, tijdslot 
+            FROM vrijwilligers 
+            WHERE job = 'scheids' AND status = 'geaccepteerd'
+        ''')
+        scheidsrechters_db = cursor.fetchall()
+        scheidsrechters_lijst = [{"naam": row["naam"], "tijdslot": row["tijdslot"]} for row in scheidsrechters_db]
 
         # 2. Groepeer ploegen op hun gender en niveau (zodat competitiespelers niet tegen recreanten spelen)
         ploegen_per_reeks = {}
@@ -115,7 +175,7 @@ def genereer_rooster():
             rondes_per_reeks[reeks_naam] = genereer_round_robin(ploegen)
 
         # 4. Plan alles in op tijd en veld
-        compleet_rooster = plan_wedstrijden_in(rondes_per_reeks)
+        compleet_rooster = plan_wedstrijden_in(rondes_per_reeks, scheidsrechters_lijst)
 
         # 5. Opslaan in de database
         try:
