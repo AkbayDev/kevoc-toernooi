@@ -28,7 +28,7 @@ app.register_blueprint(werkrooster_bp, url_prefix='/api')
 app.register_blueprint(login_bp, url_prefix='/api')
 
 if __name__ == '__main__':
-    app.run(debug=False, port=5000)
+    app.run(debug=True, port=5000)
 
 # --- CONFIGURATIE ---
 DB_NAME = 'users.db'  # Verander dit hier 1x om overal de naam aan te passen
