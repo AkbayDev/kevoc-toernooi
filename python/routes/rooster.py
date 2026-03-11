@@ -38,50 +38,68 @@ def genereer_round_robin(ploegenlijst):
 
 def plan_wedstrijden_in(rondes_per_reeks, scheidsrechters):
     """
-    Verdeelt de gemaakte rondes over de tijd en beschikbare velden,
-    inclusief opwarming en slimme veldtoewijzing (voorkeursvelden per reeks).
+    Verdeelt de gemaakte rondes over de tijd en beschikbare velden.
+    Jeugd wordt eerst volledig afgewerkt, daarna pas de senioren.
     """
     start_tijd = datetime.strptime("10:00", "%H:%M")
     wedstrijd_duur = timedelta(minutes=45) 
     opwarming_duur = timedelta(minutes=10)
-    # Totaal is nu 55 minuten per slot
     
     aantal_velden = 3 
     
-    # Trackers: We houden de klok bij per veld én per team
     velden_beschikbaar = {veld_nr: start_tijd for veld_nr in range(1, aantal_velden + 1)}
     team_beschikbaar = {} 
     voorkeurs_velden = {} 
     
-    # 1. Haal alle wedstrijden uit elkaar, maar mix ze netjes per ronde
+    # --- STAP 1: GROEPEER OP PRIORITEIT ---
+    def sorteer_prioriteit(reeks_naam):
+        naam_lower = reeks_naam.lower()
+        if 'jeugd' in naam_lower: return 1  # Jeugd = Groep 1 (Ochtend)
+        elif 'senior' in naam_lower: return 3 # Senior = Groep 3 (Namiddag/Avond)
+        return 2 # Rest = Groep 2 (Midden)
+
+    reeksen_per_prio = {1: [], 2: [], 3: []}
+    for reeks in rondes_per_reeks.keys():
+        reeksen_per_prio[sorteer_prioriteit(reeks)].append(reeks)
+
+    # --- STAP 2: BOUW DE WACHTRIJ IN FASES ---
     wachtrij = []
-    max_rondes = max((len(r) for r in rondes_per_reeks.values()), default=0)
     
-    for ronde_idx in range(max_rondes):
-        for reeks, rondes in rondes_per_reeks.items():
-            if ronde_idx < len(rondes):
-                for match in rondes[ronde_idx]:
-                    match["reeks"] = reeks
-                    wachtrij.append(match)
+    # We lopen eerst Groep 1 (Jeugd) volledig af, dan Groep 2, dan Groep 3 (Senior)
+    for prio in [1, 2, 3]:
+        groep_reeksen = reeksen_per_prio[prio]
+        if not groep_reeksen:
+            continue # Sla over als er bv. geen Groep 2 is
+            
+        # Bereken de maximale rondes alleen voor DEZE groep
+        max_rondes_groep = max((len(rondes_per_reeks[r]) for r in groep_reeksen), default=0)
+        
+        # Mix de rondes (zodat teams kunnen rusten) ALLEEN binnen hun eigen groep
+        for ronde_idx in range(max_rondes_groep):
+            for reeks in groep_reeksen:
+                rondes = rondes_per_reeks[reeks]
+                if ronde_idx < len(rondes):
+                    for match in rondes[ronde_idx]:
+                        match["reeks"] = reeks
+                        wachtrij.append(match)
 
     geplande_wedstrijden = []
     scheids_teller = 0
 
-    # 2. Plan elke wedstrijd slim in
+    # --- STAP 3: PLAN DE WACHTRIJ IN ---
+    # Omdat alle jeugdwedstrijden nu vooraan in de wachtrij staan, 
+    # claimen zij automatisch alle vroege tijden op alle velden!
     for match in wachtrij:
         thuis = match["thuis"]
         uit = match["uit"]
         reeks = match["reeks"]
         
-        # Initialiseer trackers voor nieuwe teams of reeksen
         if thuis not in team_beschikbaar: team_beschikbaar[thuis] = start_tijd
         if uit not in team_beschikbaar: team_beschikbaar[uit] = start_tijd
         if reeks not in voorkeurs_velden: voorkeurs_velden[reeks] = {v: 0 for v in range(1, aantal_velden + 1)}
         
-        # Wanneer kunnen BEIDE teams op zijn vroegst weer spelen?
         vroegste_team_tijd = max(team_beschikbaar[thuis], team_beschikbaar[uit])
         
-        # We zoeken nu het beste veld
         beste_veld = 1
         beste_starttijd = datetime.max
         
@@ -95,15 +113,11 @@ def plan_wedstrijden_in(rondes_per_reeks, scheidsrechters):
                 if voorkeurs_velden[reeks][veld_id] > voorkeurs_velden[reeks][beste_veld]:
                     beste_veld = veld_id
 
-        # Veld is gekozen, nu de tijden definitief berekenen
         start_opwarming = beste_starttijd
         aftrap = start_opwarming + opwarming_duur
         eind_match = aftrap + wedstrijd_duur
         
-        # Bepaal dagdeel voor de scheidsrechter
         match_dagdeel = "voormiddag" if start_opwarming.hour < 13 else "namiddag"
-        
-        # Filter beschikbare scheidsrechters
         beschikbare_scheids = [s["naam"] for s in scheidsrechters if s["tijdslot"] in [match_dagdeel, "hele_dag"]]
         
         toegewezen_scheids = "TBD"
@@ -113,7 +127,6 @@ def plan_wedstrijden_in(rondes_per_reeks, scheidsrechters):
 
         tijdsblok_str = f"{start_opwarming.strftime('%H:%M')} - {eind_match.strftime('%H:%M')}"
         
-        # DE ENIGE APPEND (de "TBD" kopie is nu verwijderd!)
         geplande_wedstrijden.append({
             "tijdsblok": tijdsblok_str,
             "starttijd": start_opwarming.strftime('%H:%M'), 
@@ -125,12 +138,10 @@ def plan_wedstrijden_in(rondes_per_reeks, scheidsrechters):
             "scheidsrechter": toegewezen_scheids 
         })
         
-        # Klokken updaten voor de volgende ronde in de loop
         velden_beschikbaar[beste_veld] = eind_match
         team_beschikbaar[thuis] = eind_match
         team_beschikbaar[uit] = eind_match
         
-        # Geef deze reeks "punten" voor dit veld
         voorkeurs_velden[reeks][beste_veld] += 1
 
     return geplande_wedstrijden
