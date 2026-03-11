@@ -15,9 +15,10 @@ login_bp = Blueprint('login', __name__)
 @login_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    email, password, role = data.get('email'), data.get('password'), data.get('role')
+    email, password = data.get('email'), data.get('password')
+    role = 'gebruiker'  # Altijd instellen op 'gebruiker'
     
-    if not email or not password or not role: 
+    if not email or not password: 
         return jsonify({"error": "Vul alle velden in."}), 400
         
     try:
@@ -31,7 +32,7 @@ def register():
     except sqlite3.IntegrityError:
         return jsonify({"error": "E-mailadres is al in gebruik."}), 400
         
-    return jsonify({"message": f"Account aangemaakt als {role}!"}), 201
+    return jsonify({"message": "Account aangemaakt!"}), 201
 
 @login_bp.route('/login', methods=['POST'])
 def login():

@@ -49,7 +49,7 @@
 
         <!-- PLOEG INSCHRIJVEN --> 
 
-        <section class="dash-card" data-role="all" id="ploeg-inschrijven">
+        <section class="dash-card" data-role="gebruiker" id="ploeg-inschrijven">
             <h2>Ploegen & Inschrijven</h2>
             
             <form class="dash-form" id="form-ploeg" style="margin-bottom: 15px;">
@@ -73,15 +73,19 @@
             </form>
             
             <div id="ploeg-msg" style="margin-bottom: 20px; font-weight: bold; font-size: 14px;"></div>
+        </section>
 
-            <h3 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; color: #2c3e50;">Ingeschreven Ploegen</h3>
+        <!-- INGESCHREVEN PLOEGEN OVERZICHT -->
+
+        <section class="dash-card" data-role="beheerder" id="ploegen-overzicht">
+            <h2>Ingeschreven Ploegen</h2>
             <ul class="task-list" id="ploegen-lijst">
                 </ul>
         </section>
         
         <!-- VRIJWILLIGERS INSCHRIJVEN -->
 
-       <section class="dash-card" data-role="all" id="hulp-inschrijven">
+       <section class="dash-card" data-role="gebruiker" id="hulp-inschrijven">
             <h2>Inschrijven als Vrijwilliger / Scheids</h2>
             <form class="dash-form" id="form-vrijwilligers">
                 <input type="text" id="vrijwilliger-naam" placeholder="Jouw naam" required>

@@ -94,11 +94,10 @@ ui.loginSubmit.addEventListener('submit', async (e) => {
 ui.registerSubmit.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('reg-email').value;
-    const password = document.getElementById('reg-password').value; 
-    const role = document.getElementById('reg-role').value;
+    const password = document.getElementById('reg-password').value;
     showMessage("Bezig met registreren...", "info");
     try {
-        const res = await sendToBackend('/register', { email, password, role });
+        const res = await sendToBackend('/register', { email, password });
         showMessage(res.message, "success");
         document.getElementById('form-register').reset();
     } catch (err) { showMessage(err.message, "error"); }

@@ -189,8 +189,35 @@ def genereer_rooster():
                     match["tijdsblok"], match["starttijd"], match["reeks"], match["ronde"], match["veld"],
                     match["thuis_ploeg"], match["uit_ploeg"], match["scheidsrechter"]
                 ))
+            
+            # 6. Automatisch scheidsrechters toevoegen aan werkrooster
+            # Verzamel alle unieke scheidsrechters uit het rooster
+            toegewezen_scheidsrechters = set()
+            for match in compleet_rooster:
+                if match["scheidsrechter"] and match["scheidsrechter"] != "TBD":
+                    toegewezen_scheidsrechters.add(match["scheidsrechter"])
+            
+            # Verwijder oude scheidsrechter entries uit werkrooster
+            cursor.execute("DELETE FROM werkrooster WHERE jobrol = 'Scheidsrechter'")
+            
+            # Voeg alle toegewezen scheidsrechters toe aan werkrooster
+            for scheids_naam in toegewezen_scheidsrechters:
+                # Haal vrijwilliger_id en tijdslot op
+                cursor.execute('''
+                    SELECT id, tijdslot 
+                    FROM vrijwilligers 
+                    WHERE naam = ? AND job = 'scheids' AND status = 'geaccepteerd'
+                ''', (scheids_naam,))
+                scheids_info = cursor.fetchone()
+                
+                if scheids_info:
+                    cursor.execute('''
+                        INSERT INTO werkrooster (vrijwilliger_id, jobrol, tijdslot, opmerking)
+                        VALUES (?, ?, ?, ?)
+                    ''', (scheids_info["id"], "Scheidsrechter", scheids_info["tijdslot"], f"Automatisch ingeplaatst voor rooster"))
+            
             conn.commit()
-            return jsonify({"message": f"Succes! {len(compleet_rooster)} wedstrijden berekend en ingepland."}), 200
+            return jsonify({"message": f"Succes! {len(compleet_rooster)} wedstrijden berekend en ingepland. Scheidsrechters automatisch ingeplaatst in werkrooster."}), 200
 
         except Exception as e:
             return jsonify({"error": f"Fout bij opslaan: {str(e)}"}), 500
