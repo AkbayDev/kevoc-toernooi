@@ -8,11 +8,41 @@ export function checkAuth() {
     return true;
 }
 
+// Controleer bij laden of de rol in de database overeenkomt met localStorage.
+// Als een beheerder de rol gewijzigd heeft (bijv. gebruiker -> hulp),
+// wordt localStorage bijgewerkt en de pagina herladen.
+async function syncRolMetDatabase() {
+    const email = localStorage.getItem('userEmail');
+    if (!email) return;
+
+    try {
+        const res = await fetch(`http://127.0.0.1:5000/api/mijn-rol?email=${encodeURIComponent(email)}`);
+        if (!res.ok) return;
+
+        const data = await res.json();
+        const huidigeRolInDB = data.role;
+        const huidigeRolInStorage = localStorage.getItem('userRole');
+
+        if (huidigeRolInDB && huidigeRolInDB !== huidigeRolInStorage) {
+            // Rol is veranderd in de database, update localStorage en herlaad
+            localStorage.setItem('userRole', huidigeRolInDB);
+            window.location.reload();
+        }
+    } catch (err) {
+        // Stille fout: als de sync mislukt, gewoon doorgaan
+        console.warn('Rol sync mislukt:', err);
+    }
+}
+
 export function initAuthUI() {
+    // Sync rol met database bij elke paginabezoek
+    syncRolMetDatabase();
+
     const roleTranslations = {
         'beheerder': 'Beheerder',
         'hulp': 'Vrijwilliger',
-        'gebruiker': 'Gebruiker'
+        'gebruiker': 'Gebruiker',
+        'dev': 'Developer'
     };
 
     const userDisplay = document.getElementById('user-display');
@@ -23,7 +53,21 @@ export function initAuthUI() {
     const cards = document.querySelectorAll('.dash-card');
     cards.forEach(card => {
         const requiredRole = card.getAttribute('data-role');
-        if (requiredRole === 'all' || requiredRole === currentRole || (requiredRole === 'beheerder' && currentRole === 'dev') || (requiredRole === 'hulp' && currentRole === 'beheerder')) {
+        let isVisible = false;
+
+        if (requiredRole === 'all') {
+            isVisible = true;
+        } else if (requiredRole === currentRole) {
+            isVisible = true;
+        } else if (requiredRole === 'beheerder' && currentRole === 'dev') {
+            // Dev mag alles zien wat voor beheerder is
+            isVisible = true;
+        } else if (requiredRole === 'hulp' && (currentRole === 'beheerder' || currentRole === 'dev')) {
+            // Beheerder en dev mogen alles zien wat voor hulp is
+            isVisible = true;
+        }
+
+        if (isVisible) {
             card.classList.remove('hidden');
         } else {
             card.classList.add('hidden');
@@ -47,7 +91,8 @@ export function initAuthUI() {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             localStorage.removeItem('userRole');
-            window.location.href = 'index.html';
+            localStorage.removeItem('userEmail');
+            window.location.replace('index.html');
         });
     }
 }

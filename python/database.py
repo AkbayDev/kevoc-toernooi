@@ -6,7 +6,6 @@ DATABASE_NAAM = 'users.db'
 
 def get_db_connection():
     conn = sqlite3.connect(DATABASE_NAAM, timeout=5.0)
-    # Zorgt ervoor dat we kolommen bij naam kunnen aanspreken ipv nummers (bijv. row['naam'])
     conn.row_factory = sqlite3.Row 
     return conn
 
@@ -22,7 +21,6 @@ def init_db():
             reset_code TEXT
         )''')
         
-          
     cursor.execute('''CREATE TABLE IF NOT EXISTS financien (
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             omschrijving TEXT NOT NULL, 
@@ -30,6 +28,7 @@ def init_db():
             type TEXT NOT NULL, 
             datum TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )''')
+
     cursor.execute('''CREATE TABLE IF NOT EXISTS ploegen (
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
             ploeg TEXT NOT NULL, 
@@ -37,41 +36,37 @@ def init_db():
             niveau TEXT NOT NULL,
             categorie TEXT NOT NULL
         )''')
-    
 
-        
     cursor.execute('''CREATE TABLE IF NOT EXISTS rollen (
                 id INTEGER PRIMARY KEY AUTOINCREMENT, 
                 rol TEXT UNIQUE NOT NULL
             )''')
-            
-            # 2. Gebruik INSERT OR IGNORE om duplicaten te voorkomen
+
     cursor.execute('''
                 INSERT OR IGNORE INTO rollen (rol) 
                 VALUES ('beheerder'), ('gebruiker'), ('hulp')
             ''')
-        
+    
     cursor.execute('''
                 INSERT OR IGNORE INTO rollen (rol) 
                 VALUES ('dev')
             ''')
-           
-        
-            # 3. maak een vrijwilligers  tabel
+
+    # Vrijwilligers tabel met email kolom
     cursor.execute("""
                 CREATE TABLE IF NOT EXISTS vrijwilligers (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     naam TEXT NOT NULL,
+                    email TEXT DEFAULT NULL,
                     tijdslot TEXT NOT NULL,
                     job TEXT NOT NULL,
                     status TEXT NOT NULL DEFAULT 'afwachtend',
                     wedstrijd_id INTEGER DEFAULT NULL,
-                    inschrijfdatum  DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    inschrijfdatum DATETIME DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (wedstrijd_id) REFERENCES wedstrijden(id)
                 )
             """)
     
-    # NIEUW: Tabel voor het opgeslagen speelschema
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS wedstrijden (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -87,7 +82,6 @@ def init_db():
         )
     ''')
     
-    # NIEUW: Tabel voor werkrooster
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS werkrooster (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -109,11 +103,15 @@ def init_db():
         ('Scheidsrechter', 'Verwelkoming & Score keeping')
     )
     
-    # Voeg wedstrijd_id kolom toe as deze nog niet bestaat (voor bestaande databases)
-    try:
-        cursor.execute("ALTER TABLE vrijwilligers ADD COLUMN wedstrijd_id INTEGER DEFAULT NULL")
-    except:
-        pass  # Kolom bestaat al
+    # Voeg kolommen toe voor bestaande databases die ze nog niet hebben
+    for kolom, definitie in [
+        ('wedstrijd_id', 'INTEGER DEFAULT NULL'),
+        ('email', 'TEXT DEFAULT NULL')
+    ]:
+        try:
+            cursor.execute(f"ALTER TABLE vrijwilligers ADD COLUMN {kolom} {definitie}")
+        except:
+            pass  # Kolom bestaat al
     
     conn.commit()
     conn.close()

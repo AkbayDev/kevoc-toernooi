@@ -6,11 +6,9 @@ import random
 import resend
 import contextlib
 import os
-from database import get_db_connection  # Importeer je helper
+from database import get_db_connection
 
 login_bp = Blueprint('login', __name__)
-          
-
 
 @login_bp.route('/register', methods=['POST'])
 def register():
@@ -48,6 +46,23 @@ def login():
         return jsonify({"message": "Succesvol ingelogd!", "role": user['role'], "email": email}), 200
         
     return jsonify({"error": "Ongeldig e-mailadres of wachtwoord."}), 401
+
+# NIEUW: endpoint om de huidige rol op te halen vanuit de database
+@login_bp.route('/mijn-rol', methods=['GET'])
+def get_mijn_rol():
+    email = request.args.get('email')
+    if not email:
+        return jsonify({"error": "Email is verplicht."}), 400
+    
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT role FROM users WHERE email = ?", (email,))
+        user = cursor.fetchone()
+    
+    if not user:
+        return jsonify({"error": "Gebruiker niet gevonden."}), 404
+    
+    return jsonify({"role": user['role'], "email": email}), 200
 
 @login_bp.route('/forgot-password', methods=['POST'])
 def forgot_password():

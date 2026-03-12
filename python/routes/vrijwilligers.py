@@ -36,6 +36,7 @@ def get_vrijwilligers():
 def add_vrijwilliger():
     data = request.json
     naam = data.get('naam')
+    email = data.get('email')  # Automatisch meegestuurd vanuit frontend via localStorage
     tijdslot = data.get('tijdslot')
     job = data.get('job')
     wedstrijd_id = data.get('wedstrijd_id', None)
@@ -49,8 +50,8 @@ def add_vrijwilliger():
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO vrijwilligers (naam, tijdslot, job, wedstrijd_id) VALUES (?, ?, ?, ?)", 
-            (naam, tijdslot, job, wedstrijd_id if job == 'Scheidsrechter' else None)
+            "INSERT INTO vrijwilligers (naam, email, tijdslot, job, wedstrijd_id) VALUES (?, ?, ?, ?, ?)", 
+            (naam, email, tijdslot, job, wedstrijd_id if job == 'Scheidsrechter' else None)
         )
         conn.commit()
 
@@ -65,8 +66,8 @@ def update_vrijwilliger_status(id):
     with get_db_connection() as conn:
         cursor = conn.cursor()
         
-        # Haal vrijwilliger info op inclusief wedstrijd_id
-        cursor.execute("SELECT id, naam, tijdslot, job, wedstrijd_id FROM vrijwilligers WHERE id = ?", (id,))
+        # Haal vrijwilliger info op inclusief email
+        cursor.execute("SELECT id, naam, email, tijdslot, job, wedstrijd_id FROM vrijwilligers WHERE id = ?", (id,))
         vrijwilliger = cursor.fetchone()
         
         if not vrijwilliger:
@@ -77,8 +78,14 @@ def update_vrijwilliger_status(id):
         
         message = "Status succesvol bijgewerkt!"
         
-        # Als geaccepteerd: logica voor werkrooster en scheidsrechter
+        # Als geaccepteerd: update rol naar 'hulp' en logica voor werkrooster/scheidsrechter
         if new_status == 'geaccepteerd':
+            # Update rol naar hulp als email beschikbaar is
+            if vrijwilliger['email']:
+                cursor.execute("UPDATE users SET role = ? WHERE email = ?", ('hulp', vrijwilliger['email']))
+                if cursor.rowcount == 0:
+                    print(f"[WAARSCHUWING] Geen gebruiker gevonden met email: {vrijwilliger['email']}")
+            
             # Als scheidsrechter met wedstrijd_id: update scheidsrechter in wedstrijden
             if vrijwilliger['job'] == 'Scheidsrechter' and vrijwilliger['wedstrijd_id']:
                 cursor.execute(
@@ -89,14 +96,12 @@ def update_vrijwilliger_status(id):
                 
                 if wedstrijd:
                     if wedstrijd['scheidsrechter'] is None or wedstrijd['scheidsrechter'] == 'TBD':
-                        # Scheidsrechter vak leeg of TBD: vul in
                         cursor.execute(
                             "UPDATE wedstrijden SET scheidsrechter = ? WHERE id = ?",
                             (vrijwilliger['naam'], vrijwilliger['wedstrijd_id'])
                         )
                         message = f"Status geaccepteerd! {vrijwilliger['naam']} toegewezen als scheidsrechter."
                     else:
-                        # Scheidsrechter vak al bezet
                         message = f"Status geaccepteerd, maar deze wedstrijd heeft al scheidsrechter '{wedstrijd['scheidsrechter']}' - handmatig aanpassen nodig!"
             else:
                 # Niet-scheidsrechter: probeer werkrooster in te plannen
@@ -114,19 +119,17 @@ def update_vrijwilliger_status(id):
                 else:
                     message = f"Status geaccepteerd maar {vrijwilliger['tijdslot']} is al bezet - handmatig inplannen nodig."
         
-        # Als afgewezen: verwijder uit werkrooster én wedstrijden scheidsrechter veld
+        # Als afgewezen: update rol naar 'gebruiker' en verwijder uit werkrooster/wedstrijden
         elif new_status == 'afgewezen':
+            # Update rol naar gebruiker als email beschikbaar is
+            if vrijwilliger['email']:
+                cursor.execute("UPDATE users SET role = ? WHERE email = ?", ('gebruiker', vrijwilliger['email']))
+            
             # Verwijder uit werkrooster als ingepland
-            cursor.execute(
-                "SELECT id FROM werkrooster WHERE vrijwilliger_id = ?",
-                (id,)
-            )
+            cursor.execute("SELECT id FROM werkrooster WHERE vrijwilliger_id = ?", (id,))
             
             if cursor.fetchone() is not None:
-                cursor.execute(
-                    "DELETE FROM werkrooster WHERE vrijwilliger_id = ?",
-                    (id,)
-                )
+                cursor.execute("DELETE FROM werkrooster WHERE vrijwilliger_id = ?", (id,))
                 message = "Status afgewezen en verwijderd uit werkrooster!"
             
             # Als scheidsrechter: verwijder uit wedstrijden scheidsrechter veld
