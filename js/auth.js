@@ -23,7 +23,8 @@ export function initAuthUI() {
     const cards = document.querySelectorAll('.dash-card');
     cards.forEach(card => {
         const requiredRole = card.getAttribute('data-role');
-        if (requiredRole === 'all' || requiredRole === currentRole) {
+        const roles = requiredRole ? requiredRole.split(',') : [];
+        if (requiredRole === 'all' || roles.includes(currentRole)) {
             card.classList.remove('hidden');
         } else {
             card.classList.add('hidden');
