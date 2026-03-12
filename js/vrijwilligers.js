@@ -1,6 +1,7 @@
 import { CONFIG } from './api.js';
 import { herlaadWerkrooster } from './werkrooster.js';
 import { laadRooster } from './rooster.js';
+import { currentRole } from './auth.js';
 
 // Laad beschikbare wedstrijden voor scheidsrechters
 async function laadBeschikbareWedstrijden() {
@@ -35,7 +36,15 @@ async function laadVrijwilligers() {
             return;
         }
 
-        vrijwilligersLijst.innerHTML = data.map(v => `
+        vrijwilligersLijst.innerHTML = data.map(v => {
+            let actionCellHtml = '';
+            if (currentRole === 'beheerder') {
+                actionCellHtml = `
+                    <button class="btn-secondary btn-status" data-id="${v.id}" data-status="geaccepteerd">✓</button>
+                    <button class="btn-secondary btn-status" data-id="${v.id}" data-status="afgewezen">✗</button>
+                `;
+            }
+            return `
             <tr>
                 <td>${v.naam}</td>
                 <td>${v.tijdslot}</td>
@@ -43,11 +52,11 @@ async function laadVrijwilligers() {
                 <td>${v.wedstrijd_info || '-'}</td>
                 <td><span class="status-badge status-${v.status}">${v.status}</span></td>
                 <td>
-                    <button class="btn-secondary btn-status" data-id="${v.id}" data-status="geaccepteerd">✓</button>
-                    <button class="btn-secondary btn-status" data-id="${v.id}" data-status="afgewezen">✗</button>
+                    ${actionCellHtml}
                 </td>
             </tr>
-        `).join('');
+        `;
+        }).join('');
     } catch (err) { console.error("Fout bij laden vrijwilligers:", err); }
 }
 
@@ -91,7 +100,8 @@ export function initVrijwilligers() {
                 naam: document.getElementById('vrijwilliger-naam').value,
                 tijdslot: document.getElementById('vrijwilliger-tijdslot').value,
                 job: job,
-                wedstrijd_id: wedstrijd_id ? parseInt(wedstrijd_id) : null
+                wedstrijd_id: wedstrijd_id ? parseInt(wedstrijd_id) : null,
+                email: localStorage.getItem('userEmail')
             };
 
             try {

@@ -45,7 +45,7 @@ def login():
         user = cursor.fetchone()
     
     if user and check_password_hash(user['password'], password):
-        return jsonify({"message": "Succesvol ingelogd!", "role": user['role']}), 200
+        return jsonify({"message": "Succesvol ingelogd!", "role": user['role'], "email": email}), 200
         
     return jsonify({"error": "Ongeldig e-mailadres of wachtwoord."}), 401
 

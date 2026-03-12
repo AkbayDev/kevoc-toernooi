@@ -11,7 +11,7 @@ export function checkAuth() {
 export function initAuthUI() {
     const roleTranslations = {
         'beheerder': 'Beheerder',
-        'hulp': 'Hulpverlener',
+        'hulp': 'Vrijwilliger',
         'gebruiker': 'Gebruiker'
     };
 
@@ -23,12 +23,25 @@ export function initAuthUI() {
     const cards = document.querySelectorAll('.dash-card');
     cards.forEach(card => {
         const requiredRole = card.getAttribute('data-role');
-        if (requiredRole === 'all' || requiredRole === currentRole) {
+        if (requiredRole === 'all' || requiredRole === currentRole || (requiredRole === 'beheerder' && currentRole === 'dev') || (requiredRole === 'hulp' && currentRole === 'beheerder')) {
             card.classList.remove('hidden');
         } else {
             card.classList.add('hidden');
         }
     });
+
+    // Verberg actie knoppen voor hulp rol
+    if (currentRole === 'hulp') {
+        const statusButtons = document.querySelectorAll('.btn-status');
+        statusButtons.forEach(btn => {
+            btn.style.display = 'none';
+        });
+
+        const genereerBtn = document.getElementById('btn-genereer');
+        if (genereerBtn) {
+            genereerBtn.style.display = 'none';
+        }
+    }
 
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {

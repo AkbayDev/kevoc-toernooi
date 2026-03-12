@@ -82,8 +82,9 @@ ui.loginSubmit.addEventListener('submit', async (e) => {
         const res = await sendToBackend('/login', { email, password });
         showMessage("Succesvol ingelogd! Je wordt doorgestuurd...", "success");
         
-        // --- NIEUW: Sla de rol op en ga naar dashboard! ---
+        // Sla de rol en email op
         localStorage.setItem('userRole', res.role);
+        localStorage.setItem('userEmail', res.email);
         setTimeout(() => {
             window.location.href = 'dashboard.html';
         }, 1500);
