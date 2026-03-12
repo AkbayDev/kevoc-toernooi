@@ -33,18 +33,16 @@
             <h2>Actuele Scores</h2>
             <p>Hier komen de live scores van de gespeelde wedstrijden.</p>
             <table class="data-table">
-                <tr><th>Thuis</th><th>Uit</th><th>Uitslag</th></tr>
-                <tr><td>KEVOC Heren 1</td><td>Volley Boys</td><td>3 - 1</td></tr>
+                <thead><tr><th>Tijd/Veld</th><th>Wedstrijd</th><th>Uitslag</th></tr></thead>
+                <tbody id="scores-body"></tbody>
             </table>
         </section>
 
-        <section class="dash-card" data-role="all" id="wedstrijden">
-            <h2>Wedstrijd Rooster</h2>
-            <p>Overzicht van welk team op welk veld speelt en in welk tijdslot.</p>
-            <table class="data-table">
-                <tr><th>Tijd</th><th>Veld</th><th>Match</th></tr>
-                <tr><td>10:00</td><td>Veld 1</td><td>KEVOC Dames - Smashers</td></tr>
-            </table>
+        <!-- SCHEIDSRECHTER / HULP SECTIE -->
+        <section class="dash-card hidden" data-role="hulp,beheerder" id="scheids-dashboard">
+            <h2>Scheidsrechter Dashboard</h2>
+            <p>Vul de uitslag in na afloop van de wedstrijd.</p>
+            <div id="scheids-matches"></div>
         </section>
 
         <!-- PLOEG INSCHRIJVEN --> 
@@ -82,7 +80,7 @@
             <ul class="task-list" id="ploegen-lijst">
                 </ul>
         </section>
-        
+
         <!-- VRIJWILLIGERS INSCHRIJVEN -->
 
        <section class="dash-card" data-role="gebruiker" id="hulp-inschrijven">
@@ -177,6 +175,14 @@
         </div>
     </section>
 
+     <section class="dash-card admin-card hidden" data-role="all" id="toernooi-dashboard">
+        <h2>Toernooi Schema</h2>
+
+        <div id="rooster-container">
+            <p class="text-muted">Laden van wedstrijdschema...</p>
+        </div>
+    </section>
+
     <section class="dash-card admin-card hidden" data-role="beheerder" id="werkrooster-sectie">
         <h2>Werkrooster Inplannen</h2>
         <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Plan geaccepteerde vrijwilligers in op verschillende jobrollen en tijdsloten.</p>
@@ -228,6 +234,14 @@
         </div>
     </footer>
 
-    <script type="module" src="js/main.js"></script>
+    <script type="module">
+        import { initWedstrijden } from './js/wedstrijden.js';
+        // Init when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            initWedstrijden();
+        });
+        // Also importing main.js if it handles other initializations
+        import './js/main.js';
+    </script>
 </body>
 </html>
