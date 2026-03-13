@@ -151,10 +151,15 @@
 
             <section class="dash-card admin-card hidden" data-role="beheerder" id="acties">
                 <h2>Openstaande Acties</h2>
-                <p>Organisatorische to-do's (bijv. ploegen nabellen).</p>
-                <ul class="task-list">
-                    <li>Team 'De Opslagers' bellen over inschrijvingsgeld</li>
-                    <li>Bekers ophalen bij de leverancier</li>
+                <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Klik op een actie om de status te wijzigen (Open &rarr; Bezig &rarr; Klaar).</p>
+                
+                <form id="form-actie" class="dash-form" style="margin-bottom: 15px; display: flex; gap: 10px;">
+                    <input type="text" id="nieuwe-actie-tekst" placeholder="Nieuwe actie toevoegen..." required style="flex-grow: 1;">
+                    <button type="submit" class="btn-primary" style="white-space: nowrap;">+</button>
+                </form>
+                
+                <ul class="task-list" id="acties-lijst">
+                    <li class="text-muted">Laden...</li>
                 </ul>
             </section>
 

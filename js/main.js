@@ -5,6 +5,7 @@ import { initVrijwilligers } from './vrijwilligers.js';
 import { initRooster } from './rooster.js';
 import { initWerkrooster } from './werkrooster.js';
 import { initWedstrijden } from './wedstrijden.js';
+import { initActies } from './acties.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Controleer of de gebruiker is ingelogd (anders direct terug naar login)
@@ -20,4 +21,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initRooster();
     initWerkrooster();
     initWedstrijden();
+    initActies();
 });

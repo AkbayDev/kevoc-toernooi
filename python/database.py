@@ -1,5 +1,6 @@
 # python/database.py
 import sqlite3
+import contextlib
 
 DATABASE_NAAM = 'users.db'
 
@@ -51,11 +52,7 @@ def init_db():
                 VALUES ('dev')
             ''')
 
-    cursor.execute('''
-                INSERT OR IGNORE INTO rollen (rol) 
-                VALUES ('scheids')
-            ''')
-
+    # Vrijwilligers tabel met email kolom
     cursor.execute("""
                 CREATE TABLE IF NOT EXISTS vrijwilligers (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -96,6 +93,15 @@ def init_db():
         )
     ''')
     
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS acties (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            omschrijving TEXT NOT NULL,
+            status TEXT DEFAULT 'open',
+            datum TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
     # Update bestaande jobrollen
     cursor.execute(
         "UPDATE vrijwilligers SET job = ? WHERE job = ?",
@@ -106,18 +112,14 @@ def init_db():
         ('Scheidsrechter', 'Verwelkoming & Score keeping')
     )
     
-    # Voeg ontbrekende kolommen toe aan bestaande databases
-    migraties = [
-        ('vrijwilligers', 'wedstrijd_id', 'INTEGER DEFAULT NULL'),
-        ('vrijwilligers', 'email',        'TEXT DEFAULT NULL'),
-        ('vrijwilligers', 'tijdsblok',    'TEXT DEFAULT NULL'),  # Nieuw: tijdsblok voor scheids
-        ('wedstrijden',   'score_thuis',  'INTEGER'),
-        ('wedstrijden',   'score_uit',    'INTEGER'),
-    ]
-    for tabel, kolom, definitie in migraties:
+    # Voeg kolommen toe voor bestaande databases die ze nog niet hebben
+    for kolom, definitie in [
+        ('wedstrijd_id', 'INTEGER DEFAULT NULL'),
+        ('email', 'TEXT DEFAULT NULL')
+    ]:
         try:
-            cursor.execute(f"ALTER TABLE {tabel} ADD COLUMN {kolom} {definitie}")
-        except Exception:
+            cursor.execute(f"ALTER TABLE vrijwilligers ADD COLUMN {kolom} {definitie}")
+        except:
             pass  # Kolom bestaat al
     
     conn.commit()
