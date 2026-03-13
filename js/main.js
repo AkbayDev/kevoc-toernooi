@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Controleer of de gebruiker is ingelogd (anders direct terug naar login)
     if (!checkAuth()) return;
 
-    // 2. Initialiseer de interface (toon naam & verberg kaarten o.b.v. rol)
+    // 2. Initialiseer de interface (toon naam & verberg kaarten  rol)
     initAuthUI();
 
     // 3. Start alle functionele modules

@@ -1,233 +1,235 @@
 <!DOCTYPE html>
 <html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KEVOC | Dashboard</title>
-    <link rel="stylesheet" href="css/dash.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-    <header>
-        <div class="header-container">
-            <div class="logo-area">
-                <img src="img/logo.png" alt="Logo" class="logo">    
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>KEVOC | Dashboard</title>
+        <link rel="stylesheet" href="css/dash.css">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </head>
+    <body>
+        <header>
+            <div class="header-container">
+                <div class="logo-area">
+                    <img src="img/logo.png" alt="Logo" class="logo">    
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#scores">Scores</a></li>
+                        <li><a href="#wedstrijden">Wedstrijd Rooster</a></li>
+                        <li><a href="#werkrooster">Werk Rooster</a></li>
+                    </ul>
+                </nav>
+                <div class="user-menu">
+                    <span id="user-display">Welkom, Gast</span>
+                    <button id="logout-btn">Uitloggen</button>
+                </div>
             </div>
-            <nav>
-                <ul>
-                    <li><a href="#scores">Scores</a></li>
-                    <li><a href="#wedstrijden">Wedstrijd Rooster</a></li>
-                    <li><a href="#werkrooster">Werk Rooster</a></li>
+        </header>
+
+        <main class="dashboard-layout">
+
+            <!-- ACTUELE SCORES -->
+            <section class="dash-card" data-role="all" id="scores">
+                <h2>Actuele Scores</h2>
+                <div id="scores-container">
+                    <p style="color: #6b7280;">Scores worden geladen...</p>
+                </div>
+            </section>
+
+            <!-- SCHEIDSRECHTER DASHBOARD -->
+            <section class="dash-card hidden" data-role="scheids,beheerder" id="scheids-dashboard">
+                <h2>Scheidsrechter Dashboard</h2>
+                <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Claim een wedstrijd en vul de uitslag in na afloop.</p>
+                <div id="scheids-matches"></div>
+            </section>
+
+            <!-- PLOEG INSCHRIJVEN -->
+            <section class="dash-card" data-role="gebruiker" id="ploeg-inschrijven">
+                <h2>Ploegen & Inschrijven</h2>
+                
+                <form class="dash-form" id="form-ploeg" style="margin-bottom: 15px;">
+                    <input type="text" id="ploeg-naam" placeholder="Naam van de ploeg" required>
+                    <select id="ploeg-niveau" required>
+                        <option value="" disabled selected>Kies niveau...</option>
+                        <option value="senior">Senior</option>
+                        <option value="jeugd">Jeugd</option>
+                    </select>
+                    <select id="ploeg-categorie" required>
+                        <option value="" disabled selected>Kies categorie...</option>
+                        <option value="heren">Heren</option>
+                        <option value="dames">Dames</option>
+                    </select>
+                    <select id="ploeg-betaalstatus" required>
+                        <option value="" disabled selected>Kies betaalstatus...</option>
+                        <option value="betaald">Betaald</option>
+                        <option value="niet-betaald">Niet betaald</option>
+                    </select>
+                    <button type="submit" class="btn-primary">Schrijf Ploeg In</button>
+                </form>
+                
+                <div id="ploeg-msg" style="margin-bottom: 20px; font-weight: bold; font-size: 14px;"></div>
+            </section>
+
+            <section class="dash-card" data-role="beheerder, hulp" id="ploegen-overzicht">
+                <h3 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; color: #2c3e50;">Ingeschreven Ploegen</h3>
+                <ul class="task-list" id="ploegen-lijst"></ul>
+            </section>
+
+            <!-- VRIJWILLIGERS INSCHRIJVEN -->
+            <section class="dash-card" data-role="gebruiker" id="hulp-inschrijven">
+                <h2>Inschrijven als Vrijwilliger / Scheids</h2>
+                <form class="dash-form" id="form-vrijwilligers">
+                    <input type="text" id="vrijwilliger-naam" placeholder="Jouw naam" required>
+                    <select id="vrijwilliger-tijdslot" required>
+                        <option value="" disabled selected>Kies een tijdslot</option>
+                        <option value="08:00">08:00</option>
+                        <option value="10:00">10:00</option>
+                        <option value="12:15">12:15</option>
+                        <option value="14:30">14:30</option>
+                        <option value="16:15">16:15</option>
+                        <option value="18:30">18:30</option>
+                        <option value="20:50">20:50</option>
+                        <option value="22:55">22:55</option>
+                    </select>
+                    <select id="vrijwilliger-job" required>
+                        <option value="" disabled selected>Kies een jobrol</option>
+                        <option value="Coordinator">Coordinator</option>
+                        <option value="Opzetten tafel & T-shirts">Opzetten tafel & T-shirts</option>
+                        <option value="Klaarzetten Velden">Klaarzetten Velden</option>
+                        <option value="Scheidsrechter">Scheidsrechter</option>
+                        <option value="Afbreken velden & opruimen zaal">Afbreken velden & opruimen zaal</option>
+                    </select>
+
+                    <!-- Alleen zichtbaar bij Scheidsrechter: kies een tijdsblok -->
+                    <select id="vrijwilliger-tijdsblok-scheids" style="display: none;">
+                        <option value="" disabled selected>Kies een tijdsblok...</option>
+                    </select>
+
+                    <button type="submit" class="btn-primary">Ik kom helpen!</button>
+                </form>
+                <div id="vrijwilligers-msg" style="margin-bottom: 15px; font-weight: bold; font-size: 14px;"></div>
+            </section>
+
+            <!-- VRIJWILLIGERS OVERZICHT (beheerder) -->
+            <section class="dash-card beheerder-card" data-role="beheerder" id="vrijwilligers-overzicht">
+                <h2>Vrijwilligers Overzicht</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Naam</th>
+                            <th>Tijdslot</th>
+                            <th>Job</th>
+                            <th>Tijdsblok / Info</th>
+                            <th>Status</th>
+                            <th>Actie</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vrijwilligers-lijst">
+                        <tr><td colspan="6">Laden...</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- WERKROOSTER WEERGAVE (hulp en scheids) -->
+            <section class="dash-card" data-role="hulp" id="werkrooster">
+                <h2>Werk Rooster</h2>
+                <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Overzicht van ingeplande vrijwilligers.</p>
+                <div id="werkrooster-weergave"></div>
+            </section>
+
+            <!-- BEHEERDER SECTIES -->
+            <section class="dash-card admin-card hidden" data-role="beheerder" id="checklist">
+                <h2>Organisatie Checklist</h2>
+                <p>Wat moet er nog gebeuren voor en tijdens het toernooi?</p>
+                <ul class="task-list">
+                    <li><input type="checkbox"> Netten spannen veld 1 t/m 4</li>
+                    <li><input type="checkbox"> Wisselgeld kassa controleren</li>
+                    <li><input type="checkbox"> Microfoon en muziek testen</li>
                 </ul>
-            </nav>
-            <div class="user-menu">
-                <span id="user-display">Welkom, Gast</span>
-                <button id="logout-btn">Uitloggen</button>
+            </section>
+
+            <section class="dash-card admin-card hidden" data-role="beheerder" id="acties">
+                <h2>Openstaande Acties</h2>
+                <p>Organisatorische to-do's (bijv. ploegen nabellen).</p>
+                <ul class="task-list">
+                    <li>Team 'De Opslagers' bellen over inschrijvingsgeld</li>
+                    <li>Bekers ophalen bij de leverancier</li>
+                </ul>
+            </section>
+
+            <!-- TOERNOOI SCHEMA (beheerder: met genereer knop) -->
+            <section class="dash-card admin-card hidden" data-role="beheerder" id="toernooi-dashboard">
+                <h2>Toernooi Schema</h2>
+                
+                <div style="margin-bottom: 16px; display: flex; gap: 10px;">
+                    <button id="btn-genereer" class="btn-primary">Genereer Nieuw Rooster</button>
+                    <button id="btn-ververs" class="btn-secondary">Ververs Rooster</button>
+                </div>
+
+                <div id="rooster-container">
+                    <p class="text-muted">Laden van wedstrijdschema...</p>
+                </div>
+            </section>
+
+            <!-- TOERNOOI SCHEMA (hulp/scheids: alleen weergave) -->
+            <section class="dash-card hidden" data-role="hulp" id="toernooi-dashboard-hulp">
+                <h2>Toernooi Schema</h2>
+                <div id="rooster-container-hulp">
+                    <p class="text-muted">Laden van wedstrijdschema...</p>
+                </div>
+            </section>
+
+            <!-- WERKROOSTER INPLANNEN (beheerder) -->
+            <section class="dash-card admin-card hidden" data-role="beheerder" id="werkrooster-sectie">
+                <h2>Werkrooster Inplannen</h2>
+                <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Plan geaccepteerde vrijwilligers in op verschillende jobrollen en tijdsloten.</p>
+                
+                <div id="werkrooster-msg" style="margin-bottom: 15px; font-weight: bold; font-size: 14px;"></div>
+                
+                <div id="werkrooster-grid" style="overflow-x: auto;">
+                    <p class="text-muted">Laden van werkrooster...</p>
+                </div>
+            </section>
+
+            <!-- FINANCIËN -->
+            <section class="dash-card admin-card hidden" data-role="beheerder" id="financien">
+                <h2>Financiën & Kasboek</h2>
+                
+                <div class="chart-wrapper">
+                    <canvas id="financeChart"></canvas>
+                    <div id="chart-center-text" class="chart-center-text">€ 0.00</div>
+                </div>
+
+                <form class="dash-form" id="form-finance" style="margin-top: 15px;">
+                    <input type="text" id="fin-omschrijving" placeholder="Omschrijving (bijv. Drank aankoop)" required>
+                    <input type="number" id="fin-bedrag" step="0.01" placeholder="Bedrag in €" required>
+                    <select id="fin-type" required>
+                        <option value="inkomst">Inkomst</option>
+                        <option value="kost">Kost / Uitgave</option>
+                    </select>
+                    <button type="submit" class="btn-primary">Boeking Toevoegen</button>
+                </form>
+                <div id="finance-msg" style="margin-top: 10px; font-weight: bold; font-size: 14px;"></div>
+
+                <button id="btn-toggle-transacties" class="btn-secondary" style="margin-top: 15px; width: 100%;">Bekijk Alle Transacties</button>
+                <div id="transacties-lijst" class="hidden" style="margin-top: 10px;">
+                    <ul class="task-list" id="transacties-ul"></ul>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="dashboard-footer">
+            <div class="footer-content">
+                <p>&copy; 2026 <span id="brand-name">Kevoc</span> Toernooi Dashboard. Alle rechten voorbehouden.</p>
+                <div class="footer-links">
+                    <a href="https://www.linkedin.com/in/azim-akbay-8931a2356/">Azim Akbay</a>
+                    <a href="https://www.linkedin.com/in/ouadie-fadlaoui-887971355/">Ouadie Fadlaoui</a>
+                </div>
             </div>
-        </div>
-    </header>
+        </footer>
 
-    <main class="dashboard-layout">
-
-        <!-- ACTUELE SCORES — kalender-grid stijl, zichtbaar voor iedereen -->
-        <section class="dash-card" data-role="all" id="scores">
-            <h2>Actuele Scores</h2>
-            <div id="scores-container">
-                <p style="color: #6b7280;">Scores worden geladen...</p>
-            </div>
-        </section>
-
-        <!-- SCHEIDSRECHTER DASHBOARD — alleen voor scheids en beheerder -->
-        <section class="dash-card hidden" data-role="scheids,beheerder" id="scheids-dashboard">
-            <h2>Scheidsrechter Dashboard</h2>
-            <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Vul de uitslag in na afloop van de wedstrijd.</p>
-            <div id="scheids-matches"></div>
-        </section>
-
-        <!-- PLOEG INSCHRIJVEN -->
-        <section class="dash-card" data-role="gebruiker" id="ploeg-inschrijven">
-            <h2>Ploegen & Inschrijven</h2>
-            
-            <form class="dash-form" id="form-ploeg" style="margin-bottom: 15px;">
-                <input type="text" id="ploeg-naam" placeholder="Naam van de ploeg" required>
-                <select id="ploeg-niveau" required>
-                    <option value="" disabled selected>Kies niveau...</option>
-                    <option value="senior">Senior</option>
-                    <option value="jeugd">Jeugd</option>
-                </select>
-                <select id="ploeg-categorie" required>
-                    <option value="" disabled selected>Kies categorie...</option>
-                    <option value="heren">Heren</option>
-                    <option value="dames">Dames</option>
-                </select>
-                <select id="ploeg-betaalstatus" required>
-                    <option value="" disabled selected>Kies betaalstatus...</option>
-                    <option value="betaald">Betaald</option>
-                    <option value="niet-betaald">Niet betaald</option>
-                </select>
-                <button type="submit" class="btn-primary">Schrijf Ploeg In</button>
-            </form>
-            
-            <div id="ploeg-msg" style="margin-bottom: 20px; font-weight: bold; font-size: 14px;"></div>
-        </section>
-
-        <section class="dash-card" data-role="all" id="ploegen-overzicht">
-            <h3 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; color: #2c3e50;">Ingeschreven Ploegen</h3>
-            <ul class="task-list" id="ploegen-lijst"></ul>
-        </section>
-
-        <!-- VRIJWILLIGERS INSCHRIJVEN -->
-        <section class="dash-card" data-role="gebruiker" id="hulp-inschrijven">
-            <h2>Inschrijven als Vrijwilliger / Scheids</h2>
-            <form class="dash-form" id="form-vrijwilligers">
-                <input type="text" id="vrijwilliger-naam" placeholder="Jouw naam" required>
-                <select id="vrijwilliger-tijdslot" required>
-                    <option value="" disabled selected>Kies een tijdslot</option>
-                    <option value="08:00">08:00</option>
-                    <option value="10:00">10:00</option>
-                    <option value="12:15">12:15</option>
-                    <option value="14:30">14:30</option>
-                    <option value="16:15">16:15</option>
-                    <option value="18:30">18:30</option>
-                    <option value="20:50">20:50</option>
-                    <option value="22:55">22:55</option>
-                </select>
-                <select id="vrijwilliger-job" required>
-                    <option value="" disabled selected>Kies een jobrol</option>
-                    <option value="Coordinator">Coordinator</option>
-                    <option value="Opzetten tafel & T-shirts">Opzetten tafel & T-shirts</option>
-                    <option value="Klaarzetten Velden">Klaarzetten Velden</option>
-                    <option value="Scheidsrechter">Scheidsrechter</option>
-                    <option value="Afbreken velden & opruimen zaal">Afbreken velden & opruimen zaal</option>
-                </select>
-                <select id="vrijwilliger-wedstrijd" style="display: none;" required>
-                    <option value="" disabled selected>Kies een wedstrijd...</option>
-                </select>
-                <button type="submit" class="btn-primary">Ik kom helpen!</button>
-            </form>
-            <div id="vrijwilligers-msg" style="margin-bottom: 15px; font-weight: bold; font-size: 14px;"></div>
-        </section>
-
-        <!-- VRIJWILLIGERS OVERZICHT (beheerder) -->
-        <section class="dash-card beheerder-card" data-role="beheerder" id="vrijwilligers-overzicht">
-            <h2>Vrijwilligers Overzicht</h2>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Naam</th>
-                        <th>Tijdslot</th>
-                        <th>Job</th>
-                        <th>Wedstrijd</th>
-                        <th>Status</th>
-                        <th>Actie</th>
-                    </tr>
-                </thead>
-                <tbody id="vrijwilligers-lijst">
-                    <tr><td colspan="6">Laden...</td></tr>
-                </tbody>
-            </table>
-        </section>
-
-        <!-- WERKROOSTER WEERGAVE (hulp en scheids) -->
-        <section class="dash-card" data-role="hulp" id="werkrooster">
-            <h2>Werk Rooster</h2>
-            <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Overzicht van ingeplande vrijwilligers.</p>
-            <div id="werkrooster-weergave"></div>
-        </section>
-
-        <!-- BEHEERDER SECTIES -->
-        <section class="dash-card admin-card hidden" data-role="beheerder" id="checklist">
-            <h2>Organisatie Checklist</h2>
-            <p>Wat moet er nog gebeuren voor en tijdens het toernooi?</p>
-            <ul class="task-list">
-                <li><input type="checkbox"> Netten spannen veld 1 t/m 4</li>
-                <li><input type="checkbox"> Wisselgeld kassa controleren</li>
-                <li><input type="checkbox"> Microfoon en muziek testen</li>
-            </ul>
-        </section>
-
-        <section class="dash-card admin-card hidden" data-role="beheerder" id="acties">
-            <h2>Openstaande Acties</h2>
-            <p>Organisatorische to-do's (bijv. ploegen nabellen).</p>
-            <ul class="task-list">
-                <li>Team 'De Opslagers' bellen over inschrijvingsgeld</li>
-                <li>Bekers ophalen bij de leverancier</li>
-            </ul>
-        </section>
-
-        <!-- TOERNOOI SCHEMA (beheerder: met genereer knop) -->
-        <section class="dash-card admin-card hidden" data-role="beheerder" id="toernooi-dashboard">
-            <h2>Toernooi Schema</h2>
-            
-            <div style="margin-bottom: 16px; display: flex; gap: 10px;">
-                <button id="btn-genereer" class="btn-primary">Genereer Nieuw Rooster</button>
-                <button id="btn-ververs" class="btn-secondary">Ververs Rooster</button>
-            </div>
-
-            <div id="rooster-container">
-                <p class="text-muted">Laden van wedstrijdschema...</p>
-            </div>
-        </section>
-
-        <!-- TOERNOOI SCHEMA (hulp/scheids: alleen weergave, geen genereer knop) -->
-        <section class="dash-card hidden" data-role="hulp" id="toernooi-dashboard-hulp">
-            <h2>Toernooi Schema</h2>
-            <div id="rooster-container-hulp">
-                <p class="text-muted">Laden van wedstrijdschema...</p>
-            </div>
-        </section>
-
-        <!-- WERKROOSTER INPLANNEN (beheerder) -->
-        <section class="dash-card admin-card hidden" data-role="beheerder" id="werkrooster-sectie">
-            <h2>Werkrooster Inplannen</h2>
-            <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Plan geaccepteerde vrijwilligers in op verschillende jobrollen en tijdsloten.</p>
-            
-            <div id="werkrooster-msg" style="margin-bottom: 15px; font-weight: bold; font-size: 14px;"></div>
-            
-            <div id="werkrooster-grid" style="overflow-x: auto;">
-                <p class="text-muted">Laden van werkrooster...</p>
-            </div>
-        </section>
-
-        <!-- FINANCIËN -->
-        <section class="dash-card admin-card hidden" data-role="beheerder" id="financien">
-            <h2>Financiën & Kasboek</h2>
-            
-            <div class="chart-wrapper">
-                <canvas id="financeChart"></canvas>
-                <div id="chart-center-text" class="chart-center-text">€ 0.00</div>
-            </div>
-
-            <form class="dash-form" id="form-finance" style="margin-top: 15px;">
-                <input type="text" id="fin-omschrijving" placeholder="Omschrijving (bijv. Drank aankoop)" required>
-                <input type="number" id="fin-bedrag" step="0.01" placeholder="Bedrag in €" required>
-                <select id="fin-type" required>
-                    <option value="inkomst">Inkomst</option>
-                    <option value="kost">Kost / Uitgave</option>
-                </select>
-                <button type="submit" class="btn-primary">Boeking Toevoegen</button>
-            </form>
-            <div id="finance-msg" style="margin-top: 10px; font-weight: bold; font-size: 14px;"></div>
-
-            <button id="btn-toggle-transacties" class="btn-secondary" style="margin-top: 15px; width: 100%;">Bekijk Alle Transacties</button>
-            <div id="transacties-lijst" class="hidden" style="margin-top: 10px;">
-                <ul class="task-list" id="transacties-ul"></ul>
-            </div>
-        </section>
-
-    </main>
-
-    <footer class="dashboard-footer">
-        <div class="footer-content">
-            <p>&copy; 2026 <span id="brand-name">Kevoc</span> Toernooi Dashboard. Alle rechten voorbehouden.</p>
-            <div class="footer-links">
-                <a href="https://www.linkedin.com/in/azim-akbay-8931a2356/">Azim Akbay</a>
-                <a href="https://www.linkedin.com/in/ouadie-fadlaoui-887971355/">Ouadie Fadlaoui</a>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Enkel main.js importeren — dit importeert alle andere modules inclusief wedstrijden.js -->
-    <script type="module" src="js/main.js"></script>
-</body>
+        <script type="module" src="js/main.js"></script>
+    </body>
 </html>

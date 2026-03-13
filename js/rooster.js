@@ -53,12 +53,12 @@ function renderRooster(gegroepeerdeData, container) {
         html += `
             <div class="tijd-slot">
                 <div class="slot-header">
-                    <div class="slot-title">🕒 Blok: ${startOpwarming} - ${eindeMatch}</div>
+                    <div class="slot-title"> Blok: ${startOpwarming} - ${eindeMatch}</div>
                     
                     <div class="slot-agenda">
-                        <span><span class="tijd-highlight text-orange">${startOpwarming}</span> 👟 Opwarming (10 min)</span>
-                        <span><span class="tijd-highlight text-green">${startMatch}</span> ⏱️ Start Wedstrijd (45 min)</span>
-                        <span><span class="tijd-highlight text-gray">${eindeMatch}</span> 🏁 Veld Vrijmaken</span>
+                        <span><span class="tijd-highlight text-orange">${startOpwarming}</span>  Opwarming (10 min)</span>
+                        <span><span class="tijd-highlight text-green">${startMatch}</span>  Start Wedstrijd (45 min)</span>
+                        <span><span class="tijd-highlight text-gray">${eindeMatch}</span>  Veld Vrijmaken</span>
                     </div>
                 </div>
                 

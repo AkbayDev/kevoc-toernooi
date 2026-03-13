@@ -51,7 +51,6 @@ def init_db():
                 VALUES ('dev')
             ''')
 
-    # Nieuw: scheids rol
     cursor.execute('''
                 INSERT OR IGNORE INTO rollen (rol) 
                 VALUES ('scheids')
@@ -111,6 +110,7 @@ def init_db():
     migraties = [
         ('vrijwilligers', 'wedstrijd_id', 'INTEGER DEFAULT NULL'),
         ('vrijwilligers', 'email',        'TEXT DEFAULT NULL'),
+        ('vrijwilligers', 'tijdsblok',    'TEXT DEFAULT NULL'),  # Nieuw: tijdsblok voor scheids
         ('wedstrijden',   'score_thuis',  'INTEGER'),
         ('wedstrijden',   'score_uit',    'INTEGER'),
     ]

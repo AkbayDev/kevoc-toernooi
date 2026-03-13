@@ -3,24 +3,28 @@ import { herlaadWerkrooster } from './werkrooster.js';
 import { laadRooster } from './rooster.js';
 import { currentRole } from './auth.js';
 
-// Laad beschikbare wedstrijden voor scheidsrechters
-async function laadBeschikbareWedstrijden() {
+// Laad beschikbare tijdsblokken voor scheidsrechters
+async function laadBeschikbareTijdsblokken() {
     try {
-        const res = await fetch(`${CONFIG.apiBaseUrl}/wedstrijden/beschikbaar`);
-        const wedstrijden = await res.json();
-        const dropdown = document.getElementById('vrijwilliger-wedstrijd');
+        const res = await fetch(`${CONFIG.apiBaseUrl}/scheids/beschikbare-blokken`);
+        const blokken = await res.json();
+        const dropdown = document.getElementById('vrijwilliger-tijdsblok-scheids');
         
         if (dropdown) {
-            dropdown.innerHTML = '<option value="" disabled selected>Kies een wedstrijd...</option>';
-            wedstrijden.forEach(w => {
-                const option = document.createElement('option');
-                option.value = w.id;
-                option.textContent = w.display;
-                dropdown.appendChild(option);
-            });
+            dropdown.innerHTML = '<option value="" disabled selected>Kies een tijdsblok...</option>';
+            if (blokken.length === 0) {
+                dropdown.innerHTML += '<option disabled>Geen tijdsblokken beschikbaar</option>';
+            } else {
+                blokken.forEach(b => {
+                    const option = document.createElement('option');
+                    option.value = b.tijdsblok;
+                    option.textContent = b.tijdsblok;
+                    dropdown.appendChild(option);
+                });
+            }
         }
     } catch (err) {
-        console.error("Fout bij laden wedstrijden:", err);
+        console.error("Fout bij laden tijdsblokken:", err);
     }
 }
 
@@ -51,9 +55,7 @@ async function laadVrijwilligers() {
                 <td>${v.job}</td>
                 <td>${v.wedstrijd_info || '-'}</td>
                 <td><span class="status-badge status-${v.status}">${v.status}</span></td>
-                <td>
-                    ${actionCellHtml}
-                </td>
+                <td>${actionCellHtml}</td>
             </tr>
         `;
         }).join('');
@@ -62,27 +64,28 @@ async function laadVrijwilligers() {
 
 export function initVrijwilligers() {
     laadVrijwilligers();
-    laadBeschikbareWedstrijden();
+    laadBeschikbareTijdsblokken();
     
-    const formVrijwilligers = document.getElementById('form-vrijwilligers');
-    const vrijwilligersMsg = document.getElementById('vrijwilligers-msg');
-    const vrijwilligersLijst = document.getElementById('vrijwilligers-lijst');
-    const jobrolDropdown = document.getElementById('vrijwilliger-job');
-    const wedstrijdDropdown = document.getElementById('vrijwilliger-wedstrijd');
+    const formVrijwilligers    = document.getElementById('form-vrijwilligers');
+    const vrijwilligersMsg     = document.getElementById('vrijwilligers-msg');
+    const vrijwilligersLijst   = document.getElementById('vrijwilligers-lijst');
+    const jobrolDropdown       = document.getElementById('vrijwilliger-job');
+    const tijdsblokDropdown    = document.getElementById('vrijwilliger-tijdsblok-scheids');
 
-    // Event listener op jobrol dropdown
+    // Toon/verberg tijdsblok dropdown op basis van jobrol
     if (jobrolDropdown) {
         jobrolDropdown.addEventListener('change', (e) => {
             if (e.target.value === 'Scheidsrechter') {
-                if (wedstrijdDropdown) {
-                    wedstrijdDropdown.style.display = 'block';
-                    wedstrijdDropdown.required = true;
+                if (tijdsblokDropdown) {
+                    tijdsblokDropdown.style.display = 'block';
+                    tijdsblokDropdown.required = true;
+                    laadBeschikbareTijdsblokken();
                 }
             } else {
-                if (wedstrijdDropdown) {
-                    wedstrijdDropdown.style.display = 'none';
-                    wedstrijdDropdown.required = false;
-                    wedstrijdDropdown.value = '';
+                if (tijdsblokDropdown) {
+                    tijdsblokDropdown.style.display = 'none';
+                    tijdsblokDropdown.required = false;
+                    tijdsblokDropdown.value = '';
                 }
             }
         });
@@ -92,17 +95,18 @@ export function initVrijwilligers() {
         formVrijwilligers.addEventListener('submit', async (e) => {
             e.preventDefault();
             const job = document.getElementById('vrijwilliger-job').value;
-            const wedstrijd_id = job === 'Scheidsrechter' 
-                ? document.getElementById('vrijwilliger-wedstrijd').value 
-                : null;
 
             const payload = {
-                naam: document.getElementById('vrijwilliger-naam').value,
+                naam:     document.getElementById('vrijwilliger-naam').value,
                 tijdslot: document.getElementById('vrijwilliger-tijdslot').value,
-                job: job,
-                wedstrijd_id: wedstrijd_id ? parseInt(wedstrijd_id) : null,
-                email: localStorage.getItem('userEmail')
+                job:      job,
+                email:    localStorage.getItem('userEmail')
             };
+
+            // Voor scheidsrechter: stuur tijdsblok mee (niet wedstrijd_id)
+            if (job === 'Scheidsrechter') {
+                payload.tijdsblok = tijdsblokDropdown ? tijdsblokDropdown.value : null;
+            }
 
             try {
                 const res = await fetch(`${CONFIG.apiBaseUrl}/vrijwilligers`, {
@@ -113,26 +117,33 @@ export function initVrijwilligers() {
                 const result = await res.json();
                 if (!res.ok) throw new Error(result.error);
                 
-                if (vrijwilligersMsg) vrijwilligersMsg.textContent = result.message;
-                formVrijwilligers.reset();
-                if (wedstrijdDropdown) {
-                    wedstrijdDropdown.style.display = 'none';
-                    wedstrijdDropdown.required = false;
+                if (vrijwilligersMsg) {
+                    vrijwilligersMsg.style.color = '#27ae60';
+                    vrijwilligersMsg.textContent = result.message;
                 }
+                formVrijwilligers.reset();
+
+                if (tijdsblokDropdown) {
+                    tijdsblokDropdown.style.display = 'none';
+                    tijdsblokDropdown.required = false;
+                }
+
                 await laadVrijwilligers();
-                await laadBeschikbareWedstrijden();
+                await laadBeschikbareTijdsblokken();
             } catch (err) {
-                if (vrijwilligersMsg) vrijwilligersMsg.textContent = err.message;
+                if (vrijwilligersMsg) {
+                    vrijwilligersMsg.style.color = '#e74c3c';
+                    vrijwilligersMsg.textContent = err.message;
+                }
             }
         });
     }
 
-    // Luister naar kliks op de status knoppen (Event Delegation)
+    // Event delegation voor accepteer/afwijs knoppen
     if (vrijwilligersLijst) {
         vrijwilligersLijst.addEventListener('click', async (e) => {
-            // Check of er op een knop is geklikt
             if (e.target.classList.contains('btn-status')) {
-                const id = e.target.getAttribute('data-id');
+                const id     = e.target.getAttribute('data-id');
                 const status = e.target.getAttribute('data-status');
                 
                 try {
@@ -152,7 +163,7 @@ export function initVrijwilligers() {
                     laadVrijwilligers();
                     await herlaadWerkrooster();
                     await laadRooster();
-                    await laadBeschikbareWedstrijden();
+                    await laadBeschikbareTijdsblokken();
                 } catch (err) {
                     if (vrijwilligersMsg) {
                         vrijwilligersMsg.style.color = '#e74c3c';
