@@ -18,7 +18,7 @@ from routes.login import login_bp
 from routes.acties import acties_bp
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Registreer de blueprints en plak er in één keer '/api' voor!
 app.register_blueprint(financien_bp, url_prefix='/api')
