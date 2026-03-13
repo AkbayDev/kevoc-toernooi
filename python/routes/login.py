@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
@@ -10,11 +10,8 @@ from database import get_db_connection
 
 login_bp = Blueprint('login', __name__)
 
-@login_bp.route('/register', methods=['POST', 'OPTIONS'])
+@login_bp.route('/register', methods=['POST'])
 def register():
-    if request.method == 'OPTIONS':
-        return jsonify({'status': 'ok'}), 200
-
     data = request.get_json()
     email, password = data.get('email'), data.get('password')
     role = 'gebruiker'  # Altijd instellen op 'gebruiker'
@@ -35,16 +32,8 @@ def register():
         
     return jsonify({"message": "Account aangemaakt!"}), 201
 
-@login_bp.route('/login', methods=['POST', 'GET', 'OPTIONS'])
+@login_bp.route('/login', methods=['POST'])
 def login():
-    # 1. Los CORS Preflight errors op
-    if request.method == 'OPTIONS':
-        return jsonify({'status': 'ok'}), 200
-
-    # 2. Vang Redirects op (die POST in GET veranderen)
-    if request.method == 'GET':
-        return jsonify({"error": "De server ontving een GET request. Check je URL in api.js op dubbele slashes of http/https redirects."}), 405
-
     data = request.get_json()
     email, password = data.get('email'), data.get('password')
     

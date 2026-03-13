@@ -51,7 +51,9 @@ function switchTab(tabName) {
 
 async function sendToBackend(endpoint, data) {
     try {
-        const response = await fetch(`${CONFIG.apiBaseUrl}${endpoint}`, {
+        const url = `${CONFIG.apiBaseUrl}${endpoint}`;
+        console.log(`[DEBUG] Probeer te verbinden met: ${url}`);
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
