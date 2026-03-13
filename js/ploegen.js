@@ -14,7 +14,9 @@ async function laadPloegen() {
 
         ploegenLijst.innerHTML = data.map(p => {
             const badgeColor = p.niveau === 'senior' ? '#e74c3c' : '#3498db';
-            return `<li><strong>${p.naam}</strong><span style="background-color: ${badgeColor}; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; float: right;">${p.niveau}</span></li>`;
+            const categorieLabel = p.categorie === 'heren' ?
+            "#3498db" : "#d921d0";
+            return `<li><strong>${p.naam}</strong><span style="background-color: ${badgeColor}; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; float: right;">${p.niveau}</span><span style="background-color: ${categorieLabel}; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; float: right;">${p.categorie}</span></li>`;
         }).join('');
     } catch (err) { console.error("Fout bij laden ploegen:", err); }
 }
@@ -50,9 +52,7 @@ export function initPloegen() {
                 laadPloegen();
             } catch (err) {
                 if(ploegMsg) { ploegMsg.style.color = "#e74c3c"; ploegMsg.textContent = err.message; }
-            } finally {
-                if(ploegMsg) setTimeout(() => ploegMsg.textContent = "", 3000);
-            }
+            } 
         });
     }
 }

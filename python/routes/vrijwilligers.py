@@ -36,7 +36,7 @@ def get_vrijwilligers():
 def add_vrijwilliger():
     data = request.json
     naam = data.get('naam')
-    email = data.get('email')  # Automatisch meegestuurd vanuit frontend via localStorage
+    email = data.get('email')
     tijdslot = data.get('tijdslot')
     job = data.get('job')
     wedstrijd_id = data.get('wedstrijd_id', None)
@@ -66,27 +66,24 @@ def update_vrijwilliger_status(id):
     with get_db_connection() as conn:
         cursor = conn.cursor()
         
-        # Haal vrijwilliger info op inclusief email
         cursor.execute("SELECT id, naam, email, tijdslot, job, wedstrijd_id FROM vrijwilligers WHERE id = ?", (id,))
         vrijwilliger = cursor.fetchone()
         
         if not vrijwilliger:
             return jsonify({"error": "Vrijwilliger niet gevonden."}), 404
         
-        # Update status
         cursor.execute("UPDATE vrijwilligers SET status = ? WHERE id = ?", (new_status, id))
         
         message = "Status succesvol bijgewerkt!"
         
-        # Als geaccepteerd: update rol naar 'hulp' en logica voor werkrooster/scheidsrechter
         if new_status == 'geaccepteerd':
-            # Update rol naar hulp als email beschikbaar is
             if vrijwilliger['email']:
-                cursor.execute("UPDATE users SET role = ? WHERE email = ?", ('hulp', vrijwilliger['email']))
+                # Scheidsrechter-vrijwilligers krijgen de rol 'scheids', anderen krijgen 'hulp'
+                nieuwe_rol = 'scheids' if vrijwilliger['job'] == 'Scheidsrechter' else 'hulp'
+                cursor.execute("UPDATE users SET role = ? WHERE email = ?", (nieuwe_rol, vrijwilliger['email']))
                 if cursor.rowcount == 0:
                     print(f"[WAARSCHUWING] Geen gebruiker gevonden met email: {vrijwilliger['email']}")
             
-            # Als scheidsrechter met wedstrijd_id: update scheidsrechter in wedstrijden
             if vrijwilliger['job'] == 'Scheidsrechter' and vrijwilliger['wedstrijd_id']:
                 cursor.execute(
                     "SELECT scheidsrechter FROM wedstrijden WHERE id = ?",
@@ -104,7 +101,6 @@ def update_vrijwilliger_status(id):
                     else:
                         message = f"Status geaccepteerd, maar deze wedstrijd heeft al scheidsrechter '{wedstrijd['scheidsrechter']}' - handmatig aanpassen nodig!"
             else:
-                # Niet-scheidsrechter: probeer werkrooster in te plannen
                 cursor.execute(
                     "SELECT id FROM werkrooster WHERE tijdslot = ? AND jobrol = ?",
                     (vrijwilliger['tijdslot'], vrijwilliger['job'])
@@ -119,20 +115,15 @@ def update_vrijwilliger_status(id):
                 else:
                     message = f"Status geaccepteerd maar {vrijwilliger['tijdslot']} is al bezet - handmatig inplannen nodig."
         
-        # Als afgewezen: update rol naar 'gebruiker' en verwijder uit werkrooster/wedstrijden
         elif new_status == 'afgewezen':
-            # Update rol naar gebruiker als email beschikbaar is
             if vrijwilliger['email']:
                 cursor.execute("UPDATE users SET role = ? WHERE email = ?", ('gebruiker', vrijwilliger['email']))
             
-            # Verwijder uit werkrooster als ingepland
             cursor.execute("SELECT id FROM werkrooster WHERE vrijwilliger_id = ?", (id,))
-            
             if cursor.fetchone() is not None:
                 cursor.execute("DELETE FROM werkrooster WHERE vrijwilliger_id = ?", (id,))
                 message = "Status afgewezen en verwijderd uit werkrooster!"
             
-            # Als scheidsrechter: verwijder uit wedstrijden scheidsrechter veld
             if vrijwilliger['job'] == 'Scheidsrechter' and vrijwilliger['wedstrijd_id']:
                 cursor.execute(
                     "UPDATE wedstrijden SET scheidsrechter = 'TBD' WHERE id = ? AND scheidsrechter = ?",
@@ -145,7 +136,6 @@ def update_vrijwilliger_status(id):
 
 @vrijwilligers_bp.route('/wedstrijden/beschikbaar', methods=['GET'])
 def get_beschikbare_wedstrijden():
-    """Retourneert alle wedstrijden zonder scheidsrechter (NULL of TBD)"""
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("""

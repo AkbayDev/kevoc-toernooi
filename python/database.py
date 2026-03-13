@@ -1,6 +1,5 @@
 # python/database.py
 import sqlite3
-import contextlib
 
 DATABASE_NAAM = 'users.db'
 
@@ -52,7 +51,12 @@ def init_db():
                 VALUES ('dev')
             ''')
 
-    # Vrijwilligers tabel met email kolom
+    # Nieuw: scheids rol
+    cursor.execute('''
+                INSERT OR IGNORE INTO rollen (rol) 
+                VALUES ('scheids')
+            ''')
+
     cursor.execute("""
                 CREATE TABLE IF NOT EXISTS vrijwilligers (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -103,14 +107,17 @@ def init_db():
         ('Scheidsrechter', 'Verwelkoming & Score keeping')
     )
     
-    # Voeg kolommen toe voor bestaande databases die ze nog niet hebben
-    for kolom, definitie in [
-        ('wedstrijd_id', 'INTEGER DEFAULT NULL'),
-        ('email', 'TEXT DEFAULT NULL')
-    ]:
+    # Voeg ontbrekende kolommen toe aan bestaande databases
+    migraties = [
+        ('vrijwilligers', 'wedstrijd_id', 'INTEGER DEFAULT NULL'),
+        ('vrijwilligers', 'email',        'TEXT DEFAULT NULL'),
+        ('wedstrijden',   'score_thuis',  'INTEGER'),
+        ('wedstrijden',   'score_uit',    'INTEGER'),
+    ]
+    for tabel, kolom, definitie in migraties:
         try:
-            cursor.execute(f"ALTER TABLE vrijwilligers ADD COLUMN {kolom} {definitie}")
-        except:
+            cursor.execute(f"ALTER TABLE {tabel} ADD COLUMN {kolom} {definitie}")
+        except Exception:
             pass  # Kolom bestaat al
     
     conn.commit()

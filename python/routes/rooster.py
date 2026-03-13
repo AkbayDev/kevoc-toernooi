@@ -36,11 +36,44 @@ def genereer_round_robin(ploegenlijst):
 
     return rondes
 
+def verdeel_in_poules(ploegen):
+    """
+    Verdeelt een grote lijst met ploegen in kleinere poules van 3 of 4.
+    Bijv: 8 ploegen = 4 en 4. 9 ploegen = 3, 3 en 3. 10 ploegen = 4, 3 en 3.
+    """
+    n = len(ploegen)
+    # Als het er 5 of minder zijn, houden we het gewoon in 1 poule
+    if n <= 5:
+        return [ploegen]
+    
+    poules = []
+    aantal_4 = n // 4
+    rest = n % 4
+    
+    # Wiskundige correctie voor perfecte 3- en 4-hoek toernooien
+    if rest == 0:
+        pass # Perfect te delen door 4
+    elif rest == 3:
+        pass # Bijv 7 ploegen = 1x4 en 1x3
+    elif rest == 2:
+        aantal_4 -= 1 # Bijv 10 ploegen: niet 8+2, maar 4+3+3
+    elif rest == 1:
+        aantal_4 -= 2 # Bijv 9 ploegen: niet 8+1, maar 3+3+3
+        
+    idx = 0
+    # Vul eerst de vierhoeken
+    for _ in range(aantal_4):
+        poules.append(ploegen[idx:idx+4])
+        idx += 4
+        
+    # Vul de overgebleven teams in driehoeken
+    while idx < n:
+        poules.append(ploegen[idx:idx+3])
+        idx += 3
+        
+    return poules
+
 def plan_wedstrijden_in(rondes_per_reeks, scheidsrechters):
-    """
-    Verdeelt de gemaakte rondes over de tijd en beschikbare velden.
-    Jeugd wordt eerst volledig afgewerkt, daarna pas de senioren.
-    """
     start_tijd = datetime.strptime("10:00", "%H:%M")
     wedstrijd_duur = timedelta(minutes=45) 
     opwarming_duur = timedelta(minutes=10)
@@ -49,32 +82,40 @@ def plan_wedstrijden_in(rondes_per_reeks, scheidsrechters):
     
     velden_beschikbaar = {veld_nr: start_tijd for veld_nr in range(1, aantal_velden + 1)}
     team_beschikbaar = {} 
-    voorkeurs_velden = {} 
     
     # --- STAP 1: GROEPEER OP PRIORITEIT ---
     def sorteer_prioriteit(reeks_naam):
         naam_lower = reeks_naam.lower()
-        if 'jeugd' in naam_lower: return 1  # Jeugd = Groep 1 (Ochtend)
-        elif 'senior' in naam_lower: return 3 # Senior = Groep 3 (Namiddag/Avond)
-        return 2 # Rest = Groep 2 (Midden)
+        if 'jeugd' in naam_lower: return 1  
+        elif 'senior' in naam_lower: return 3 
+        return 2 
 
-    reeksen_per_prio = {1: [], 2: [], 3: []}
-    for reeks in rondes_per_reeks.keys():
-        reeksen_per_prio[sorteer_prioriteit(reeks)].append(reeks)
+    gesorteerde_reeksen = sorted(rondes_per_reeks.keys(), key=sorteer_prioriteit)
+
+    # --- NIEUW: VELD SPREIDING (Mannen Veld 1, Vrouwen Veld 3, Deel 2) ---
+    voorkeurs_velden = {}
+    # We sturen de eerste reeks naar Veld 1, de tweede naar Veld 3, derde naar Veld 2
+    veld_volgorde = [1, 3, 2] 
+    
+    for i, reeks in enumerate(gesorteerde_reeksen):
+        voorkeurs_velden[reeks] = {v: 0 for v in range(1, aantal_velden + 1)}
+        thuis_veld = veld_volgorde[i % len(veld_volgorde)]
+        # Geef dit thuisveld een gigantische voorsprong (+50)
+        voorkeurs_velden[reeks][thuis_veld] = 50 
 
     # --- STAP 2: BOUW DE WACHTRIJ IN FASES ---
+    reeksen_per_prio = {1: [], 2: [], 3: []}
+    for reeks in gesorteerde_reeksen:
+        reeksen_per_prio[sorteer_prioriteit(reeks)].append(reeks)
+
     wachtrij = []
     
-    # We lopen eerst Groep 1 (Jeugd) volledig af, dan Groep 2, dan Groep 3 (Senior)
     for prio in [1, 2, 3]:
         groep_reeksen = reeksen_per_prio[prio]
-        if not groep_reeksen:
-            continue # Sla over als er bv. geen Groep 2 is
+        if not groep_reeksen: continue 
             
-        # Bereken de maximale rondes alleen voor DEZE groep
         max_rondes_groep = max((len(rondes_per_reeks[r]) for r in groep_reeksen), default=0)
         
-        # Mix de rondes (zodat teams kunnen rusten) ALLEEN binnen hun eigen groep
         for ronde_idx in range(max_rondes_groep):
             for reeks in groep_reeksen:
                 rondes = rondes_per_reeks[reeks]
@@ -87,8 +128,6 @@ def plan_wedstrijden_in(rondes_per_reeks, scheidsrechters):
     scheids_teller = 0
 
     # --- STAP 3: PLAN DE WACHTRIJ IN ---
-    # Omdat alle jeugdwedstrijden nu vooraan in de wachtrij staan, 
-    # claimen zij automatisch alle vroege tijden op alle velden!
     for match in wachtrij:
         thuis = match["thuis"]
         uit = match["uit"]
@@ -96,7 +135,8 @@ def plan_wedstrijden_in(rondes_per_reeks, scheidsrechters):
         
         if thuis not in team_beschikbaar: team_beschikbaar[thuis] = start_tijd
         if uit not in team_beschikbaar: team_beschikbaar[uit] = start_tijd
-        if reeks not in voorkeurs_velden: voorkeurs_velden[reeks] = {v: 0 for v in range(1, aantal_velden + 1)}
+        
+        # (Let op: de regel "if reeks not in voorkeurs_velden" is verwijderd, want dat doen we nu al bovenaan!)
         
         vroegste_team_tijd = max(team_beschikbaar[thuis], team_beschikbaar[uit])
         
@@ -113,6 +153,7 @@ def plan_wedstrijden_in(rondes_per_reeks, scheidsrechters):
                 if voorkeurs_velden[reeks][veld_id] > voorkeurs_velden[reeks][beste_veld]:
                     beste_veld = veld_id
 
+        # De rest van je functie blijft exact hetzelfde! 
         start_opwarming = beste_starttijd
         aftrap = start_opwarming + opwarming_duur
         eind_match = aftrap + wedstrijd_duur
@@ -180,11 +221,21 @@ def genereer_rooster():
                 
             ploegen_per_reeks[reeks_naam].append({"naam": row["naam"]})
 
-        # 3. Genereer de rondes per REEKS (dus Heren en Dames blijven strak gescheiden)
+       # 3. Genereer de rondes per REEKS en verdeel in POULES
         rondes_per_reeks = {}
         for reeks_naam, ploegen in ploegen_per_reeks.items():
-            rondes_per_reeks[reeks_naam] = genereer_round_robin(ploegen)
-
+            poules = verdeel_in_poules(ploegen)
+            
+            if len(poules) == 1:
+                # Gewoon 1 toernooi
+                rondes_per_reeks[reeks_naam] = genereer_round_robin(poules[0])
+            else:
+                # Meerdere poules! Noem ze Poule A, Poule B, etc.
+                for i, poule in enumerate(poules):
+                    letter = chr(65 + i) # 65 is de letter 'A'
+                    poule_naam = f"{reeks_naam} (Poule {letter})"
+                    rondes_per_reeks[poule_naam] = genereer_round_robin(poule)
+        
         # 4. Plan alles in op tijd en veld
         compleet_rooster = plan_wedstrijden_in(rondes_per_reeks, scheidsrechters_lijst)
 
@@ -238,6 +289,15 @@ def get_rooster():
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
+            
+            # Check of score kolommen bestaan, zoniet voeg ze toe (Lazy Migration)
+            try:
+                cursor.execute("SELECT score_thuis FROM wedstrijden LIMIT 1")
+            except Exception:
+                cursor.execute("ALTER TABLE wedstrijden ADD COLUMN score_thuis INTEGER")
+                cursor.execute("ALTER TABLE wedstrijden ADD COLUMN score_uit INTEGER")
+                conn.commit()
+
             # Haal het rooster netjes gesorteerd op tijd en dan op veld op
             cursor.execute("SELECT * FROM wedstrijden ORDER BY starttijd ASC, veld ASC")
             rows = cursor.fetchall()
@@ -246,3 +306,26 @@ def get_rooster():
         return jsonify(rooster), 200
     except Exception as e:
         return jsonify({"error": f"Kon rooster niet laden: {str(e)}"}), 500
+
+@rooster_bp.route('/wedstrijden/<int:id>/score', methods=['PATCH'])
+def update_wedstrijd_score(id):
+    data = request.json
+    score_thuis = data.get('score_thuis')
+    score_uit = data.get('score_uit')
+
+    if score_thuis is None or score_uit is None:
+        return jsonify({"error": "Vul beide scores in."}), 400
+
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE wedstrijden
+                SET score_thuis = ?, score_uit = ?
+                WHERE id = ?
+            ''', (score_thuis, score_uit, id))
+            conn.commit()
+        
+        return jsonify({"message": "Uitslag succesvol opgeslagen!"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
