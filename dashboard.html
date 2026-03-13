@@ -159,10 +159,10 @@
             </section>
 
             <!-- TOERNOOI SCHEMA (beheerder: met genereer knop) -->
-            <section class="dash-card admin-card hidden" data-role="beheerder" id="toernooi-dashboard">
+            <section class="dash-card admin-card hidden" data-role="all" id="toernooi-dashboard">
                 <h2>Toernooi Schema</h2>
                 
-                <div style="margin-bottom: 16px; display: flex; gap: 10px;">
+                <div style="margin-bottom: 16px; display: flex; gap: 10px;" class=" dash-card admin-actions hidden" data-role="beheerder">
                     <button id="btn-genereer" class="btn-primary">Genereer Nieuw Rooster</button>
                     <button id="btn-ververs" class="btn-secondary">Ververs Rooster</button>
                 </div>
@@ -170,15 +170,7 @@
                 <div id="rooster-container">
                     <p class="text-muted">Laden van wedstrijdschema...</p>
                 </div>
-            </section>
-
-            <!-- TOERNOOI SCHEMA (hulp/scheids: alleen weergave) -->
-            <section class="dash-card hidden" data-role="hulp" id="toernooi-dashboard-hulp">
-                <h2>Toernooi Schema</h2>
-                <div id="rooster-container-hulp">
-                    <p class="text-muted">Laden van wedstrijdschema...</p>
-                </div>
-            </section>
+            </section>    
 
             <!-- WERKROOSTER INPLANNEN (beheerder) -->
             <section class="dash-card admin-card hidden" data-role="beheerder" id="werkrooster-sectie">

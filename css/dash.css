@@ -1,4 +1,4 @@
-/* --- Reset & Basis Styling --- */
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -164,7 +164,6 @@ nav ul li a:hover {
     border-color: #3367af;
 }
 
-/* --- Dev Tools --- */
 .dev-tools {
     background-color: #fff3cd;
     color: #856404;
@@ -174,7 +173,6 @@ nav ul li a:hover {
     border-bottom: 1px solid #ffeeba;
 }
 
-/* --- Dashboard Layout --- */
 .dashboard-layout {
     max-width: 800px;
     margin: 40px auto;
@@ -184,7 +182,6 @@ nav ul li a:hover {
     padding: 0 20px;
 }
 
-/* --- Card Styling --- */
 .dash-card {
     background: #ffffff;
     border-radius: 14px;
@@ -211,7 +208,6 @@ nav ul li a:hover {
     border-left: 4px solid #111827;
 }
 
-/* --- Tabellen --- */
 .data-table {
     width: 100%;
     border-collapse: collapse;
@@ -235,7 +231,6 @@ nav ul li a:hover {
     background-color: #f9fafb;
 }
 
-/* --- Formulieren --- */
 .dash-form {
     display: flex;
     flex-direction: column;
@@ -309,7 +304,6 @@ nav ul li a:hover {
     border: 1px solid #f3f4f6;
 }
 
-/* --- StatusBadges --- */
 .status-badge {
     padding: 4px 10px;
     border-radius: 999px;
@@ -321,7 +315,6 @@ nav ul li a:hover {
 .status-geaccepteerd { background-color: #d1fae5; color: #065f46; }
 .status-geweigerd   { background-color: #fee2e2; color: #991b1b; }
 
-/* --- Financiën Grid --- */
 .finance-grid {
     display: flex;
     gap: 15px;
@@ -341,12 +334,11 @@ nav ul li a:hover {
 .finance-box.green { background-color: #059669; }
 .finance-box.red   { background-color: #dc2626; }
 
-/* --- Utility --- */
 .hidden {
     display: none !important;
 }
 
-/* --- Grafiek --- */
+
 .chart-wrapper {
     position: relative;
     height: 250px;
@@ -370,7 +362,6 @@ nav ul li a:hover {
     color: #111827;
 }
 
-/* --- Transactielijst --- */
 .transactie-item {
     display: flex;
     justify-content: space-between;
@@ -382,14 +373,12 @@ nav ul li a:hover {
 .text-green { color: #059669; font-weight: bold; }
 .text-red   { color: #dc2626; font-weight: bold; }
 
-/* --- Responsive --- */
 @media (max-width: 600px) {
     .header-container { flex-direction: column; gap: 10px; }
     nav ul { flex-wrap: wrap; justify-content: center; }
     .finance-grid { flex-direction: column; }
 }
 
- /* --- Kalender / Rooster Styling --- */
 .kalender-grid { 
     display: flex; 
     flex-direction: column; 
@@ -398,10 +387,10 @@ nav ul li a:hover {
 }
 
 .tijd-slot { 
-    border-left: 5px solid #3498db; /* Gebruikt jouw blauwe accentkleur */
-    background-color: #f9fafb; /* Zelfde lichtgrijs als je tabel headers */
+    border-left: 5px solid #3498db; 
+    background-color: #f9fafb; 
     padding: 20px; 
-    border-radius: 0 10px 10px 0; /* Past beter bij de afronding van je inputs/knoppen */
+    border-radius: 0 10px 10px 0; 
     box-shadow: 0 4px 10px rgba(17, 24, 39, 0.04);
 }
 
@@ -409,8 +398,8 @@ nav ul li a:hover {
     font-weight: 700; 
     font-size: 1.2em; 
     margin-bottom: 15px; 
-    color: #111827; /* Hoofdkleur van je dashboard tekst */
-    border-bottom: 2px solid #f3f4f6; /* Zelfde subtiele border als je kaarten */
+    color: #111827; 
+    border-bottom: 2px solid #f3f4f6; 
     padding-bottom: 8px; 
 }
 
@@ -468,7 +457,6 @@ nav ul li a:hover {
     font-weight: 700;
 }
 
-/* Ruimte voor de knoppen onder de titel */
 
 
 /* Styling voor de 'laden...' of 'geen rooster' meldingen */

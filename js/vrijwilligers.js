@@ -139,7 +139,7 @@ export function initVrijwilligers() {
         });
     }
 
-    // Event delegation voor accepteer/afwijs knoppen
+    //  voor accepteer/afwijs knoppen
     if (vrijwilligersLijst) {
         vrijwilligersLijst.addEventListener('click', async (e) => {
             if (e.target.classList.contains('btn-status')) {

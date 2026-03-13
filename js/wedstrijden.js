@@ -253,8 +253,6 @@ function renderScheidsMatchCard(match, scheidsNaam) {
     `;
 }
 
-// ─── Event Delegation ────────────────────────────────────────────────────────
-
 function koppelScheidsEvents(container, userEmail) {
     // Score formulier submit
     container.addEventListener('submit', async (e) => {
