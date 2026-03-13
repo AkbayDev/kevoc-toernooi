@@ -32,12 +32,8 @@ def register():
         
     return jsonify({"message": "Account aangemaakt!"}), 201
 
-@login_bp.route('/login', methods=['POST', 'GET'])
+@login_bp.route('/login', methods=['POST'])
 def login():
-    # Debug: Vang GET verzoeken af om de redirect-fout te bevestigen
-    if request.method == 'GET':
-        return jsonify({"error": "De server ontving een GET-verzoek. Check je js/api.js URL: gebruik 'https' en geen trailing slash!"}), 405
-
     data = request.get_json()
     email, password = data.get('email'), data.get('password')
     
