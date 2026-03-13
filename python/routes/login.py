@@ -10,8 +10,12 @@ from database import get_db_connection
 
 login_bp = Blueprint('login', __name__)
 
-@login_bp.route('/register', methods=['POST'])
+@login_bp.route('/register', methods=['POST', 'OPTIONS'])
 def register():
+    # Los CORS Preflight errors op (browser check)
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
     data = request.get_json()
     email, password = data.get('email'), data.get('password')
     role = 'gebruiker'  # Altijd instellen op 'gebruiker'
@@ -32,8 +36,12 @@ def register():
         
     return jsonify({"message": "Account aangemaakt!"}), 201
 
-@login_bp.route('/login', methods=['POST'])
+@login_bp.route('/login', methods=['POST', 'OPTIONS'])
 def login():
+    # Los CORS Preflight errors op (browser check)
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
     data = request.get_json()
     email, password = data.get('email'), data.get('password')
     
