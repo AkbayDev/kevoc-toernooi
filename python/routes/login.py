@@ -32,7 +32,6 @@ def register():
         
     return jsonify({"message": "Account aangemaakt!"}), 201
 
-@login_bp.route('/login', methods=['POST'])
 @login_bp.route('/login', methods=['POST', 'GET'])
 def login():
     # Debug: Vang GET verzoeken af om de redirect-fout te bevestigen
