@@ -4,6 +4,7 @@ import { initPloegen } from './ploegen.js';
 import { initVrijwilligers } from './vrijwilligers.js';
 import { initRooster } from './rooster.js';
 import { initWerkrooster } from './werkrooster.js';
+import { initWedstrijden } from './wedstrijden.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Controleer of de gebruiker is ingelogd (anders direct terug naar login)
@@ -18,4 +19,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initVrijwilligers();
     initRooster();
     initWerkrooster();
+    initWedstrijden();
 });

@@ -9,8 +9,7 @@ export function checkAuth() {
 }
 
 // Controleer bij laden of de rol in de database overeenkomt met localStorage.
-// Als een beheerder de rol gewijzigd heeft (bijv. gebruiker -> hulp),
-// wordt localStorage bijgewerkt en de pagina herladen.
+// Als een beheerder de rol gewijzigd heeft, wordt localStorage bijgewerkt en de pagina herladen.
 async function syncRolMetDatabase() {
     const email = localStorage.getItem('userEmail');
     if (!email) return;
@@ -24,25 +23,23 @@ async function syncRolMetDatabase() {
         const huidigeRolInStorage = localStorage.getItem('userRole');
 
         if (huidigeRolInDB && huidigeRolInDB !== huidigeRolInStorage) {
-            // Rol is veranderd in de database, update localStorage en herlaad
             localStorage.setItem('userRole', huidigeRolInDB);
             window.location.reload();
         }
     } catch (err) {
-        // Stille fout: als de sync mislukt, gewoon doorgaan
         console.warn('Rol sync mislukt:', err);
     }
 }
 
 export function initAuthUI() {
-    // Sync rol met database bij elke paginabezoek
     syncRolMetDatabase();
 
     const roleTranslations = {
         'beheerder': 'Beheerder',
-        'hulp': 'Vrijwilliger',
+        'hulp':      'Vrijwilliger',
+        'scheids':   'Scheidsrechter',
         'gebruiker': 'Gebruiker',
-        'dev': 'Developer'
+        'dev':       'Developer'
     };
 
     const userDisplay = document.getElementById('user-display');
@@ -50,34 +47,40 @@ export function initAuthUI() {
         userDisplay.textContent = `Welkom, ${roleTranslations[currentRole] || 'Gast'}`;
     }
 
+    // Rollen die beheerder-niveau toegang hebben
+    const BEHEERDER_ROLLEN = ['beheerder', 'dev'];
+    // Rollen die hulp-niveau toegang hebben (+ omhoog)
+    const HULP_ROLLEN = ['hulp', 'scheids', 'beheerder', 'dev'];
+
     const cards = document.querySelectorAll('.dash-card');
     cards.forEach(card => {
         const requiredRole = card.getAttribute('data-role');
+        if (!requiredRole) return;
+
+        // Splits komma-gescheiden rollen (bijv. "scheids,beheerder")
+        const vereistRollen = requiredRole.split(',').map(r => r.trim());
+
         let isVisible = false;
 
-        if (requiredRole === 'all') {
+        if (vereistRollen.includes('all')) {
             isVisible = true;
-        } else if (requiredRole === currentRole) {
+        } else if (vereistRollen.includes(currentRole)) {
+            // Directe rol match
             isVisible = true;
-        } else if (requiredRole === 'beheerder' && currentRole === 'dev') {
+        } else if (vereistRollen.includes('beheerder') && BEHEERDER_ROLLEN.includes(currentRole)) {
             // Dev mag alles zien wat voor beheerder is
             isVisible = true;
-        } else if (requiredRole === 'hulp' && (currentRole === 'beheerder' || currentRole === 'dev')) {
-            // Beheerder en dev mogen alles zien wat voor hulp is
+        } else if (vereistRollen.includes('hulp') && HULP_ROLLEN.includes(currentRole)) {
+            // Beheerder, dev en scheids mogen alles zien wat voor hulp is
             isVisible = true;
         }
 
-        if (isVisible) {
-            card.classList.remove('hidden');
-        } else {
-            card.classList.add('hidden');
-        }
+        card.classList.toggle('hidden', !isVisible);
     });
 
-    // Verberg actie knoppen voor hulp rol
-    if (currentRole === 'hulp') {
-        const statusButtons = document.querySelectorAll('.btn-status');
-        statusButtons.forEach(btn => {
+    // Verberg actie knoppen voor hulp en scheids rol
+    if (currentRole === 'hulp' || currentRole === 'scheids') {
+        document.querySelectorAll('.btn-status').forEach(btn => {
             btn.style.display = 'none';
         });
 

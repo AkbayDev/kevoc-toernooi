@@ -29,24 +29,22 @@
 
     <main class="dashboard-layout">
 
+        <!-- ACTUELE SCORES — kalender-grid stijl, zichtbaar voor iedereen -->
         <section class="dash-card" data-role="all" id="scores">
             <h2>Actuele Scores</h2>
-            <p>Hier komen de live scores van de gespeelde wedstrijden.</p>
-            <table class="data-table">
-                <thead><tr><th>Tijd/Veld</th><th>Wedstrijd</th><th>Uitslag</th></tr></thead>
-                <tbody id="scores-body"></tbody>
-            </table>
+            <div id="scores-container">
+                <p style="color: #6b7280;">Scores worden geladen...</p>
+            </div>
         </section>
 
-        <!-- SCHEIDSRECHTER / HULP SECTIE -->
-        <section class="dash-card hidden" data-role="hulp,beheerder" id="scheids-dashboard">
+        <!-- SCHEIDSRECHTER DASHBOARD — alleen voor scheids en beheerder -->
+        <section class="dash-card hidden" data-role="scheids,beheerder" id="scheids-dashboard">
             <h2>Scheidsrechter Dashboard</h2>
-            <p>Vul de uitslag in na afloop van de wedstrijd.</p>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Vul de uitslag in na afloop van de wedstrijd.</p>
             <div id="scheids-matches"></div>
         </section>
 
-        <!-- PLOEG INSCHRIJVEN --> 
-
+        <!-- PLOEG INSCHRIJVEN -->
         <section class="dash-card" data-role="gebruiker" id="ploeg-inschrijven">
             <h2>Ploegen & Inschrijven</h2>
             
@@ -73,17 +71,13 @@
             <div id="ploeg-msg" style="margin-bottom: 20px; font-weight: bold; font-size: 14px;"></div>
         </section>
 
-        <!-- INGESCHREVEN PLOEGEN OVERZICHT -->
-
-        <section class="dash-card" data-role="beheerder" id="ploegen-overzicht">
-            <h2>Ingeschreven Ploegen</h2>
-            <ul class="task-list" id="ploegen-lijst">
-                </ul>
+        <section class="dash-card" data-role="all" id="ploegen-overzicht">
+            <h3 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; color: #2c3e50;">Ingeschreven Ploegen</h3>
+            <ul class="task-list" id="ploegen-lijst"></ul>
         </section>
 
         <!-- VRIJWILLIGERS INSCHRIJVEN -->
-
-       <section class="dash-card" data-role="gebruiker" id="hulp-inschrijven">
+        <section class="dash-card" data-role="gebruiker" id="hulp-inschrijven">
             <h2>Inschrijven als Vrijwilliger / Scheids</h2>
             <form class="dash-form" id="form-vrijwilligers">
                 <input type="text" id="vrijwilliger-naam" placeholder="Jouw naam" required>
@@ -114,6 +108,7 @@
             <div id="vrijwilligers-msg" style="margin-bottom: 15px; font-weight: bold; font-size: 14px;"></div>
         </section>
 
+        <!-- VRIJWILLIGERS OVERZICHT (beheerder) -->
         <section class="dash-card beheerder-card" data-role="beheerder" id="vrijwilligers-overzicht">
             <h2>Vrijwilligers Overzicht</h2>
             <table class="data-table">
@@ -133,14 +128,14 @@
             </table>
         </section>
 
+        <!-- WERKROOSTER WEERGAVE (hulp en scheids) -->
         <section class="dash-card" data-role="hulp" id="werkrooster">
             <h2>Werk Rooster</h2>
-            <p>Overzicht van ingeplande vrijwilligers.</p>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Overzicht van ingeplande vrijwilligers.</p>
             <div id="werkrooster-weergave"></div>
         </section>
 
-        <!-- BEHEERDER SPECIFIEKE SECTIES -->
-
+        <!-- BEHEERDER SECTIES -->
         <section class="dash-card admin-card hidden" data-role="beheerder" id="checklist">
             <h2>Organisatie Checklist</h2>
             <p>Wat moet er nog gebeuren voor en tijdens het toernooi?</p>
@@ -160,42 +155,41 @@
             </ul>
         </section>
 
-        <!-- WEDSTRIJDEN -->
-        
-    <section class="dash-card admin-card hidden" data-role="beheerder" id="toernooi-dashboard">
-        <h2>Toernooi Schema</h2>
-        
-        <div class="mb-4">
-            <button id="btn-genereer" class="btn btn-primary">Genereer Nieuw Rooster</button>
-            <button id="btn-ververs" class="btn btn-outline-secondary">Ververs Rooster</button>
-        </div>
+        <!-- TOERNOOI SCHEMA (beheerder: met genereer knop) -->
+        <section class="dash-card admin-card hidden" data-role="beheerder" id="toernooi-dashboard">
+            <h2>Toernooi Schema</h2>
+            
+            <div style="margin-bottom: 16px; display: flex; gap: 10px;">
+                <button id="btn-genereer" class="btn-primary">Genereer Nieuw Rooster</button>
+                <button id="btn-ververs" class="btn-secondary">Ververs Rooster</button>
+            </div>
 
-        <div id="rooster-container">
-            <p class="text-muted">Laden van wedstrijdschema...</p>
-        </div>
-    </section>
+            <div id="rooster-container">
+                <p class="text-muted">Laden van wedstrijdschema...</p>
+            </div>
+        </section>
 
-     <section class="dash-card admin-card hidden" data-role="all" id="toernooi-dashboard">
-        <h2>Toernooi Schema</h2>
+        <!-- TOERNOOI SCHEMA (hulp/scheids: alleen weergave, geen genereer knop) -->
+        <section class="dash-card hidden" data-role="hulp" id="toernooi-dashboard-hulp">
+            <h2>Toernooi Schema</h2>
+            <div id="rooster-container-hulp">
+                <p class="text-muted">Laden van wedstrijdschema...</p>
+            </div>
+        </section>
 
-        <div id="rooster-container">
-            <p class="text-muted">Laden van wedstrijdschema...</p>
-        </div>
-    </section>
+        <!-- WERKROOSTER INPLANNEN (beheerder) -->
+        <section class="dash-card admin-card hidden" data-role="beheerder" id="werkrooster-sectie">
+            <h2>Werkrooster Inplannen</h2>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Plan geaccepteerde vrijwilligers in op verschillende jobrollen en tijdsloten.</p>
+            
+            <div id="werkrooster-msg" style="margin-bottom: 15px; font-weight: bold; font-size: 14px;"></div>
+            
+            <div id="werkrooster-grid" style="overflow-x: auto;">
+                <p class="text-muted">Laden van werkrooster...</p>
+            </div>
+        </section>
 
-    <section class="dash-card admin-card hidden" data-role="beheerder" id="werkrooster-sectie">
-        <h2>Werkrooster Inplannen</h2>
-        <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Plan geaccepteerde vrijwilligers in op verschillende jobrollen en tijdsloten.</p>
-        
-        <div id="werkrooster-msg" style="margin-bottom: 15px; font-weight: bold; font-size: 14px;"></div>
-        
-        <div id="werkrooster-grid" style="overflow-x: auto;">
-            <p class="text-muted">Laden van werkrooster...</p>
-        </div>
-    </section>
-
-    <!-- FINANCIËN -->
-
+        <!-- FINANCIËN -->
         <section class="dash-card admin-card hidden" data-role="beheerder" id="financien">
             <h2>Financiën & Kasboek</h2>
             
@@ -217,8 +211,7 @@
 
             <button id="btn-toggle-transacties" class="btn-secondary" style="margin-top: 15px; width: 100%;">Bekijk Alle Transacties</button>
             <div id="transacties-lijst" class="hidden" style="margin-top: 10px;">
-                <ul class="task-list" id="transacties-ul">
-                    </ul>
+                <ul class="task-list" id="transacties-ul"></ul>
             </div>
         </section>
 
@@ -234,14 +227,7 @@
         </div>
     </footer>
 
-    <script type="module">
-        import { initWedstrijden } from './js/wedstrijden.js';
-        // Init when DOM is ready
-        document.addEventListener('DOMContentLoaded', () => {
-            initWedstrijden();
-        });
-        // Also importing main.js if it handles other initializations
-        import './js/main.js';
-    </script>
+    <!-- Enkel main.js importeren — dit importeert alle andere modules inclusief wedstrijden.js -->
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>
