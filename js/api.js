@@ -1,3 +1,3 @@
 export const CONFIG = { 
-    apiBaseUrl: 'kevoc-toernooi.railway.internal' 
+    apiBaseUrl: 'https://kevoc-toernooi-production.up.railway.app' 
 };
