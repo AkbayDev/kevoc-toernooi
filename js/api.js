@@ -1,3 +1,3 @@
 export const CONFIG = { 
-    apiBaseUrl: ''
+    apiBaseUrl: '/api'
 };
