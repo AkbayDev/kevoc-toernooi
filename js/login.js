@@ -1,6 +1,5 @@
-const CONFIG = {
-    apiBaseUrl: 'http://127.0.0.1:5000/api' 
-};
+import { CONFIG } from './api.js';
+
 
 const ui = {
     toggleLogin: document.getElementById('toggle-login'),
