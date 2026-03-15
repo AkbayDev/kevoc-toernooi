@@ -1,3 +1,3 @@
 export const CONFIG = { 
-    apiBaseUrl: 'https://kevoc-toernooi-production.up.railway.app/api'
+    apiBaseUrl: 'http://localhost:5000/api'
 };
