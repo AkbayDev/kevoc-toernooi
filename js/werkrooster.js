@@ -5,7 +5,6 @@ const JOBROLLEN = [
     'Coordinator',
     'Opzetten tafel & T-shirts',
     'Klaarzetten Velden',
-    'Scheidsrechter',
     'Afbreken velden & opruimen zaal'
 ];
 
@@ -28,35 +27,6 @@ async function laadWerkrooster() {
 
 export async function herlaadWerkrooster() {
     await laadWerkrooster();
-}
-
-async function laadWerkroosterWeergave() {
-    const container = document.getElementById('werkrooster-weergave');
-    if (!container) return;
-
-    try {
-        const res = await fetch(`${CONFIG.apiBaseUrl}/werkrooster`);
-        const data = await res.json();
-
-        const gefilterdData = data.filter(r => r.vrijwilliger_id && r.naam);
-
-        if (gefilterdData.length === 0) {
-            container.innerHTML = '<p>Nog niemand ingepland.</p>';
-            return;
-        }
-
-        let html = '<table class="data-table" style="width: 100%; border-collapse: collapse;">';
-        html += '<thead><tr><th>Naam</th><th>Tijdslot</th><th>Jobrol</th></tr></thead><tbody>';
-
-        gefilterdData.forEach(item => {
-            html += `<tr><td>${item.naam}</td><td>${item.tijdslot}</td><td>${item.jobrol}</td></tr>`;
-        });
-
-        html += '</tbody></table>';
-        container.innerHTML = html;
-    } catch (err) {
-        console.error("Fout bij laden werkrooster weergave:", err);
-    }
 }
 
 function renderWerkrooster(roosterData, beschikbareVrijwilligers, container) {
@@ -112,7 +82,6 @@ function renderWerkrooster(roosterData, beschikbareVrijwilligers, container) {
 
 export function initWerkrooster() {
     laadWerkrooster();
-    laadWerkroosterWeergave();
     const roosterContainer = document.getElementById('werkrooster-grid');
     const werkroosterMsg = document.getElementById('werkrooster-msg');
 
@@ -151,7 +120,6 @@ export function initWerkrooster() {
                         werkroosterMsg.textContent = result.message;
                     }
                     laadWerkrooster();
-                    laadWerkroosterWeergave();
                 } catch (err) {
                     if (werkroosterMsg) {
                         werkroosterMsg.style.color = '#e74c3c';
@@ -177,7 +145,6 @@ export function initWerkrooster() {
                         werkroosterMsg.textContent = result.message;
                     }
                     laadWerkrooster();
-                    laadWerkroosterWeergave();
                 } catch (err) {
                     if (werkroosterMsg) {
                         werkroosterMsg.style.color = '#e74c3c';

@@ -48,6 +48,11 @@
             <section class="dash-card" data-role="gebruiker" id="ploeg-inschrijven">
                 <h2>Ploegen & Inschrijven</h2>
                 
+                <div style="background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 0 8px 8px 0; padding: 12px 16px; margin-bottom: 16px; font-size: 14px; color: #1e40af;">
+                    <strong>Betaling:</strong> Gelieve het inschrijvingsgeld over te maken op rekeningnummer
+                    <strong>BE XX XXXX XXXX XXXX</strong> met vermelding van de ploegnaam.
+                </div>
+                
                 <form class="dash-form" id="form-ploeg" style="margin-bottom: 15px;">
                     <input type="text" id="ploeg-naam" placeholder="Naam van de ploeg" required>
                     <select id="ploeg-niveau" required>
@@ -184,29 +189,11 @@
                 </div>
             </section>
 
-            <!-- FINANCIËN -->
+            <!-- FINANCIËN / BETAALOVERZICHT -->
             <section class="dash-card admin-card hidden" data-role="beheerder" id="financien">
-                <h2>Financiën & Kasboek</h2>
-                
-                <div class="chart-wrapper">
-                    <canvas id="financeChart"></canvas>
-                    <div id="chart-center-text" class="chart-center-text">€ 0.00</div>
-                </div>
-
-                <form class="dash-form" id="form-finance" style="margin-top: 15px;">
-                    <input type="text" id="fin-omschrijving" placeholder="Omschrijving (bijv. Drank aankoop)" required>
-                    <input type="number" id="fin-bedrag" step="0.01" placeholder="Bedrag in €" required>
-                    <select id="fin-type" required>
-                        <option value="inkomst">Inkomst</option>
-                        <option value="kost">Kost / Uitgave</option>
-                    </select>
-                    <button type="submit" class="btn-primary">Boeking Toevoegen</button>
-                </form>
-                <div id="finance-msg" style="margin-top: 10px; font-weight: bold; font-size: 14px;"></div>
-
-                <button id="btn-toggle-transacties" class="btn-secondary" style="margin-top: 15px; width: 100%;">Bekijk Alle Transacties</button>
-                <div id="transacties-lijst" class="hidden" style="margin-top: 10px;">
-                    <ul class="task-list" id="transacties-ul"></ul>
+                <h2>Betaaloverzicht Ploegen</h2>
+                <div id="betaal-overzicht">
+                    <p style="color: #6b7280;">Laden...</p>
                 </div>
             </section>
 
