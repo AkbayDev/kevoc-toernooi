@@ -15,9 +15,10 @@ from routes.vrijwilligers import vrijwilligers_bp
 from routes.rooster import rooster_bp
 from routes.werkrooster import werkrooster_bp
 from routes.login import login_bp
+from routes.acties import acties_bp
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Registreer de blueprints en plak er in één keer '/api' voor!
 app.register_blueprint(financien_bp, url_prefix='/api')
@@ -26,6 +27,7 @@ app.register_blueprint(vrijwilligers_bp, url_prefix='/api')
 app.register_blueprint(rooster_bp, url_prefix='/api')
 app.register_blueprint(werkrooster_bp, url_prefix='/api')
 app.register_blueprint(login_bp, url_prefix='/api')
+app.register_blueprint(acties_bp, url_prefix='/api')
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

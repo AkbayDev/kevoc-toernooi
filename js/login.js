@@ -1,6 +1,5 @@
-const CONFIG = {
-    apiBaseUrl: 'http://127.0.0.1:5000/api' 
-};
+import { CONFIG } from './api.js';
+
 
 const ui = {
     toggleLogin: document.getElementById('toggle-login'),
@@ -52,7 +51,9 @@ function switchTab(tabName) {
 
 async function sendToBackend(endpoint, data) {
     try {
-        const response = await fetch(`${CONFIG.apiBaseUrl}${endpoint}`, {
+        const url = `${CONFIG.apiBaseUrl}${endpoint}`;
+        console.log(`[DEBUG] Probeer te verbinden met: ${url}`);
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)

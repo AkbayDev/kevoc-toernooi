@@ -506,3 +506,15 @@ nav ul li a:hover {
 .text-orange { color: #d97706; }
 .text-green { color: #059669; }
 .text-gray { color: #4b5563; }
+
+/* --- Acties --- */
+.actie-item {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    cursor: pointer;
+}
+.actie-bezig {
+    border-left: 4px solid #d97706 !important; /* Oranje */
+    background-color: #fffbeb !important;
+}
