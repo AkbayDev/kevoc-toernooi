@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from database import get_db_connection
 from datetime import datetime, timedelta
+import pandas as pd
+import io
 
 rooster_bp = Blueprint('rooster', __name__)
 
@@ -329,3 +331,74 @@ def update_wedstrijd_score(id):
         return jsonify({"message": "Uitslag succesvol opgeslagen!"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
+@rooster_bp.route('/rooster/import', methods=['POST'])
+def import_rooster():
+    """Importeer wedstrijden vanuit een CSV of Excel bestand. Voegt toe aan bestaande data."""
+    if 'bestand' not in request.files:
+        return jsonify({"error": "Geen bestand meegestuurd."}), 400
+
+    bestand      = request.files['bestand']
+    bestandsnaam = bestand.filename.lower()
+
+    try:
+        if bestandsnaam.endswith('.csv'):
+            df = pd.read_csv(io.BytesIO(bestand.read()))
+        elif bestandsnaam.endswith(('.xlsx', '.xls')):
+            df = pd.read_excel(io.BytesIO(bestand.read()))
+        else:
+            return jsonify({"error": "Alleen .csv, .xlsx of .xls bestanden zijn toegestaan."}), 400
+    except Exception as e:
+        return jsonify({"error": f"Bestand kon niet worden gelezen: {str(e)}"}), 400
+
+    verplichte_kolommen = ['thuis_ploeg', 'uit_ploeg', 'tijdsblok', 'starttijd', 'reeks', 'ronde', 'veld']
+    ontbrekend = [k for k in verplichte_kolommen if k not in df.columns]
+    if ontbrekend:
+        return jsonify({"error": f"Ontbrekende kolommen: {', '.join(ontbrekend)}"}), 400
+
+    toegevoegd = 0
+    fouten     = []
+
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+
+        for i, rij in df.iterrows():
+            thuis     = str(rij.get('thuis_ploeg', '')).strip()
+            uit       = str(rij.get('uit_ploeg', '')).strip()
+            tijdsblok = str(rij.get('tijdsblok', '')).strip()
+            starttijd = str(rij.get('starttijd', '')).strip()
+            reeks     = str(rij.get('reeks', '')).strip()
+            scheids   = str(rij.get('scheidsrechter', 'TBD')).strip()
+
+            try:
+                ronde = int(rij.get('ronde', 1))
+                veld  = int(rij.get('veld', 1))
+            except (ValueError, TypeError):
+                fouten.append(f"Rij {i+2}: ronde/veld moet een getal zijn — overgeslagen.")
+                continue
+
+            if not thuis or not uit or not tijdsblok or not starttijd or not reeks:
+                fouten.append(f"Rij {i+2}: ontbrekende verplichte waarden — overgeslagen.")
+                continue
+
+            if scheids.lower() in ('nan', ''):
+                scheids = 'TBD'
+
+            try:
+                cursor.execute('''
+                    INSERT INTO wedstrijden
+                        (tijdsblok, starttijd, reeks, ronde, veld, thuis_ploeg, uit_ploeg, scheidsrechter)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (tijdsblok, starttijd, reeks, ronde, veld, thuis, uit, scheids))
+                toegevoegd += 1
+            except Exception as e:
+                fouten.append(f"Rij {i+2}: {str(e)}")
+
+        conn.commit()
+
+    bericht = f"{toegevoegd} wedstrijd(en) succesvol geïmporteerd."
+    if fouten:
+        bericht += f" {len(fouten)} overgeslagen: " + " | ".join(fouten[:5])
+
+    return jsonify({"message": bericht, "toegevoegd": toegevoegd, "fouten": fouten}), 200

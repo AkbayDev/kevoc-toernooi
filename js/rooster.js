@@ -135,4 +135,48 @@ export function initRooster() {
     if (btnVervers) {
         btnVervers.addEventListener('click', laadRooster);
     }
+
+    // Import wedstrijden handler
+    const btnImportRooster   = document.getElementById('btn-import-rooster');
+    const importRoosterInput = document.getElementById('import-rooster-bestand');
+    const importRoosterMsg   = document.getElementById('import-rooster-msg');
+
+    if (btnImportRooster && importRoosterInput) {
+        btnImportRooster.addEventListener('click', async () => {
+            const bestand = importRoosterInput.files[0];
+            if (!bestand) {
+                if (importRoosterMsg) { importRoosterMsg.style.color = '#e74c3c'; importRoosterMsg.textContent = 'Kies eerst een bestand.'; }
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('bestand', bestand);
+
+            btnImportRooster.disabled    = true;
+            btnImportRooster.textContent = 'Importeren...';
+
+            try {
+                const res    = await fetch(`${CONFIG.apiBaseUrl}/rooster/import`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await res.json();
+
+                if (importRoosterMsg) {
+                    importRoosterMsg.style.color = res.ok ? '#059669' : '#e74c3c';
+                    importRoosterMsg.textContent = result.message;
+                }
+
+                if (res.ok) {
+                    importRoosterInput.value = '';
+                    await laadRooster();
+                }
+            } catch (err) {
+                if (importRoosterMsg) { importRoosterMsg.style.color = '#e74c3c'; importRoosterMsg.textContent = 'Import mislukt — controleer de verbinding.'; }
+            } finally {
+                btnImportRooster.disabled    = false;
+                btnImportRooster.textContent = 'Importeer wedstrijden';
+            }
+        });
+    }
 }

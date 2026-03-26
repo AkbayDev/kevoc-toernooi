@@ -12,6 +12,7 @@ from routes.rooster import rooster_bp
 from routes.vrijwilligers import vrijwilligers_bp
 from routes.werkrooster import werkrooster_bp
 from routes.acties import acties_bp
+from routes.export import export_bp
 
 # --- App Configuratie ---
 # We vertellen Flask om te zoeken naar statische bestanden (zoals index.html, css, js)
@@ -36,6 +37,7 @@ app.register_blueprint(rooster_bp, url_prefix='/api')
 app.register_blueprint(vrijwilligers_bp, url_prefix='/api')
 app.register_blueprint(werkrooster_bp, url_prefix='/api')
 app.register_blueprint(acties_bp, url_prefix='/api')
+app.register_blueprint(export_bp, url_prefix='/api')
 
 # --- Statische Bestanden Serveren ---
 @app.route('/', defaults={'path': ''})
