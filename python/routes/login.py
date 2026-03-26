@@ -10,6 +10,7 @@ from database import get_db_connection
 
 login_bp = Blueprint('login', __name__)
 
+@login_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
     email, password = data.get('email'), data.get('password')

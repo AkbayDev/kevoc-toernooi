@@ -15,7 +15,7 @@ async function syncRolMetDatabase() {
     if (!email) return;
 
     try {
-        const res = await fetch(`http://kevoc-toernooi-production.up.railway.app/api/mijn-rol?email=${encodeURIComponent(email)}`);
+        const res = await fetch(`/api/mijn-rol?email=${encodeURIComponent(email)}`);
         if (!res.ok) return;
 
         const data = await res.json();
