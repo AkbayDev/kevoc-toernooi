@@ -84,7 +84,7 @@ ui.loginSubmit.addEventListener('submit', async (e) => {
         showMessage("Succesvol ingelogd! Je wordt doorgestuurd...", "success");
         
         // Sla de rol en email op
-        localStorage.setItem('userRole', res.role);
+        localStorage.setItem('userRole', res.role ? res.role.toLowerCase() : 'gebruiker');
         localStorage.setItem('userEmail', res.email);
         setTimeout(() => {
             window.location.href = 'dashboard.html';

@@ -1,4 +1,8 @@
-export const currentRole = localStorage.getItem('userRole');
+// Haal de rol op en zorg dat deze veilig en altijd in kleine letters is
+const rawRole = localStorage.getItem('userRole');
+export const currentRole = (rawRole && rawRole !== 'undefined' && rawRole !== 'null') 
+    ? rawRole.trim().toLowerCase() 
+    : null;
 
 export function checkAuth() {
     if (!currentRole) {
@@ -19,8 +23,8 @@ async function syncRolMetDatabase() {
         if (!res.ok) return;
 
         const data = await res.json();
-        const huidigeRolInDB = data.role;
-        const huidigeRolInStorage = localStorage.getItem('userRole');
+        const huidigeRolInDB = data.role ? data.role.toLowerCase() : 'gebruiker';
+        const huidigeRolInStorage = currentRole; // Gebruik de al opgeschoonde variant
 
         if (huidigeRolInDB && huidigeRolInDB !== huidigeRolInStorage) {
             localStorage.setItem('userRole', huidigeRolInDB);
