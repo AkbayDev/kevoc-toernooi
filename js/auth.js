@@ -44,7 +44,8 @@ export function initAuthUI() {
 
     const userDisplay = document.getElementById('user-display');
     if (userDisplay) {
-        userDisplay.textContent = `Welkom, ${roleTranslations[currentRole] || 'Gast'}`;
+        const email = localStorage.getItem('userEmail');
+        userDisplay.textContent = email || roleTranslations[currentRole] || 'Gast';
     }
 
     // Rollen die beheerder-niveau toegang hebben

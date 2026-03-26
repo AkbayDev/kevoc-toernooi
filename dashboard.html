@@ -127,24 +127,30 @@
                 <div id="werkrooster-weergave"></div>
             </section>
 
-            <!-- BEHEERDER SECTIES -->
-            <section class="dash-card admin-card hidden" data-role="beheerder" id="checklist">
-                <h2>Organisatie Checklist</h2>
-                <p>Wat moet er nog gebeuren voor en tijdens het toernooi?</p>
-                <ul class="task-list">
-                    <li><input type="checkbox"> Netten spannen veld 1 t/m 4</li>
-                    <li><input type="checkbox"> Wisselgeld kassa controleren</li>
-                    <li><input type="checkbox"> Microfoon en muziek testen</li>
-                </ul>
-            </section>
 
             <section class="dash-card admin-card hidden" data-role="beheerder" id="acties">
-                <h2>Openstaande Acties</h2>
-                <p>Organisatorische to-do's (bijv. ploegen nabellen).</p>
-                <ul class="task-list">
-                    <li>Team 'De Opslagers' bellen over inschrijvingsgeld</li>
-                    <li>Bekers ophalen bij de leverancier</li>
+                <h2>Acties</h2>
+                <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">
+                    Maak acties aan, claim ze om aan te geven dat jij ermee bezig bent, en markeer ze als klaar wanneer je klaar bent.
+                </p>
+
+                <form id="form-actie" class="dash-form" style="margin-bottom: 20px; display: flex; gap: 10px;">
+                    <input type="text" id="nieuwe-actie-tekst" placeholder="Nieuwe actie toevoegen..." required style="flex-grow: 1;">
+                    <button type="submit" class="btn-primary" style="white-space: nowrap;">+ Toevoegen</button>
+                </form>
+
+                <ul class="task-list" id="acties-lijst">
+                    <li style="color: #6b7280;">Laden...</li>
                 </ul>
+
+                <div style="margin-top: 20px; border-top: 1px solid #f3f4f6; padding-top: 16px;">
+                    <button id="archief-toggle" class="btn-secondary" style="width: 100%; font-size: 13px;">
+                        Archief bekijken ▾
+                    </button>
+                    <div id="archief-blok" style="display: none; margin-top: 12px;">
+                        <ul class="task-list" id="archief-lijst"></ul>
+                    </div>
+                </div>
             </section>
 
             <!-- TOERNOOI SCHEMA (beheerder: met genereer knop) -->

@@ -114,12 +114,23 @@ def init_db():
         ('wedstrijden',   'score_thuis',  'INTEGER'),
         ('wedstrijden',   'score_uit',    'INTEGER'),
         ('ploegen',       'reeks',        'TEXT DEFAULT NULL'),
+        ('acties',        'beheerder_email', 'TEXT DEFAULT NULL'),
     ]
     for tabel, kolom, definitie in migraties:
         try:
             cursor.execute(f"ALTER TABLE {tabel} ADD COLUMN {kolom} {definitie}")
         except Exception:
             pass  # Kolom bestaat al
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS acties (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            omschrijving TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'open',
+            beheerder_email TEXT DEFAULT NULL,
+            datum TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
 
     # Reeksen tabel
     cursor.execute('''

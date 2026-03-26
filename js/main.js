@@ -42,7 +42,6 @@ function initNav() {
         { label: 'Werk Rooster',        href: '#werkrooster',              role: 'hulp' },
         { label: 'Toernooi Schema',     href: '#toernooi-dashboard',       role: 'all' },
         { label: 'Werkrooster Inpl.',   href: '#werkrooster-sectie',       role: 'beheerder' },
-        { label: 'Checklist',           href: '#checklist',                role: 'beheerder' },
         { label: 'Acties',              href: '#acties',                   role: 'beheerder' },
         { label: 'Actieve Reeksen',     href: '#reeksen-beheer',           role: 'beheerder' },
         { label: 'Betaaloverzicht',     href: '#financien',                role: 'beheerder' },
