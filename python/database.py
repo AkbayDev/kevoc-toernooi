@@ -1,7 +1,7 @@
 # python/database.py
 import sqlite3
 
-DATABASE_NAAM = 'users.db'
+DATABASE_NAAM = '/data/users.db'
 
 def get_db_connection():
     conn = sqlite3.connect(DATABASE_NAAM, timeout=5.0)
