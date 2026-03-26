@@ -8,10 +8,7 @@ DATABASE_NAAM = '/data/users.db'
 def init_volume_data():
     """Copy initial database files from the repo to the persistent volume on first startup."""
     repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    files_to_copy = [
-        ('users.db',  '/data/users.db'),
-        ('kevoc.db',  '/data/kevoc.db'),
-    ]
+    files_to_copy = [('users.db',  '/data/users.db')]
     for src_name, dst_path in files_to_copy:
         if not os.path.exists(dst_path):
             src_path = os.path.join(repo_root, src_name)
