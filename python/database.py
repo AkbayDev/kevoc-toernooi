@@ -1,7 +1,25 @@
 # python/database.py
+import os
+import shutil
 import sqlite3
 
 DATABASE_NAAM = '/data/users.db'
+
+def init_volume_data():
+    """Copy initial database files from the repo to the persistent volume on first startup."""
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    files_to_copy = [
+        ('users.db',  '/data/users.db'),
+        ('kevoc.db',  '/data/kevoc.db'),
+    ]
+    for src_name, dst_path in files_to_copy:
+        if not os.path.exists(dst_path):
+            src_path = os.path.join(repo_root, src_name)
+            try:
+                shutil.copy(src_path, dst_path)
+                print(f"Gekopieerd: {src_path} → {dst_path}")
+            except Exception as e:
+                print(f"Kon {src_name} niet kopiëren naar {dst_path}: {e}")
 
 def get_db_connection():
     conn = sqlite3.connect(DATABASE_NAAM, timeout=5.0)
@@ -200,5 +218,6 @@ def init_db():
     conn.commit()
     conn.close()
 
+init_volume_data()
 init_db()
 print("Database succesvol geïnitialiseerd!")
