@@ -505,48 +505,33 @@ nav ul li a:hover {
 .text-orange { color: #d97706; }
 .text-green { color: #059669; }
 .text-gray { color: #4b5563; }
-/* --- Nav dropdown --- */
-#nav-meer-btn {
-    background: none;
-    border: none;
-    color: #000000;
-    font-weight: 500;
-    font-size: 14px;
+/* --- Reeksen tags --- */
+.reeks-tag {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
-    padding: 0;
-    transition: color 0.2s ease;
+    border: 1.5px solid #d1d5db;
+    background: #f9fafb;
+    color: #6b7280;
+    transition: all 0.15s ease;
 }
 
-#nav-meer-btn:hover {
-    color: #3a7ee4;
-}
-
-#nav-dropdown {
-    display: none;
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    box-shadow: 0 8px 24px rgba(17, 24, 39, 0.12);
-    list-style: none;
-    padding: 6px 0;
-    min-width: 180px;
-    z-index: 200;
-}
-
-#nav-dropdown li a {
-    display: block;
-    padding: 10px 16px;
-    color: #111827;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    transition: background 0.15s ease;
-}
-
-#nav-dropdown li a:hover {
+.reeks-tag:hover {
+    border-color: #9ca3af;
     background: #f3f4f6;
-    color: #3a7ee4;
+    color: #374151;
+}
+
+.reeks-tag.actief {
+    background: #111827;
+    color: #ffffff;
+    border-color: #111827;
+}
+
+.reeks-tag.actief:hover {
+    background: #1f2937;
+    border-color: #1f2937;
 }

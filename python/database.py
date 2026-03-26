@@ -1,6 +1,5 @@
 # python/database.py
 import sqlite3
-import contextlib
 
 DATABASE_NAAM = 'users.db'
 
@@ -52,7 +51,11 @@ def init_db():
                 VALUES ('dev')
             ''')
 
-    # Vrijwilligers tabel met email kolom
+    cursor.execute('''
+                INSERT OR IGNORE INTO rollen (rol) 
+                VALUES ('scheids')
+            ''')
+
     cursor.execute("""
                 CREATE TABLE IF NOT EXISTS vrijwilligers (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -93,15 +96,6 @@ def init_db():
         )
     ''')
     
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS acties (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            omschrijving TEXT NOT NULL,
-            status TEXT DEFAULT 'open',
-            datum TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-
     # Update bestaande jobrollen
     cursor.execute(
         "UPDATE vrijwilligers SET job = ? WHERE job = ?",
@@ -112,16 +106,85 @@ def init_db():
         ('Scheidsrechter', 'Verwelkoming & Score keeping')
     )
     
-    # Voeg kolommen toe voor bestaande databases die ze nog niet hebben
-    for kolom, definitie in [
-        ('wedstrijd_id', 'INTEGER DEFAULT NULL'),
-        ('email', 'TEXT DEFAULT NULL')
-    ]:
+    # Voeg ontbrekende kolommen toe aan bestaande databases
+    migraties = [
+        ('vrijwilligers', 'wedstrijd_id', 'INTEGER DEFAULT NULL'),
+        ('vrijwilligers', 'email',        'TEXT DEFAULT NULL'),
+        ('vrijwilligers', 'tijdsblok',    'TEXT DEFAULT NULL'),
+        ('wedstrijden',   'score_thuis',  'INTEGER'),
+        ('wedstrijden',   'score_uit',    'INTEGER'),
+        ('ploegen',       'reeks',        'TEXT DEFAULT NULL'),
+    ]
+    for tabel, kolom, definitie in migraties:
         try:
-            cursor.execute(f"ALTER TABLE vrijwilligers ADD COLUMN {kolom} {definitie}")
-        except:
+            cursor.execute(f"ALTER TABLE {tabel} ADD COLUMN {kolom} {definitie}")
+        except Exception:
             pass  # Kolom bestaat al
-    
+
+    # Reeksen tabel
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS reeksen (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            naam TEXT NOT NULL UNIQUE,
+            geslacht TEXT NOT NULL,
+            categorie TEXT NOT NULL,
+            actief INTEGER NOT NULL DEFAULT 0
+        )
+    ''')
+
+    ALLE_REEKSEN = [
+        # Senioren Heren
+        ("Superligue Heren",        "Heren",  "Senior"),
+        ("Liga A Heren",            "Heren",  "Senior"),
+        ("Liga B Heren",            "Heren",  "Senior"),
+        ("Nationale 1 Heren",       "Heren",  "Senior"),
+        ("Nationale 2 Heren",       "Heren",  "Senior"),
+        ("Nationale 3 Heren",       "Heren",  "Senior"),
+        ("Provinciale 1 Heren",     "Heren",  "Senior"),
+        ("Provinciale 2 Heren",     "Heren",  "Senior"),
+        ("Provinciale 3 Heren",     "Heren",  "Senior"),
+        # Senioren Dames
+        ("Superligue Dames",        "Dames",  "Senior"),
+        ("Liga A Dames",            "Dames",  "Senior"),
+        ("Liga B Dames",            "Dames",  "Senior"),
+        ("Nationale 1 Dames",       "Dames",  "Senior"),
+        ("Nationale 2 Dames",       "Dames",  "Senior"),
+        ("Nationale 3 Dames",       "Dames",  "Senior"),
+        ("Provinciale 1 Dames",     "Dames",  "Senior"),
+        ("Provinciale 2 Dames",     "Dames",  "Senior"),
+        ("Provinciale 3 Dames",     "Dames",  "Senior"),
+        # Jeugd Heren
+        ("U21 Heren",               "Heren",  "Jeugd"),
+        ("U19 Heren",               "Heren",  "Jeugd"),
+        ("U17 Heren",               "Heren",  "Jeugd"),
+        ("U15 Heren",               "Heren",  "Jeugd"),
+        ("U13 Heren",               "Heren",  "Jeugd"),
+        ("U11 Heren",               "Heren",  "Jeugd"),
+        ("U9 Heren",                "Heren",  "Jeugd"),
+        # Jeugd Dames
+        ("U21 Dames",               "Dames",  "Jeugd"),
+        ("U19 Dames",               "Dames",  "Jeugd"),
+        ("U17 Dames",               "Dames",  "Jeugd"),
+        ("U15 Dames",               "Dames",  "Jeugd"),
+        ("U13 Dames",               "Dames",  "Jeugd"),
+        ("U11 Dames",               "Dames",  "Jeugd"),
+        ("U9 Dames",                "Dames",  "Jeugd"),
+        # Mix/Recreatief
+        ("Recreatief Mix",          "Mix",    "Recreatief"),
+        ("U13 Mix",                 "Mix",    "Jeugd"),
+        ("U11 Mix",                 "Mix",    "Jeugd"),
+        ("U9 Mix",                  "Mix",    "Jeugd"),
+    ]
+
+    for naam, geslacht, categorie in ALLE_REEKSEN:
+        try:
+            cursor.execute(
+                "INSERT OR IGNORE INTO reeksen (naam, geslacht, categorie, actief) VALUES (?, ?, ?, 0)",
+                (naam, geslacht, categorie)
+            )
+        except Exception:
+            pass
+
     conn.commit()
     conn.close()
 

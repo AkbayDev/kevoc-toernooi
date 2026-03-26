@@ -6,6 +6,7 @@ import { initRooster } from './rooster.js';
 import { initWerkrooster } from './werkrooster.js';
 import { initWedstrijden } from './wedstrijden.js';
 import { initActies } from './acties.js';
+import { initReeksen } from './reeksen.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Controleer of de gebruiker is ingelogd (anders direct terug naar login)
@@ -20,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. Start alle functionele modules
     initFinancien();
     initPloegen();
+    initReeksen();
     initVrijwilligers();
     initRooster();
     initWerkrooster();
@@ -42,6 +44,7 @@ function initNav() {
         { label: 'Werkrooster Inpl.',   href: '#werkrooster-sectie',       role: 'beheerder' },
         { label: 'Checklist',           href: '#checklist',                role: 'beheerder' },
         { label: 'Acties',              href: '#acties',                   role: 'beheerder' },
+        { label: 'Actieve Reeksen',     href: '#reeksen-beheer',           role: 'beheerder' },
         { label: 'Betaaloverzicht',     href: '#financien',                role: 'beheerder' },
     ];
 
@@ -107,7 +110,6 @@ function initCollapsible() {
         const h2 = card.querySelector('h2');
         if (!h2) return;
 
-        // Wrap alle content behalve h2 in een card-body div
         const body = document.createElement('div');
         body.className = 'card-body';
         Array.from(card.children).forEach(child => {
@@ -115,14 +117,12 @@ function initCollapsible() {
         });
         card.appendChild(body);
 
-        // Voeg toggle knop toe aan h2
         const btn = document.createElement('button');
         btn.className = 'btn-collapse';
         btn.textContent = '^';
         btn.setAttribute('aria-label', 'Inklappen');
         h2.appendChild(btn);
 
-        // Toggle handler op de volledige h2
         h2.style.cursor = 'pointer';
         h2.addEventListener('click', () => {
             const isOpen = body.style.display !== 'none';

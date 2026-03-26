@@ -1,4 +1,5 @@
 import { CONFIG } from './api.js';
+import { laadActieveReeksen } from './reeksen.js';
 
 async function laadPloegen() {
     const ploegenLijst = document.getElementById('ploegen-lijst');
@@ -13,29 +14,31 @@ async function laadPloegen() {
         }
 
         ploegenLijst.innerHTML = data.map(p => {
-            const badgeColor = p.niveau === 'senior' ? '#e74c3c' : '#3498db';
-            const categorieLabel = p.categorie === 'heren' ?
-            "#3498db" : "#d921d0";
-            return `<li><strong>${p.naam}</strong><span style="background-color: ${badgeColor}; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; float: right;">${p.niveau}</span><span style="background-color: ${categorieLabel}; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; float: right;">${p.categorie}</span></li>`;
+            const reeksLabel = p.reeks || `${p.niveau} - ${p.categorie}`;
+            const badgeColor = (p.niveau === 'Senior' || p.niveau === 'senior') ? '#e74c3c' : '#3498db';
+            return `<li>
+                <strong>${p.naam}</strong>
+                <span style="background-color: ${badgeColor}; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; float: right;">${reeksLabel}</span>
+            </li>`;
         }).join('');
     } catch (err) { console.error("Fout bij laden ploegen:", err); }
 }
 
 export function initPloegen() {
     laadPloegen();
+    laadActieveReeksen();
+
     const formPloeg = document.getElementById('form-ploeg');
-    const ploegMsg = document.getElementById('ploeg-msg');
+    const ploegMsg  = document.getElementById('ploeg-msg');
 
     if (formPloeg) {
         formPloeg.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if(ploegMsg) { ploegMsg.style.color = "#2980b9"; ploegMsg.textContent = "Bezig met inschrijven..."; }
+            if (ploegMsg) { ploegMsg.style.color = "#2980b9"; ploegMsg.textContent = "Bezig met inschrijven..."; }
 
             const payload = {
-                naam: document.getElementById('ploeg-naam').value,
-                niveau: document.getElementById('ploeg-niveau').value,
-                categorie: document.getElementById('ploeg-categorie').value,
-                betaalstatus: document.getElementById('ploeg-betaalstatus').value
+                naam:  document.getElementById('ploeg-naam').value,
+                reeks: document.getElementById('ploeg-reeks').value,
             };
 
             try {
@@ -47,12 +50,13 @@ export function initPloegen() {
                 const result = await res.json();
                 if (!res.ok) throw new Error(result.error);
 
-                if(ploegMsg) { ploegMsg.style.color = "#27ae60"; ploegMsg.textContent = result.message; }
+                if (ploegMsg) { ploegMsg.style.color = "#27ae60"; ploegMsg.textContent = result.message; }
                 formPloeg.reset();
                 laadPloegen();
+                await laadActieveReeksen();
             } catch (err) {
-                if(ploegMsg) { ploegMsg.style.color = "#e74c3c"; ploegMsg.textContent = err.message; }
-            } 
+                if (ploegMsg) { ploegMsg.style.color = "#e74c3c"; ploegMsg.textContent = err.message; }
+            }
         });
     }
 }
