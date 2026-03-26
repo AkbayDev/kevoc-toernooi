@@ -18,6 +18,53 @@ def init_volume_data():
             except Exception as e:
                 print(f"Kon {src_name} niet kopiëren naar {dst_path}: {e}")
 
+def merge_preset_users():
+    """Merge preset user accounts from the repo's users.db into the persistent volume database.
+
+    For each user in /app/users.db, insert them into /data/users.db only if their
+    email does not already exist there. Existing runtime accounts are never overwritten.
+    """
+    src_path = '/app/users.db'
+    if not os.path.exists(src_path):
+        print(f"Geen preset gebruikers gevonden op {src_path}, overgeslagen.")
+        return
+
+    try:
+        src_conn = sqlite3.connect(src_path)
+        src_conn.row_factory = sqlite3.Row
+        src_cursor = src_conn.cursor()
+        src_cursor.execute("SELECT email, password, role, reset_code FROM users")
+        preset_users = src_cursor.fetchall()
+        src_conn.close()
+    except Exception as e:
+        print(f"Kon preset gebruikers niet lezen uit {src_path}: {e}")
+        return
+
+    if not preset_users:
+        print("Geen preset gebruikers gevonden in de bronbestanden.")
+        return
+
+    try:
+        dst_conn = sqlite3.connect(DATABASE_NAAM, timeout=5.0)
+        dst_cursor = dst_conn.cursor()
+        inserted = 0
+        skipped = 0
+        for user in preset_users:
+            dst_cursor.execute("SELECT 1 FROM users WHERE email = ?", (user['email'],))
+            if dst_cursor.fetchone() is None:
+                dst_cursor.execute(
+                    "INSERT INTO users (email, password, role, reset_code) VALUES (?, ?, ?, ?)",
+                    (user['email'], user['password'], user['role'], user['reset_code'])
+                )
+                inserted += 1
+            else:
+                skipped += 1
+        dst_conn.commit()
+        dst_conn.close()
+        print(f"Preset gebruikers samengevoegd: {inserted} toegevoegd, {skipped} overgeslagen (bestaan al).")
+    except Exception as e:
+        print(f"Fout bij samenvoegen van preset gebruikers in {DATABASE_NAAM}: {e}")
+
 def get_db_connection():
     conn = sqlite3.connect(DATABASE_NAAM, timeout=5.0)
     conn.row_factory = sqlite3.Row 
@@ -216,5 +263,6 @@ def init_db():
     conn.close()
 
 init_volume_data()
+merge_preset_users()
 init_db()
 print("Database succesvol geïnitialiseerd!")
