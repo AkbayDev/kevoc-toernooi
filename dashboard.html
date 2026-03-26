@@ -63,6 +63,12 @@
             <section class="dash-card" data-role="beheerder, hulp" id="ploegen-overzicht">
                 <h3 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; color: #2c3e50;">Ingeschreven Ploegen</h3>
                 <ul class="task-list" id="ploegen-lijst"></ul>
+                <div class="export-beheerder" style="margin-top: 12px; text-align: right;">
+                    <a href="http://127.0.0.1:5000/api/export/ploegen" download
+                        class="btn-secondary" style="font-size: 13px; text-decoration: none; display: inline-block; padding: 8px 14px;">
+                        ↓ Exporteer ploegen (.csv)
+                    </a>
+                </div>
             </section>
 
             <!-- VRIJWILLIGERS INSCHRIJVEN -->
@@ -118,14 +124,14 @@
                         <tr><td colspan="6">Laden...</td></tr>
                     </tbody>
                 </table>
+                <div class="export-beheerder" style="margin-top: 12px; text-align: right;">
+                    <a href="http://127.0.0.1:5000/api/export/vrijwilligers" download
+                        class="btn-secondary" style="font-size: 13px; text-decoration: none; display: inline-block; padding: 8px 14px;">
+                        ↓ Exporteer vrijwilligers (.csv)
+                    </a>
+                </div>
             </section>
 
-            <!-- WERKROOSTER WEERGAVE (hulp en scheids) -->
-            <section class="dash-card" data-role="hulp" id="werkrooster">
-                <h2>Werk Rooster</h2>
-                <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Overzicht van ingeplande vrijwilligers.</p>
-                <div id="werkrooster-weergave"></div>
-            </section>
 
 
             <section class="dash-card admin-card hidden" data-role="beheerder" id="acties">
@@ -162,20 +168,51 @@
                     <button id="btn-ververs" class="btn-secondary">Ververs Rooster</button>
                 </div>
 
+                <!-- CSV/Excel Import wedstrijden -->
+                <div style="margin-bottom: 20px; padding: 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;" class="hidden" data-role="beheerder">
+                    <div style="font-weight: 700; font-size: 14px; color: #065f46; margin-bottom: 8px;">
+                        📥 Wedstrijden importeren via CSV of Excel
+                    </div>
+                    <p style="font-size: 13px; color: #374151; margin-bottom: 4px;">
+                        Verplichte kolommen: <code>thuis_ploeg</code>, <code>uit_ploeg</code>, <code>tijdsblok</code>, <code>starttijd</code>, <code>reeks</code>, <code>ronde</code>, <code>veld</code>.
+                    </p>
+                    <p style="font-size: 13px; color: #374151; margin-bottom: 10px;">
+                        Optioneel: <code>scheidsrechter</code> (standaard: TBD). Wedstrijden worden <strong>toegevoegd</strong> aan het bestaande schema.
+                    </p>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <input type="file" id="import-rooster-bestand" accept=".csv,.xlsx,.xls"
+                            style="font-size: 13px; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px;">
+                        <button id="btn-import-rooster" class="btn-primary" style="white-space: nowrap;">Importeer wedstrijden</button>
+                    </div>
+                    <div id="import-rooster-msg" style="margin-top: 10px; font-size: 13px; font-weight: 600;"></div>
+                </div>
+
                 <div id="rooster-container">
                     <p class="text-muted">Laden van wedstrijdschema...</p>
+                </div>
+                <div class="export-beheerder" style="margin-top: 12px; text-align: right;">
+                    <a href="http://127.0.0.1:5000/api/export/wedstrijden" download
+                        class="btn-secondary" style="font-size: 13px; text-decoration: none; display: inline-block; padding: 8px 14px;">
+                        ↓ Exporteer toernooi schema (.csv)
+                    </a>
                 </div>
             </section>    
 
             <!-- WERKROOSTER INPLANNEN (beheerder) -->
-            <section class="dash-card admin-card hidden" data-role="beheerder" id="werkrooster-sectie">
-                <h2>Werkrooster Inplannen</h2>
+            <section class="dash-card admin-card hidden" data-role="beheerder" id="werkrooster">
+                <h2>Werkrooster</h2>
                 <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Plan geaccepteerde vrijwilligers in op verschillende jobrollen en tijdsloten.</p>
-                
+
                 <div id="werkrooster-msg" style="margin-bottom: 15px; font-weight: bold; font-size: 14px;"></div>
-                
+
                 <div id="werkrooster-grid" style="overflow-x: auto;">
                     <p class="text-muted">Laden van werkrooster...</p>
+                </div>
+                <div class="export-beheerder" style="margin-top: 12px; text-align: right;">
+                    <a href="http://127.0.0.1:5000/api/export/werkrooster" download
+                        class="btn-secondary" style="font-size: 13px; text-decoration: none; display: inline-block; padding: 8px 14px;">
+                        ↓ Exporteer werkrooster (.csv)
+                    </a>
                 </div>
             </section>
 
@@ -196,6 +233,12 @@
                 <h2>Betaaloverzicht Ploegen</h2>
                 <div id="betaal-overzicht">
                     <p style="color: #6b7280;">Laden...</p>
+                </div>
+                <div class="export-beheerder" style="margin-top: 12px; text-align: right;">
+                    <a href="http://127.0.0.1:5000/api/export/betaaloverzicht" download
+                        class="btn-secondary" style="font-size: 13px; text-decoration: none; display: inline-block; padding: 8px 14px;">
+                        ↓ Exporteer betaaloverzicht (.csv)
+                    </a>
                 </div>
             </section>
 
