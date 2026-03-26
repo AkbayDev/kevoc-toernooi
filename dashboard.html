@@ -14,11 +14,7 @@
                     <img src="img/logo.png" alt="Logo" class="logo">    
                 </div>
                 <nav>
-                    <ul>
-                        <li><a href="#scores">Scores</a></li>
-                        <li><a href="#wedstrijden">Wedstrijd Rooster</a></li>
-                        <li><a href="#werkrooster">Werk Rooster</a></li>
-                    </ul>
+                    <ul id="nav-links"></ul>
                 </nav>
                 <div class="user-menu">
                     <span id="user-display">Welkom, Gast</span>
@@ -52,6 +48,11 @@
                     <input type="text" id="ploeg-naam" placeholder="Naam van de ploeg" required>
                     <select id="ploeg-reeks" required>
                         <option value="" disabled selected>Kies een reeks...</option>
+                    </select>
+                    <select id="ploeg-betaalstatus" required>
+                        <option value="" disabled selected>Betaalstatus...</option>
+                        <option value="betaald">Betaald</option>
+                        <option value="niet-betaald">Niet betaald</option>
                     </select>
                     <button type="submit" class="btn-primary">Schrijf Ploeg In</button>
                 </form>

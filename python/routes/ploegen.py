@@ -15,11 +15,15 @@ def get_ploegen():
 
 @ploegen_bp.route('/ploegen', methods=['POST'])
 def add_ploeg():
-    naam       = request.json.get('naam')
-    reeks_naam = request.json.get('reeks')
+    naam         = request.json.get('naam')
+    reeks_naam   = request.json.get('reeks')
+    betaalstatus = request.json.get('betaalstatus', 'niet-betaald')
 
     if not naam or not reeks_naam:
         return jsonify({"error": "Vul alle velden in."}), 400
+
+    if betaalstatus not in ('betaald', 'niet-betaald'):
+        return jsonify({"error": "Ongeldige betaalstatus."}), 400
 
     # Controleer dat de reeks actief is
     with get_db_connection() as conn:
@@ -34,7 +38,7 @@ def add_ploeg():
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO ploegen (ploeg, niveau, categorie, betaalstatus, reeks) VALUES (?, ?, ?, ?, ?)",
-            (naam, reeks['categorie'], reeks['geslacht'], 'niet-betaald', reeks_naam)
+            (naam, reeks['categorie'], reeks['geslacht'], betaalstatus, reeks_naam)
         )
         conn.commit()
 
