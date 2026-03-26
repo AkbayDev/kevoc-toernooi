@@ -1,4 +1,3 @@
-/* --- Reset & Basis Styling --- */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -164,7 +163,6 @@ nav ul li a:hover {
     border-color: #3367af;
 }
 
-/* --- Dev Tools --- */
 .dev-tools {
     background-color: #fff3cd;
     color: #856404;
@@ -174,7 +172,6 @@ nav ul li a:hover {
     border-bottom: 1px solid #ffeeba;
 }
 
-/* --- Dashboard Layout --- */
 .dashboard-layout {
     max-width: 800px;
     margin: 40px auto;
@@ -184,7 +181,6 @@ nav ul li a:hover {
     padding: 0 20px;
 }
 
-/* --- Card Styling --- */
 .dash-card {
     background: #ffffff;
     border-radius: 14px;
@@ -211,7 +207,6 @@ nav ul li a:hover {
     border-left: 4px solid #111827;
 }
 
-/* --- Tabellen --- */
 .data-table {
     width: 100%;
     border-collapse: collapse;
@@ -235,7 +230,6 @@ nav ul li a:hover {
     background-color: #f9fafb;
 }
 
-/* --- Formulieren --- */
 .dash-form {
     display: flex;
     flex-direction: column;
@@ -309,7 +303,6 @@ nav ul li a:hover {
     border: 1px solid #f3f4f6;
 }
 
-/* --- StatusBadges --- */
 .status-badge {
     padding: 4px 10px;
     border-radius: 999px;
@@ -321,7 +314,6 @@ nav ul li a:hover {
 .status-geaccepteerd { background-color: #d1fae5; color: #065f46; }
 .status-geweigerd   { background-color: #fee2e2; color: #991b1b; }
 
-/* --- Financiën Grid --- */
 .finance-grid {
     display: flex;
     gap: 15px;
@@ -341,12 +333,11 @@ nav ul li a:hover {
 .finance-box.green { background-color: #059669; }
 .finance-box.red   { background-color: #dc2626; }
 
-/* --- Utility --- */
 .hidden {
     display: none !important;
 }
 
-/* --- Grafiek --- */
+
 .chart-wrapper {
     position: relative;
     height: 250px;
@@ -370,7 +361,6 @@ nav ul li a:hover {
     color: #111827;
 }
 
-/* --- Transactielijst --- */
 .transactie-item {
     display: flex;
     justify-content: space-between;
@@ -382,14 +372,12 @@ nav ul li a:hover {
 .text-green { color: #059669; font-weight: bold; }
 .text-red   { color: #dc2626; font-weight: bold; }
 
-/* --- Responsive --- */
 @media (max-width: 600px) {
     .header-container { flex-direction: column; gap: 10px; }
     nav ul { flex-wrap: wrap; justify-content: center; }
     .finance-grid { flex-direction: column; }
 }
 
- /* --- Kalender / Rooster Styling --- */
 .kalender-grid { 
     display: flex; 
     flex-direction: column; 
@@ -398,10 +386,10 @@ nav ul li a:hover {
 }
 
 .tijd-slot { 
-    border-left: 5px solid #3498db; /* Gebruikt jouw blauwe accentkleur */
-    background-color: #f9fafb; /* Zelfde lichtgrijs als je tabel headers */
+    border-left: 5px solid #3498db; 
+    background-color: #f9fafb; 
     padding: 20px; 
-    border-radius: 0 10px 10px 0; /* Past beter bij de afronding van je inputs/knoppen */
+    border-radius: 0 10px 10px 0; 
     box-shadow: 0 4px 10px rgba(17, 24, 39, 0.04);
 }
 
@@ -409,8 +397,8 @@ nav ul li a:hover {
     font-weight: 700; 
     font-size: 1.2em; 
     margin-bottom: 15px; 
-    color: #111827; /* Hoofdkleur van je dashboard tekst */
-    border-bottom: 2px solid #f3f4f6; /* Zelfde subtiele border als je kaarten */
+    color: #111827; 
+    border-bottom: 2px solid #f3f4f6; 
     padding-bottom: 8px; 
 }
 
@@ -468,7 +456,6 @@ nav ul li a:hover {
     font-weight: 700;
 }
 
-/* Ruimte voor de knoppen onder de titel */
 
 
 /* Styling voor de 'laden...' of 'geen rooster' meldingen */
@@ -518,15 +505,79 @@ nav ul li a:hover {
 .text-orange { color: #d97706; }
 .text-green { color: #059669; }
 .text-gray { color: #4b5563; }
-
-/* --- Acties --- */
-.actie-item {
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
+/* --- Reeksen tags --- */
+.reeks-tag {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
+    border: 1.5px solid #d1d5db;
+    background: #f9fafb;
+    color: #6b7280;
+    transition: all 0.15s ease;
 }
-.actie-bezig {
-    border-left: 4px solid #d97706 !important; /* Oranje */
-    background-color: #fffbeb !important;
+
+.reeks-tag:hover {
+    border-color: #9ca3af;
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.reeks-tag.actief {
+    background: #111827;
+    color: #ffffff;
+    border-color: #111827;
+}
+
+.reeks-tag.actief:hover {
+    background: #1f2937;
+    border-color: #1f2937;
+}
+
+/* --- Nav dropdown --- */
+#nav-meer-btn {
+    background: none;
+    border: none;
+    color: #000000;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s ease;
+}
+
+#nav-meer-btn:hover {
+    color: #3a7ee4;
+}
+
+#nav-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(17, 24, 39, 0.12);
+    list-style: none;
+    padding: 6px 0;
+    min-width: 180px;
+    z-index: 200;
+}
+
+#nav-dropdown li a {
+    display: block;
+    padding: 10px 16px;
+    color: #111827;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.15s ease;
+}
+
+#nav-dropdown li a:hover {
+    background: #f3f4f6;
+    color: #3a7ee4;
 }

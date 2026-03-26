@@ -1,114 +1,62 @@
 import { CONFIG } from './api.js';
-import { currentRole } from './auth.js';
 
-let financeChart;
-
-async function laadFinancien() {
-    if (currentRole !== 'beheerder') return;
-    
-    const chartCenterText = document.getElementById('chart-center-text');
-    const financeChartCanvas = document.getElementById('financeChart');
-    if (!chartCenterText || !financeChartCanvas) return;
+export async function initFinancien() {
+    const container = document.getElementById('betaal-overzicht');
+    if (!container) return;
 
     try {
-        const res = await fetch(`${CONFIG.apiBaseUrl}/financien`);
-        const data = await res.json();
+        const res    = await fetch(`${CONFIG.apiBaseUrl}/ploegen`);
+        const ploegen = await res.json();
 
-        chartCenterText.textContent = `€ ${data.winst.toFixed(2)}`;
-        chartCenterText.style.color = data.winst >= 0 ? '#27ae60' : '#e74c3c';
-
-        const ctx = financeChartCanvas.getContext('2d');
-        if (financeChart) {
-            financeChart.data.datasets[0].data = [data.inkomsten, data.kosten];
-            financeChart.update();
-        } else {
-            financeChart = new window.Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Inkomsten', 'Kosten'],
-                    datasets: [{
-                        data: [data.inkomsten, data.kosten],
-                        backgroundColor: ['#27ae60', '#e74c3c'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    cutout: '75%',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
-    } catch (err) { console.error("Fout bij laden financiën:", err); }
-}
-
-async function laadTransacties() {
-    const transactiesUl = document.getElementById('transacties-ul');
-    if (!transactiesUl) return;
-    try {
-        const res = await fetch(`${CONFIG.apiBaseUrl}/transacties`);
-        const data = await res.json();
-
-        if (data.length === 0) {
-            transactiesUl.innerHTML = '<li>Nog geen transacties.</li>';
+        if (!ploegen || ploegen.length === 0) {
+            container.innerHTML = '<p style="color: #6b7280;">Nog geen ploegen ingeschreven.</p>';
             return;
         }
 
-        transactiesUl.innerHTML = data.map(t => {
-            const isKosten = t.type === 'kost';
-            const teken = isKosten ? '-' : '+';
-            const kleur = isKosten ? 'text-red' : 'text-green';
-            return `<li class="transactie-item"><span>${t.omschrijving}</span> <span class="${kleur}">${teken} €${t.bedrag.toFixed(2)}</span></li>`;
-        }).join('');
-    } catch (err) { console.error("Fout bij laden transacties:", err); }
+        const betaald     = ploegen.filter(p => p.betaalstatus === 'betaald');
+        const nietBetaald = ploegen.filter(p => p.betaalstatus !== 'betaald');
+
+        container.innerHTML = `
+            <!-- Samenvatting -->
+            <div style="background: #f9fafb; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; font-size: 15px; color: #111827;">
+                <strong>${betaald.length}</strong> van <strong>${ploegen.length}</strong> ploegen hebben betaald.
+            </div>
+
+            <!-- Nog te betalen -->
+            ${nietBetaald.length > 0 ? `
+            <div style="border-left: 4px solid #dc2626; background: #fff5f5; border-radius: 0 10px 10px 0; padding: 14px 18px; margin-bottom: 20px;">
+                <div style="font-weight: 700; color: #dc2626; margin-bottom: 10px; font-size: 14px;">
+                    ✗ Nog te betalen (${nietBetaald.length})
+                </div>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px;">
+                    ${nietBetaald.map(p => renderPloegRij(p)).join('')}
+                </ul>
+            </div>` : ''}
+
+            <!-- Betaald -->
+            ${betaald.length > 0 ? `
+            <div style="border-left: 4px solid #059669; background: #f0fdf4; border-radius: 0 10px 10px 0; padding: 14px 18px;">
+                <div style="font-weight: 700; color: #059669; margin-bottom: 10px; font-size: 14px;">
+                    ✓ Betaald (${betaald.length})
+                </div>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px;">
+                    ${betaald.map(p => renderPloegRij(p)).join('')}
+                </ul>
+            </div>` : ''}
+        `;
+    } catch (err) {
+        console.error("Fout bij laden betaaloverzicht:", err);
+        container.innerHTML = '<p style="color: #e74c3c;">Kon ploegen niet laden.</p>';
+    }
 }
 
-export function initFinancien() {
-    laadFinancien();
-
-    const formFinance = document.getElementById('form-finance');
-    const financeMsg = document.getElementById('finance-msg');
-    const transactiesLijst = document.getElementById('transacties-lijst');
-
-    if (formFinance) {
-        formFinance.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const payload = {
-                omschrijving: document.getElementById('fin-omschrijving').value,
-                bedrag: document.getElementById('fin-bedrag').value,
-                type: document.getElementById('fin-type').value
-            };
-
-            if(financeMsg) { financeMsg.style.color = "#2980b9"; financeMsg.textContent = "Opslaan..."; }
-
-            try {
-                const res = await fetch(`${CONFIG.apiBaseUrl}/financien`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await res.json();
-                if (!res.ok) throw new Error(result.error);
-
-                if(financeMsg) { financeMsg.style.color = "#27ae60"; financeMsg.textContent = result.message; }
-                formFinance.reset();
-                laadFinancien();
-                if (transactiesLijst && !transactiesLijst.classList.contains('hidden')) laadTransacties();
-            } catch (err) {
-                if(financeMsg) { financeMsg.style.color = "#e74c3c"; financeMsg.textContent = err.message; }
-            } finally {
-                if(financeMsg) setTimeout(() => financeMsg.textContent = "", 3000);
-            }
-        });
-    }
-
-    const btnToggleTransacties = document.getElementById('btn-toggle-transacties');
-    if (btnToggleTransacties && transactiesLijst) {
-        btnToggleTransacties.addEventListener('click', () => {
-            const isHidden = transactiesLijst.classList.toggle('hidden');
-            btnToggleTransacties.textContent = isHidden ? "Bekijk Alle Transacties" : "Verberg Transacties";
-            if (!isHidden) laadTransacties();
-        });
-    }
+function renderPloegRij(ploeg) {
+    const niveauKleur = ploeg.niveau === 'senior' ? '#dc2626' : '#3498db';
+    return `
+        <li style="background: #ffffff; padding: 10px 14px; border-radius: 8px; border: 1px solid #f3f4f6; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: #111827;">
+            ${ploeg.naam}
+            <span style="background-color: ${niveauKleur}; color: white; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600;">${ploeg.niveau}</span>
+            <span style="background-color: #6b7280; color: white; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600;">${ploeg.categorie}</span>
+        </li>
+    `;
 }

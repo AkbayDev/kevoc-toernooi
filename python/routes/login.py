@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
@@ -10,7 +10,6 @@ from database import get_db_connection
 
 login_bp = Blueprint('login', __name__)
 
-@login_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
     email, password = data.get('email'), data.get('password')

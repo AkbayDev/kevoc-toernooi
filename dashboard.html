@@ -14,11 +14,7 @@
                     <img src="img/logo.png" alt="Logo" class="logo">    
                 </div>
                 <nav>
-                    <ul>
-                        <li><a href="#scores">Scores</a></li>
-                        <li><a href="#wedstrijden">Wedstrijd Rooster</a></li>
-                        <li><a href="#werkrooster">Werk Rooster</a></li>
-                    </ul>
+                    <ul id="nav-links"></ul>
                 </nav>
                 <div class="user-menu">
                     <span id="user-display">Welkom, Gast</span>
@@ -50,18 +46,11 @@
                 
                 <form class="dash-form" id="form-ploeg" style="margin-bottom: 15px;">
                     <input type="text" id="ploeg-naam" placeholder="Naam van de ploeg" required>
-                    <select id="ploeg-niveau" required>
-                        <option value="" disabled selected>Kies niveau...</option>
-                        <option value="senior">Senior</option>
-                        <option value="jeugd">Jeugd</option>
-                    </select>
-                    <select id="ploeg-categorie" required>
-                        <option value="" disabled selected>Kies categorie...</option>
-                        <option value="heren">Heren</option>
-                        <option value="dames">Dames</option>
+                    <select id="ploeg-reeks" required>
+                        <option value="" disabled selected>Kies een reeks...</option>
                     </select>
                     <select id="ploeg-betaalstatus" required>
-                        <option value="" disabled selected>Kies betaalstatus...</option>
+                        <option value="" disabled selected>Betaalstatus...</option>
                         <option value="betaald">Betaald</option>
                         <option value="niet-betaald">Niet betaald</option>
                     </select>
@@ -138,36 +127,37 @@
                 <div id="werkrooster-weergave"></div>
             </section>
 
-            <!-- BEHEERDER SECTIES -->
-            <section class="dash-card admin-card hidden" data-role="beheerder" id="checklist">
-                <h2>Organisatie Checklist</h2>
-                <p>Wat moet er nog gebeuren voor en tijdens het toernooi?</p>
-                <ul class="task-list">
-                    <li><input type="checkbox"> Netten spannen veld 1 t/m 4</li>
-                    <li><input type="checkbox"> Wisselgeld kassa controleren</li>
-                    <li><input type="checkbox"> Microfoon en muziek testen</li>
-                </ul>
-            </section>
 
             <section class="dash-card admin-card hidden" data-role="beheerder" id="acties">
-                <h2>Openstaande Acties</h2>
-                <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Klik op een actie om de status te wijzigen (Open &rarr; Bezig &rarr; Klaar).</p>
-                
-                <form id="form-actie" class="dash-form" style="margin-bottom: 15px; display: flex; gap: 10px;">
+                <h2>Acties</h2>
+                <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">
+                    Maak acties aan, claim ze om aan te geven dat jij ermee bezig bent, en markeer ze als klaar wanneer je klaar bent.
+                </p>
+
+                <form id="form-actie" class="dash-form" style="margin-bottom: 20px; display: flex; gap: 10px;">
                     <input type="text" id="nieuwe-actie-tekst" placeholder="Nieuwe actie toevoegen..." required style="flex-grow: 1;">
-                    <button type="submit" class="btn-primary" style="white-space: nowrap;">+</button>
+                    <button type="submit" class="btn-primary" style="white-space: nowrap;">+ Toevoegen</button>
                 </form>
-                
+
                 <ul class="task-list" id="acties-lijst">
-                    <li class="text-muted">Laden...</li>
+                    <li style="color: #6b7280;">Laden...</li>
                 </ul>
+
+                <div style="margin-top: 20px; border-top: 1px solid #f3f4f6; padding-top: 16px;">
+                    <button id="archief-toggle" class="btn-secondary" style="width: 100%; font-size: 13px;">
+                        Archief bekijken ▾
+                    </button>
+                    <div id="archief-blok" style="display: none; margin-top: 12px;">
+                        <ul class="task-list" id="archief-lijst"></ul>
+                    </div>
+                </div>
             </section>
 
             <!-- TOERNOOI SCHEMA (beheerder: met genereer knop) -->
-            <section class="dash-card admin-card hidden" data-role="beheerder" id="toernooi-dashboard">
+            <section class="dash-card admin-card hidden" data-role="all" id="toernooi-dashboard">
                 <h2>Toernooi Schema</h2>
                 
-                <div style="margin-bottom: 16px; display: flex; gap: 10px;">
+                <div style="margin-bottom: 16px; display: flex; gap: 10px;" class=" dash-card admin-actions hidden" data-role="beheerder">
                     <button id="btn-genereer" class="btn-primary">Genereer Nieuw Rooster</button>
                     <button id="btn-ververs" class="btn-secondary">Ververs Rooster</button>
                 </div>
@@ -175,15 +165,7 @@
                 <div id="rooster-container">
                     <p class="text-muted">Laden van wedstrijdschema...</p>
                 </div>
-            </section>
-
-            <!-- TOERNOOI SCHEMA (hulp/scheids: alleen weergave) -->
-            <section class="dash-card hidden" data-role="hulp" id="toernooi-dashboard-hulp">
-                <h2>Toernooi Schema</h2>
-                <div id="rooster-container-hulp">
-                    <p class="text-muted">Laden van wedstrijdschema...</p>
-                </div>
-            </section>
+            </section>    
 
             <!-- WERKROOSTER INPLANNEN (beheerder) -->
             <section class="dash-card admin-card hidden" data-role="beheerder" id="werkrooster-sectie">
@@ -197,29 +179,23 @@
                 </div>
             </section>
 
-            <!-- FINANCIËN -->
-            <section class="dash-card admin-card hidden" data-role="beheerder" id="financien">
-                <h2>Financiën & Kasboek</h2>
-                
-                <div class="chart-wrapper">
-                    <canvas id="financeChart"></canvas>
-                    <div id="chart-center-text" class="chart-center-text">€ 0.00</div>
+            <!-- REEKSEN BEHEER (beheerder) -->
+            <section class="dash-card admin-card hidden" data-role="beheerder" id="reeksen-beheer">
+                <h2>Actieve Reeksen</h2>
+                <p style="font-size: 13px; color: #6b7280; margin-bottom: 6px;">
+                    Klik op een reeks om deze aan of uit te zetten voor dit toernooi. Alleen actieve reeksen zijn zichtbaar bij ploeg-inschrijving.
+                </p>
+                <div id="reeksen-samenvatting" style="font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 16px;"></div>
+                <div id="reeksen-beheer-lijst">
+                    <p style="color: #6b7280;">Laden...</p>
                 </div>
+            </section>
 
-                <form class="dash-form" id="form-finance" style="margin-top: 15px;">
-                    <input type="text" id="fin-omschrijving" placeholder="Omschrijving (bijv. Drank aankoop)" required>
-                    <input type="number" id="fin-bedrag" step="0.01" placeholder="Bedrag in €" required>
-                    <select id="fin-type" required>
-                        <option value="inkomst">Inkomst</option>
-                        <option value="kost">Kost / Uitgave</option>
-                    </select>
-                    <button type="submit" class="btn-primary">Boeking Toevoegen</button>
-                </form>
-                <div id="finance-msg" style="margin-top: 10px; font-weight: bold; font-size: 14px;"></div>
-
-                <button id="btn-toggle-transacties" class="btn-secondary" style="margin-top: 15px; width: 100%;">Bekijk Alle Transacties</button>
-                <div id="transacties-lijst" class="hidden" style="margin-top: 10px;">
-                    <ul class="task-list" id="transacties-ul"></ul>
+            <!-- FINANCIËN / BETAALOVERZICHT -->
+            <section class="dash-card admin-card hidden" data-role="beheerder" id="financien">
+                <h2>Betaaloverzicht Ploegen</h2>
+                <div id="betaal-overzicht">
+                    <p style="color: #6b7280;">Laden...</p>
                 </div>
             </section>
 
