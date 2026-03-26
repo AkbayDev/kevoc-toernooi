@@ -17,6 +17,7 @@ from routes.werkrooster import werkrooster_bp
 from routes.login import login_bp
 from routes.reeksen import reeksen_bp
 from routes.acties import acties_bp
+from routes.export import export_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -30,6 +31,7 @@ app.register_blueprint(werkrooster_bp, url_prefix='/api')
 app.register_blueprint(login_bp, url_prefix='/api')
 app.register_blueprint(reeksen_bp, url_prefix='/api')
 app.register_blueprint(acties_bp, url_prefix='/api')
+app.register_blueprint(export_bp, url_prefix='/api')
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

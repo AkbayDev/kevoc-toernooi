@@ -18,6 +18,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Initialiseer de interface (toon naam & verberg kaarten o.b.v. rol)
     initAuthUI();
 
+    // 3b. Verberg export-knoppen voor niet-beheerders
+    if (currentRole !== 'beheerder' && currentRole !== 'dev') {
+        document.querySelectorAll('.export-beheerder').forEach(el => el.classList.add('hidden'));
+    }
+
     // 4. Start alle functionele modules
     initFinancien();
     initPloegen();
@@ -39,9 +44,8 @@ function initNav() {
         { label: 'Ploegen',             href: '#ploeg-inschrijven',        role: 'gebruiker' },
         { label: 'Vrijwilliger',        href: '#hulp-inschrijven',         role: 'gebruiker' },
         { label: 'Overzicht Vrijw.',    href: '#vrijwilligers-overzicht',  role: 'beheerder' },
-        { label: 'Werk Rooster',        href: '#werkrooster',              role: 'hulp' },
         { label: 'Toernooi Schema',     href: '#toernooi-dashboard',       role: 'all' },
-        { label: 'Werkrooster Inpl.',   href: '#werkrooster-sectie',       role: 'beheerder' },
+        { label: 'Werkrooster',         href: '#werkrooster',              role: 'beheerder' },
         { label: 'Acties',              href: '#acties',                   role: 'beheerder' },
         { label: 'Actieve Reeksen',     href: '#reeksen-beheer',           role: 'beheerder' },
         { label: 'Betaaloverzicht',     href: '#financien',                role: 'beheerder' },
