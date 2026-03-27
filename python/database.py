@@ -215,6 +215,19 @@ def init_db():
     conn.commit()
     conn.close()
 
+try:
+    if os.path.exists(DATABASE_NAAM):
+        conn_check = sqlite3.connect(DATABASE_NAAM)
+        cursor_check = conn_check.cursor()
+        cursor_check.execute("SELECT COUNT(*) FROM users")
+        count = cursor_check.fetchone()[0]
+        conn_check.close()
+        if count == 0:
+            os.remove(DATABASE_NAAM)
+            print("Lege database gedetecteerd en verwijderd. Herinitialiseren vanuit repo...")
+except Exception as e:
+    print(f"Kon database niet controleren, doorgaan met initialisatie: {e}")
+
 init_volume_data()
 init_db()
 print("Database succesvol geïnitialiseerd!")
