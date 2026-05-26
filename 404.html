@@ -1,62 +1,88 @@
 <!doctype html>
-<html lang="en">
-
+<html lang="nl">
 <head>
-  <meta charset="utf-8">
-  <title>Page Not Found</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    * {
-      line-height: 1.2;
-      margin: 0;
-    }
+    <meta charset="utf-8">
+    <title>KEVOC | Pagina Niet Gevonden</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="favicon.ico">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
 
-    html {
-      color: #888;
-      display: table;
-      font-family: sans-serif;
-      height: 100%;
-      text-align: center;
-      width: 100%;
-    }
+        :root {
+            --color-bg: #0b0f19;
+            --color-text: #94a3b8;
+            --color-heading: #f8fafc;
+            --color-accent: #6366f1;
+            --color-accent-hover: #4f46e5;
+        }
 
-    body {
-      display: table-cell;
-      vertical-align: middle;
-      margin: 2em auto;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    h1 {
-      color: #555;
-      font-size: 2em;
-      font-weight: 400;
-    }
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 2rem;
+        }
 
-    p {
-      margin: 0 auto;
-      width: 280px;
-    }
+        .error-code {
+            font-size: clamp(4rem, 10vw, 8rem);
+            font-weight: 800;
+            color: var(--color-heading);
+            line-height: 1;
+            letter-spacing: -0.04em;
+        }
 
-    @media only screen and (max-width: 280px) {
+        h1 {
+            font-size: clamp(1.25rem, 3vw, 1.75rem);
+            font-weight: 600;
+            color: var(--color-heading);
+            margin: 0.75rem 0 0.5rem;
+        }
 
-      body,
-      p {
-        width: 95%;
-      }
+        p {
+            max-width: 28rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
 
-      h1 {
-        font-size: 1.5em;
-        margin: 0 0 0.3em;
-      }
+        .back-link {
+            display: inline-block;
+            padding: 0.75rem 1.75rem;
+            background: var(--color-accent);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 0.625rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
 
-    }
-  </style>
+        .back-link:hover {
+            background: var(--color-accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .back-link:focus-visible {
+            outline: 2px solid var(--color-accent);
+            outline-offset: 3px;
+        }
+    </style>
 </head>
-
 <body>
-  <h1>Page Not Found</h1>
-  <p>Sorry, but the page you were trying to view does not exist.</p>
+    <div class="error-code">404</div>
+    <h1>Pagina Niet Gevonden</h1>
+    <p>Sorry, de pagina die je zocht bestaat niet of is verplaatst.</p>
+    <a href="index.html" class="back-link">Terug naar de startpagina</a>
 </body>
-
 </html>
-<!-- IE needs 512+ bytes: https://docs.microsoft.com/archive/blogs/ieinternals/friendly-http-error-pages -->

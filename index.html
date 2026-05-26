@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="KEVOC Toernooi — Log in of registreer om deel te nemen aan het volleybal toernooi.">
     <title>KEVOC | Log In</title>
+    <link rel="icon" href="favicon.ico">
     <link rel="stylesheet" href="css/login.css">
 </head>
 <body>
 
 <div class="container" id="app-container">
     
-    <img src="img/logo.png" alt="Logo" class="logo">
+    <img src="img/logo.png" alt="KEVOC Logo" class="logo">
 
     <div class="toggle-container">
         <div class="toggle-btn active" id="toggle-login">Inloggen</div>
@@ -19,8 +21,8 @@
     
     <div class="form-container" id="login-form">
         <form id="form-login">
-            <input type="email" id="login-email" placeholder="E-mailadres" required />
-            <input type="password" id="login-password" placeholder="Wachtwoord" required />
+            <input type="email" id="login-email" placeholder="E-mailadres" required>
+            <input type="password" id="login-password" placeholder="Wachtwoord" required>
             <button type="submit">Log in</button>
         </form>
         <p class="toggle-text"><span id="go-to-forgot">Wachtwoord vergeten?</span></p>
@@ -28,8 +30,8 @@
 
     <div class="form-container hidden" id="register-form">
         <form id="form-register">
-            <input type="email" id="reg-email" placeholder="E-mailadres" required />
-            <input type="password" id="reg-password" placeholder="Wachtwoord" required />
+            <input type="email" id="reg-email" placeholder="E-mailadres" required>
+            <input type="password" id="reg-password" placeholder="Wachtwoord" required>
             <button type="submit">Maak account</button>
         </form>
     </div>
@@ -37,19 +39,19 @@
     <div class="form-container hidden" id="forgot-form">
         <h2>Wachtwoord Herstellen</h2>
         
-        <form id="form-forgot-email" action="javascript:void(0);">
-            <input type="email" id="reset-email" placeholder="Vul je e-mailadres in" required />
+        <form id="form-forgot-email">
+            <input type="email" id="reset-email" placeholder="Vul je e-mailadres in" required>
             <button type="submit">Stuur Herstelcode</button>
         </form>
 
-        <form id="form-forgot-code" class="hidden" action="javascript:void(0);">
-            <p style="font-size: 13px; color: #666; text-align: center; margin-bottom: 10px;">Vul de code uit je e-mail in.</p>
-            <input type="text" id="reset-code" placeholder="6-cijferige code" required maxlength="6" />
+        <form id="form-forgot-code" class="hidden">
+            <p class="text-hint">Vul de code uit je e-mail in.</p>
+            <input type="text" id="reset-code" placeholder="6-cijferige code" required maxlength="6">
             <button type="submit">Verifieer Code</button>
         </form>
 
-        <form id="form-new-password" class="hidden" action="javascript:void(0);">
-            <input type="password" id="new-password" placeholder="Kies een nieuw wachtwoord" required />
+        <form id="form-new-password" class="hidden">
+            <input type="password" id="new-password" placeholder="Kies een nieuw wachtwoord" required>
             <button type="submit">Wachtwoord Opslaan</button>
         </form>
 

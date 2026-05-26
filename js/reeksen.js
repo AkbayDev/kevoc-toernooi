@@ -1,4 +1,4 @@
-import { CONFIG } from './api.js';
+import { CONFIG, escapeHtml, showToast } from './api.js';
 import { currentRole } from './auth.js';
 
 // Laad actieve reeksen en vul de ploeg-inschrijf dropdown
@@ -69,15 +69,13 @@ async function laadReeksenBeheer() {
 
         for (const [categorie, items] of Object.entries(groepen)) {
             const sectie = document.createElement('div');
-            sectie.style.cssText = 'margin-bottom: 20px;';
+            sectie.className = 'reeks-categorie';
             sectie.innerHTML = `
-                <div style="font-weight: 700; font-size: 13px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #f3f4f6;">
-                    ${categorie}
-                </div>
+                <div class="reeks-categorie-title">${escapeHtml(categorie)}</div>
             `;
 
             const grid = document.createElement('div');
-            grid.style.cssText = 'display: flex; flex-wrap: wrap; gap: 8px;';
+            grid.className = 'reeks-grid';
 
             items.forEach(r => {
                 const tag = document.createElement('button');
@@ -97,7 +95,7 @@ async function laadReeksenBeheer() {
 
     } catch (err) {
         console.error("Fout bij laden reeksen beheer:", err);
-        container.innerHTML = '<p style="color: #e74c3c;">Kon reeksen niet laden.</p>';
+        container.innerHTML = '<p class="text-error">Kon reeksen niet laden.</p>';
         return;
     }
 
@@ -105,8 +103,8 @@ async function laadReeksenBeheer() {
     container.addEventListener('click', async (e) => {
         if (!e.target.classList.contains('reeks-tag')) return;
 
-        const id     = parseInt(e.target.getAttribute('data-id'));
-        const huidig = parseInt(e.target.getAttribute('data-actief'));
+        const id     = parseInt(e.target.getAttribute('data-id'), 10);
+        const huidig = parseInt(e.target.getAttribute('data-actief'), 10);
         const nieuw  = huidig === 1 ? 0 : 1;
 
         try {
@@ -127,8 +125,8 @@ async function laadReeksenBeheer() {
 
             // Herlaad de inschrijf-dropdown
             await laadActieveReeksen();
-        } catch (err) {
-            alert('Fout bij bijwerken reeks.');
+        } catch {
+            showToast('Fout bij bijwerken reeks.', 'error');
         }
     });
 }

@@ -1,5 +1,4 @@
-import { CONFIG } from './api.js';
-
+import { apiRequest } from './api.js';
 
 const ui = {
     toggleLogin: document.getElementById('toggle-login'),
@@ -19,13 +18,14 @@ const ui = {
 
 function showMessage(msg, type = 'info') {
     ui.messageBox.textContent = msg;
-    if (type === 'error') ui.messageBox.style.color = "#e74c3c"; 
-    else if (type === 'success') ui.messageBox.style.color = "#27ae60"; 
-    else ui.messageBox.style.color = "#2980b9"; 
+    ui.messageBox.style.color =
+        type === 'error'   ? 'var(--color-error)' :
+        type === 'success' ? 'var(--color-success)' :
+                             'var(--color-info)';
 }
 
 function switchTab(tabName) {
-    ui.messageBox.textContent = ""; 
+    ui.messageBox.textContent = "";
     ui.loginForm.classList.add('hidden');
     ui.registerForm.classList.add('hidden');
     ui.forgotForm.classList.add('hidden');
@@ -49,41 +49,25 @@ function switchTab(tabName) {
     }
 }
 
-async function sendToBackend(endpoint, data) {
-    try {
-        const url = `${CONFIG.apiBaseUrl}${endpoint}`;
-        console.log(`[DEBUG] Probeer te verbinden met: ${url}`);
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.error || 'Er is iets misgegaan op de server.');
-        return result; 
-    } catch (error) {
-        throw error;
-    }
-}
-
 // Event Listeners Tabs
 ui.toggleLogin.addEventListener('click', () => switchTab('login'));
 ui.toggleRegister.addEventListener('click', () => switchTab('register'));
 ui.goToForgotBtn.addEventListener('click', () => switchTab('forgot'));
 ui.backToLoginBtn.addEventListener('click', () => switchTab('login'));
 
-// Login & Registratie
-// Zoek dit stukje in je js/login.js en pas het aan:
+// Login
 ui.loginSubmit.addEventListener('submit', async (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value; 
+    const password = document.getElementById('login-password').value;
     showMessage("Bezig met inloggen...", "info");
     try {
-        const res = await sendToBackend('/login', { email, password });
+        const res = await apiRequest('/login', {
+            method: 'POST',
+            body: { email, password }
+        });
         showMessage("Succesvol ingelogd! Je wordt doorgestuurd...", "success");
-        
-        // Sla de rol en email op
+
         localStorage.setItem('userRole', res.role);
         localStorage.setItem('userEmail', res.email);
         setTimeout(() => {
@@ -93,27 +77,34 @@ ui.loginSubmit.addEventListener('submit', async (e) => {
     } catch (err) { showMessage(err.message, "error"); }
 });
 
+// Registratie
 ui.registerSubmit.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('reg-email').value;
     const password = document.getElementById('reg-password').value;
     showMessage("Bezig met registreren...", "info");
     try {
-        const res = await sendToBackend('/register', { email, password });
+        const res = await apiRequest('/register', {
+            method: 'POST',
+            body: { email, password }
+        });
         showMessage(res.message, "success");
         document.getElementById('form-register').reset();
     } catch (err) { showMessage(err.message, "error"); }
 });
 
 // Wachtwoord Herstel Logica
-let herstelEmail = ""; 
+let herstelEmail = "";
 
 ui.formForgotEmail.addEventListener('submit', async (e) => {
     e.preventDefault();
     herstelEmail = document.getElementById('reset-email').value;
     showMessage("Code aanvragen...", "info");
     try {
-        const res = await sendToBackend('/forgot-password', { email: herstelEmail });
+        const res = await apiRequest('/forgot-password', {
+            method: 'POST',
+            body: { email: herstelEmail }
+        });
         showMessage(res.message, "success");
         ui.formForgotEmail.classList.add('hidden');
         ui.formForgotCode.classList.remove('hidden');
@@ -125,7 +116,10 @@ ui.formForgotCode.addEventListener('submit', async (e) => {
     const code = document.getElementById('reset-code').value;
     showMessage("Code controleren...", "info");
     try {
-        const res = await sendToBackend('/verify-code', { email: herstelEmail, code: code });
+        const res = await apiRequest('/verify-code', {
+            method: 'POST',
+            body: { email: herstelEmail, code: code }
+        });
         showMessage(res.message, "success");
         ui.formForgotCode.classList.add('hidden');
         ui.formNewPassword.classList.remove('hidden');
@@ -135,10 +129,13 @@ ui.formForgotCode.addEventListener('submit', async (e) => {
 ui.formNewPassword.addEventListener('submit', async (e) => {
     e.preventDefault();
     const newPassword = document.getElementById('new-password').value;
-    const code = document.getElementById('reset-code').value; 
+    const code = document.getElementById('reset-code').value;
     showMessage("Wachtwoord opslaan...", "info");
     try {
-        const res = await sendToBackend('/reset-password', { email: herstelEmail, code: code, new_password: newPassword });
+        const res = await apiRequest('/reset-password', {
+            method: 'POST',
+            body: { email: herstelEmail, code: code, new_password: newPassword }
+        });
         showMessage(res.message, "success");
         setTimeout(() => { switchTab('login'); }, 2000);
     } catch (err) { showMessage(err.message, "error"); }

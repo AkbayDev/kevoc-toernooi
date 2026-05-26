@@ -1,4 +1,4 @@
-import { CONFIG } from './api.js';
+import { CONFIG, escapeHtml, showToast } from './api.js';
 import { herlaadWerkrooster } from './werkrooster.js';
 import { laadRooster } from './rooster.js';
 import { currentRole } from './auth.js';
@@ -36,25 +36,27 @@ async function laadVrijwilligers() {
         const data = await res.json();
 
         if (data.length === 0) {
-            vrijwilligersLijst.innerHTML = '<tr><td colspan="6">Nog geen inschrijvingen.</td></tr>';
+            vrijwilligersLijst.innerHTML = '<tr><td colspan="6" class="text-muted">Nog geen inschrijvingen.</td></tr>';
             return;
         }
 
+        const isBeheerder = currentRole === 'beheerder' || currentRole === 'dev';
+
         vrijwilligersLijst.innerHTML = data.map(v => {
             let actionCellHtml = '';
-            if (currentRole === 'beheerder') {
+            if (isBeheerder) {
                 actionCellHtml = `
-                    <button class="btn-secondary btn-status" data-id="${v.id}" data-status="geaccepteerd">✓</button>
-                    <button class="btn-secondary btn-status" data-id="${v.id}" data-status="afgewezen">✗</button>
+                    <button class="btn-secondary btn-sm btn-status" data-id="${v.id}" data-status="geaccepteerd">✓</button>
+                    <button class="btn-secondary btn-sm btn-status" data-id="${v.id}" data-status="afgewezen">✗</button>
                 `;
             }
             return `
             <tr>
-                <td>${v.naam}</td>
-                <td>${v.tijdslot}</td>
-                <td>${v.job}</td>
-                <td>${v.wedstrijd_info || '-'}</td>
-                <td><span class="status-badge status-${v.status}">${v.status}</span></td>
+                <td>${escapeHtml(v.naam)}</td>
+                <td>${escapeHtml(v.tijdslot)}</td>
+                <td>${escapeHtml(v.job)}</td>
+                <td>${escapeHtml(v.wedstrijd_info || '-')}</td>
+                <td><span class="status-badge status-${v.status}">${escapeHtml(v.status)}</span></td>
                 <td>${actionCellHtml}</td>
             </tr>
         `;
@@ -103,7 +105,7 @@ export function initVrijwilligers() {
                 email:    localStorage.getItem('userEmail')
             };
 
-            // Voor scheidsrechter: stuur tijdsblok mee (niet wedstrijd_id)
+            // Voor scheidsrechter: stuur tijdsblok mee
             if (job === 'Scheidsrechter') {
                 payload.tijdsblok = tijdsblokDropdown ? tijdsblokDropdown.value : null;
             }
@@ -117,10 +119,7 @@ export function initVrijwilligers() {
                 const result = await res.json();
                 if (!res.ok) throw new Error(result.error);
                 
-                if (vrijwilligersMsg) {
-                    vrijwilligersMsg.style.color = '#27ae60';
-                    vrijwilligersMsg.textContent = result.message;
-                }
+                showToast(result.message, 'success');
                 formVrijwilligers.reset();
 
                 if (tijdsblokDropdown) {
@@ -131,15 +130,12 @@ export function initVrijwilligers() {
                 await laadVrijwilligers();
                 await laadBeschikbareTijdsblokken();
             } catch (err) {
-                if (vrijwilligersMsg) {
-                    vrijwilligersMsg.style.color = '#e74c3c';
-                    vrijwilligersMsg.textContent = err.message;
-                }
+                showToast(err.message, 'error');
             }
         });
     }
 
-    //  voor accepteer/afwijs knoppen
+    // Event delegation voor accepteer/afwijs knoppen
     if (vrijwilligersLijst) {
         vrijwilligersLijst.addEventListener('click', async (e) => {
             if (e.target.classList.contains('btn-status')) {
@@ -155,20 +151,13 @@ export function initVrijwilligers() {
                     const result = await res.json();
                     if (!res.ok) throw new Error(result.error);
                     
-                    if (vrijwilligersMsg) {
-                        vrijwilligersMsg.style.color = '#27ae60';
-                        vrijwilligersMsg.textContent = result.message;
-                    }
-                    setTimeout(() => { if (vrijwilligersMsg) vrijwilligersMsg.textContent = ''; }, 3000);
+                    showToast(result.message, 'success');
                     laadVrijwilligers();
                     await herlaadWerkrooster();
                     await laadRooster();
                     await laadBeschikbareTijdsblokken();
                 } catch (err) {
-                    if (vrijwilligersMsg) {
-                        vrijwilligersMsg.style.color = '#e74c3c';
-                        vrijwilligersMsg.textContent = err.message;
-                    }
+                    showToast(err.message, 'error');
                 }
             }
         });

@@ -1,4 +1,4 @@
-import { CONFIG } from './api.js';
+import { CONFIG, escapeHtml, showToast } from './api.js';
 import { currentRole } from './auth.js';
 
 export function initActies() {
@@ -18,8 +18,8 @@ export function initActies() {
             const res    = await fetch(`${CONFIG.apiBaseUrl}/acties`);
             const acties = await res.json();
             renderActies(acties);
-        } catch (err) {
-            container.innerHTML = '<li style="color:#e74c3c;">Kon acties niet laden.</li>';
+        } catch {
+            container.innerHTML = '<li class="text-error">Kon acties niet laden.</li>';
         }
     }
 
@@ -29,8 +29,8 @@ export function initActies() {
             const res    = await fetch(`${CONFIG.apiBaseUrl}/acties/archief`);
             const acties = await res.json();
             renderArchief(acties);
-        } catch (err) {
-            archiefLijst.innerHTML = '<li style="color:#e74c3c;">Kon archief niet laden.</li>';
+        } catch {
+            archiefLijst.innerHTML = '<li class="text-error">Kon archief niet laden.</li>';
         }
     }
 
@@ -38,7 +38,7 @@ export function initActies() {
     function renderActies(acties) {
         container.innerHTML = '';
         if (acties.length === 0) {
-            container.innerHTML = '<li style="color:#6b7280; font-style: italic;">Geen openstaande acties.</li>';
+            container.innerHTML = '<li class="text-muted" style="font-style:italic;">Geen openstaande acties.</li>';
             return;
         }
 
@@ -47,35 +47,33 @@ export function initActies() {
             const isBezig = actie.status === 'bezig';
             const isEigen = actie.beheerder_email === userEmail;
 
-            li.style.cssText = 'display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap;';
-            if (isBezig) li.style.borderLeft = '4px solid #d97706';
+            li.className = 'actie-item';
+            if (isBezig) li.classList.add('actie-bezig');
 
             const info = document.createElement('div');
-            info.style.flex = '1';
+            info.className = 'actie-info';
             info.innerHTML = `
-                <div style="font-weight: 600; color: #111827; font-size: 14px;">${actie.omschrijving}</div>
+                <div class="actie-tekst">${escapeHtml(actie.omschrijving)}</div>
                 ${isBezig
-                    ? `<div style="font-size: 12px; color: #d97706; margin-top: 4px;">⚙ Bezig: <strong>${actie.beheerder_email}</strong></div>`
-                    : `<div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">Nog niet geclaimd</div>`
+                    ? `<div class="actie-status actie-status--bezig">⚙ Bezig: <strong>${escapeHtml(actie.beheerder_email)}</strong></div>`
+                    : `<div class="actie-status">Nog niet geclaimd</div>`
                 }
             `;
 
             const acties_div = document.createElement('div');
-            acties_div.style.cssText = 'display: flex; gap: 6px; flex-shrink: 0;';
+            acties_div.className = 'actie-buttons';
 
             if (!isBezig) {
                 const claimBtn = document.createElement('button');
-                claimBtn.className = 'btn-primary';
+                claimBtn.className = 'btn-primary btn-sm';
                 claimBtn.textContent = 'Ik pak dit op';
-                claimBtn.style.cssText = 'padding: 6px 12px; font-size: 12px;';
                 claimBtn.setAttribute('data-id', actie.id);
                 claimBtn.setAttribute('data-action', 'claim');
                 acties_div.appendChild(claimBtn);
             } else if (isEigen) {
                 const klaarBtn = document.createElement('button');
-                klaarBtn.className = 'btn-primary';
+                klaarBtn.className = 'btn-primary btn-sm btn-success';
                 klaarBtn.textContent = 'Markeer als klaar';
-                klaarBtn.style.cssText = 'padding: 6px 12px; font-size: 12px; background: #059669;';
                 klaarBtn.setAttribute('data-id', actie.id);
                 klaarBtn.setAttribute('data-action', 'gedaan');
                 acties_div.appendChild(klaarBtn);
@@ -93,20 +91,19 @@ export function initActies() {
         archiefLijst.innerHTML = '';
 
         if (acties.length === 0) {
-            archiefLijst.innerHTML = '<li style="color:#6b7280; font-style: italic;">Archief is leeg.</li>';
+            archiefLijst.innerHTML = '<li class="text-muted" style="font-style:italic;">Archief is leeg.</li>';
             return;
         }
 
         acties.forEach(actie => {
             const li = document.createElement('li');
-            li.style.cssText = 'display: flex; justify-content: space-between; align-items: center; gap: 12px; opacity: 0.75;';
+            li.className = 'actie-item actie-archief';
             li.innerHTML = `
                 <div>
-                    <div style="font-weight: 600; font-size: 14px; color: #374151; text-decoration: line-through;">${actie.omschrijving}</div>
-                    <div style="font-size: 12px; color: #9ca3af; margin-top: 2px;">Afgerond door: ${actie.beheerder_email || 'onbekend'}</div>
+                    <div class="actie-tekst" style="text-decoration:line-through;">${escapeHtml(actie.omschrijving)}</div>
+                    <div class="actie-status">Afgerond door: ${escapeHtml(actie.beheerder_email || 'onbekend')}</div>
                 </div>
-                <button class="btn-secondary" data-id="${actie.id}" data-action="verwijder"
-                    style="padding: 4px 10px; font-size: 12px; color: #dc2626; border-color: #dc2626;">
+                <button class="btn-secondary btn-sm btn-danger" data-id="${actie.id}" data-action="verwijder">
                     Verwijder
                 </button>
             `;
@@ -119,7 +116,7 @@ export function initActies() {
         const btn    = e.target.closest('[data-action]');
         if (!btn) return;
 
-        const id     = parseInt(btn.getAttribute('data-id'));
+        const id     = parseInt(btn.getAttribute('data-id'), 10);
         const action = btn.getAttribute('data-action');
 
         if (action === 'claim') {
@@ -131,9 +128,10 @@ export function initActies() {
                 });
                 const result = await res.json();
                 if (!res.ok) throw new Error(result.error);
+                showToast('Actie geclaimd!', 'success');
                 laadActies();
             } catch (err) {
-                alert(`Fout: ${err.message}`);
+                showToast(err.message, 'error');
             }
         }
 
@@ -146,10 +144,11 @@ export function initActies() {
                 });
                 const result = await res.json();
                 if (!res.ok) throw new Error(result.error);
+                showToast('Actie afgerond!', 'success');
                 laadActies();
                 laadArchief();
             } catch (err) {
-                alert(`Fout: ${err.message}`);
+                showToast(err.message, 'error');
             }
         }
     });
@@ -160,15 +159,16 @@ export function initActies() {
             const btn = e.target.closest('[data-action="verwijder"]');
             if (!btn) return;
 
-            const id = parseInt(btn.getAttribute('data-id'));
+            const id = parseInt(btn.getAttribute('data-id'), 10);
             if (!confirm('Actie permanent verwijderen uit archief?')) return;
 
             try {
                 const res = await fetch(`${CONFIG.apiBaseUrl}/acties/${id}`, { method: 'DELETE' });
                 if (!res.ok) throw new Error('Verwijderen mislukt');
+                showToast('Actie verwijderd.', 'success');
                 laadArchief();
             } catch (err) {
-                alert(`Fout: ${err.message}`);
+                showToast(err.message, 'error');
             }
         });
     }
@@ -197,9 +197,10 @@ export function initActies() {
             const result = await res.json();
             if (!res.ok) throw new Error(result.error);
             input.value = '';
+            showToast('Actie toegevoegd!', 'success');
             laadActies();
         } catch (err) {
-            alert(`Fout: ${err.message}`);
+            showToast(err.message, 'error');
         }
     });
 

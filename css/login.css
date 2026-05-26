@@ -1,145 +1,275 @@
-* {
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* ==========================================================================
+   Login Page — Kevoc Toernooi
+   Premium dark theme, matching the dashboard design system
+   ========================================================================== */
+
+:root {
+    --color-bg: #090d16;
+    --color-surface: #111827;
+    --color-text: #f1f5f9;
+    --color-text-secondary: #94a3b8;
+    --color-text-muted: #64748b;
+    --color-border: rgba(255, 255, 255, 0.08);
+    --color-accent: #6366f1;
+    --color-accent-hover: #818cf8;
+    --color-accent-glow: rgba(99, 102, 241, 0.25);
+    --color-success: #10b981;
+    --color-error: #ef4444;
+    --color-info: #3b82f6;
+    --radius-sm: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.25rem;
+    --radius-full: 9999px;
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.35);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --duration-fast: 150ms;
+    --duration-base: 250ms;
+}
+
+*, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 24px;
-    background-image: url('../img/background.jpg');
-    background-size: cover;
-    background-position: center;
+    padding: 1.5rem;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: var(--color-text-secondary);
+    background: var(--color-bg);
+    overflow-x: hidden;
+    line-height: 1.6;
+}
+
+/* GPU-composited background */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: url('../img/background.jpg') center / cover no-repeat;
+    filter: brightness(0.35) saturate(1.1);
+    z-index: -2;
+    will-change: transform;
+    pointer-events: none;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(
+        ellipse 60% 50% at 50% 45%,
+        rgba(99, 102, 241, 0.12) 0%,
+        rgba(9, 13, 22, 0.85) 100%
+    );
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* ─── Container ────────────────────────────────────────────────────────── */
+@keyframes containerEntry {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 .container {
     width: 100%;
     max-width: 420px;
-    background: #ffffff;
-    border-radius: 14px;
-    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.12);
-    padding: 32px;
+    background: rgba(17, 24, 39, 0.65);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: 2.25rem 2rem;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: var(--shadow-md);
+    animation: containerEntry 0.4s var(--ease-out) forwards;
 }
 
+/* ─── Logo ─────────────────────────────────────────────────────────────── */
 .logo {
     display: block;
-    width: 120px;
+    width: 80px;
     height: auto;
-    margin: 0 auto 24px;
+    margin: 0 auto 1.5rem;
 }
 
+/* ─── Tab Toggle ───────────────────────────────────────────────────────── */
 .toggle-container {
     display: flex;
-    border-radius: 999px;
-    padding: 4px;
-    margin-bottom: 24px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: var(--radius-full);
+    padding: 3px;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--color-border);
 }
 
 .toggle-btn {
     flex: 1;
     text-align: center;
-    padding: 10px;
-    border-radius: 999px;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-full);
     cursor: pointer;
     font-weight: 600;
-    color: #6b7280;
-    transition: all 0.2s ease;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    transition: all var(--duration-base) var(--ease-out);
+    user-select: none;
+}
+.toggle-btn:hover { color: var(--color-text); }
+.toggle-btn.active {
+    background: var(--color-accent-glow);
+    color: var(--color-accent-hover);
 }
 
-.toggle-btn.active {
-    background: #ffffff;
-    color: #111827;
-    box-shadow: 0 2px 10px rgba(17, 24, 39, 0.12);
+/* ─── Forms ────────────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 .form-container {
-    animation: fadeIn 0.25s ease;
+    animation: fadeIn 0.25s var(--ease-out);
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(4px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.form-container h2 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 0.875rem;
+    text-align: center;
+    letter-spacing: -0.02em;
 }
 
 form {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 0.625rem;
 }
 
-input,
-select {
+input, select {
     width: 100%;
-    border: 1px solid #d1d5db;
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 14px;
-    background: #ffffff;
-    color: #111827;
-}
-
-input:focus,
-select:focus {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-text);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
     outline: none;
-    border-color: #111827;
-    box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.1);
+    transition: border-color var(--duration-fast),
+                box-shadow var(--duration-fast),
+                background var(--duration-fast);
+}
+input::placeholder { color: var(--color-text-muted); }
+input:hover, select:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.06);
+}
+input:focus-visible, select:focus-visible {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-glow);
+    background: rgba(255, 255, 255, 0.06);
 }
 
+/* ─── Submit Button ────────────────────────────────────────────────────── */
 button[type="submit"] {
-    margin-top: 8px;
-    border: none;
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-size: 14px;
+    margin-top: 0.375rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.8125rem;
     font-weight: 700;
-    color: #ffffff;
-    background: #111827;
+    color: #fff;
+    background: var(--color-accent);
+    border: none;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: background 0.2s ease;
+    box-shadow: 0 1px 4px var(--color-accent-glow);
+    transition: all var(--duration-fast);
 }
-
 button[type="submit"]:hover {
-    background: #1f2937;
+    background: var(--color-accent-hover);
+    box-shadow: 0 4px 16px var(--color-accent-glow);
+}
+button[type="submit"]:active { transform: scale(0.98); }
+button[type="submit"]:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
 }
 
-.hidden {
-    display: none;
+/* ─── Utility ──────────────────────────────────────────────────────────── */
+.hidden { display: none !important; }
+
+.text-hint {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    text-align: center;
+    margin-bottom: 0.375rem;
+    line-height: 1.5;
 }
 
 #message-box {
-    margin-top: 16px;
-    min-height: 20px;
+    margin-top: 1rem;
+    min-height: 1.25rem;
     text-align: center;
-    font-size: 14px;
-    color: #111827;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-text);
+    padding: 0.375rem 0.625rem;
+    border-radius: var(--radius-sm);
+    transition: all var(--duration-base);
+}
+#message-box:not(:empty) {
+    background: rgba(255, 255, 255, 0.04);
 }
 
-/* --- Styling voor de klikbare tekst (links) --- */
 .toggle-text {
-    margin-top: 15px;
-    font-size: 14px;
-    color: #666;
+    margin-top: 1rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
     text-align: center;
 }
-
-.toggle-text span, #go-to-forgot, #back-to-login {
-    color: #764ba2;
-    font-weight: bold;
-    cursor: pointer; /* Zorgt voor het handje! */
-    text-decoration: underline;
-    transition: color 0.3s ease;
+.toggle-text span {
+    color: var(--color-accent);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    padding-bottom: 1px;
+    transition: all var(--duration-fast);
+}
+.toggle-text span:hover {
+    color: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
 }
 
-.toggle-text span:hover, #go-to-forgot:hover, #back-to-login:hover {
-    color: #667eea; /* Licht op als je eroverheen zweeft */
+/* ─── Accessibility ────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ─── Responsive ───────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+    body { padding: 1rem; }
+    .container {
+        padding: 1.75rem 1.25rem;
+        border-radius: var(--radius-lg);
+    }
+    .logo {
+        width: 64px;
+        margin-bottom: 1.25rem;
+    }
 }

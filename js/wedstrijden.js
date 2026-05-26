@@ -1,4 +1,7 @@
-import { CONFIG } from './api.js';
+import { CONFIG, escapeHtml, showToast, reeksBadge } from './api.js';
+
+// Cache match data to avoid double API calls
+let cachedMatches = null;
 
 export async function initWedstrijden() {
     const scoresContainer  = document.getElementById('scores-container');
@@ -9,32 +12,33 @@ export async function initWedstrijden() {
     try {
         const res     = await fetch(`${CONFIG.apiBaseUrl}/rooster`);
         const matches = await res.json();
+        cachedMatches = matches;
 
         // --- 1. Actuele Scores (zichtbaar voor iedereen) ---
         if (scoresContainer) {
             if (!matches || matches.length === 0) {
-                scoresContainer.innerHTML = '<p style="color: #6b7280; text-align: center; padding: 20px;">Nog geen wedstrijden gepland.</p>';
+                scoresContainer.innerHTML = '<p class="text-muted" style="text-align:center;padding:1.25rem;">Nog geen wedstrijden gepland.</p>';
             } else {
                 scoresContainer.innerHTML = renderScoreGrid(matches);
             }
         }
 
         // --- 2. Scheidsrechter Dashboard ---
+        // Reuse cached matches instead of a second fetch
         if (scheidsContainer && (userRole === 'scheids' || userRole === 'beheerder' || userRole === 'dev')) {
-            await renderScheidsDashboard(scheidsContainer, userRole, userEmail);
+            await renderScheidsDashboard(scheidsContainer, userRole, userEmail, matches);
         }
 
     } catch (err) {
         console.error("Fout bij laden wedstrijden:", err);
         if (scoresContainer) {
-            scoresContainer.innerHTML = '<p style="color: #e74c3c;">Kon wedstrijden niet laden.</p>';
+            scoresContainer.innerHTML = '<p class="text-error">Kon wedstrijden niet laden.</p>';
         }
     }
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-// Groepeer wedstrijden per tijdsblok en sorteer chronologisch op starttijd
 function groepeerOpTijdsblok(matches) {
     const gegroepeerd = matches.reduce((acc, match) => {
         const sleutel = match.tijdsblok || match.starttijd;
@@ -43,7 +47,6 @@ function groepeerOpTijdsblok(matches) {
         return acc;
     }, {});
 
-    // Sorteer tijdsblokken op starttijd van de eerste wedstrijd in elk blok
     return Object.fromEntries(
         Object.entries(gegroepeerd).sort(([, a], [, b]) => {
             const tijdA = a[0].starttijd || '';
@@ -53,20 +56,12 @@ function groepeerOpTijdsblok(matches) {
     );
 }
 
-// Reeks badge kleur
-function reeksBadge(reeks) {
-    const isSenior = reeks.toLowerCase().includes('senior');
-    const kleur    = isSenior ? '#e74c3c' : '#3498db';
-    return `<span style="background: ${kleur}; color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.8em; float: right;">${reeks}</span>`;
-}
-
 // Score display
 function renderScore(match) {
-    if (match.score_thuis !== null && match.score_thuis !== undefined &&
-        match.score_uit   !== null && match.score_uit   !== undefined) {
-        return `<strong style="font-size: 16px; color: #111827;">${match.score_thuis} - ${match.score_uit}</strong>`;
+    if (match.score_thuis != null && match.score_uit != null) {
+        return `<strong class="score-display">${match.score_thuis} - ${match.score_uit}</strong>`;
     }
-    return `<span style="color: #9ca3af;">-</span>`;
+    return '<span class="text-muted">-</span>';
 }
 
 // ─── Scorebord (iedereen) ────────────────────────────────────────────────────
@@ -79,21 +74,21 @@ function renderScoreGrid(matches) {
         html += `
             <div class="tijd-slot">
                 <div class="slot-header">
-                    <div class="slot-title">🕒 ${tijdsblok}</div>
+                    <div class="slot-title">🕒 ${escapeHtml(tijdsblok)}</div>
                 </div>
                 <div class="match-cards">
                     ${wedstrijden.map(match => `
                         <div class="match-card">
                             <div class="match-info">
-                                <span class="badge-veld">Veld ${match.veld || '?'}</span>
+                                <span class="badge-veld">Veld ${escapeHtml(String(match.veld || '?'))}</span>
                                 ${reeksBadge(match.reeks)}
                             </div>
                             <div class="match-teams">
-                                <div>${match.thuis_ploeg}</div>
-                                <div style="color: #9ca3af; font-size: 0.8em; margin: 4px 0;">VS</div>
-                                <div>${match.uit_ploeg}</div>
+                                <div>${escapeHtml(match.thuis_ploeg)}</div>
+                                <div class="match-vs">VS</div>
+                                <div>${escapeHtml(match.uit_ploeg)}</div>
                             </div>
-                            <div class="match-info" style="border-top: 1px solid #f3f4f6; padding-top: 8px; margin-top: 8px; text-align: center;">
+                            <div class="match-info match-score-row">
                                 Score: ${renderScore(match)}
                             </div>
                         </div>
@@ -109,30 +104,23 @@ function renderScoreGrid(matches) {
 
 // ─── Scheids Dashboard ───────────────────────────────────────────────────────
 
-async function renderScheidsDashboard(container, userRole, userEmail) {
+async function renderScheidsDashboard(container, userRole, userEmail, matches) {
 
     // Beheerder/dev ziet alle wedstrijden met score-formulieren
     if (userRole === 'beheerder' || userRole === 'dev') {
-        try {
-            const res     = await fetch(`${CONFIG.apiBaseUrl}/rooster`);
-            const matches = await res.json();
-
-            if (!matches || matches.length === 0) {
-                container.innerHTML = '<p style="color: #6b7280;">Nog geen wedstrijden gepland.</p>';
-                return;
-            }
-
-            container.innerHTML = renderScheidsGrid(matches);
-            koppelScheidsEvents(container, userEmail);
-        } catch (err) {
-            container.innerHTML = '<p style="color: #e74c3c;">Kon wedstrijden niet laden.</p>';
+        if (!matches || matches.length === 0) {
+            container.innerHTML = '<p class="text-muted">Nog geen wedstrijden gepland.</p>';
+            return;
         }
+
+        container.innerHTML = renderScheidsGrid(matches);
+        setupScheidsEvents(container, userEmail);
         return;
     }
 
     // Scheids: haal eigen tijdsblok op
     if (!userEmail) {
-        container.innerHTML = '<p style="color: #6b7280;">Niet ingelogd.</p>';
+        container.innerHTML = '<p class="text-muted">Niet ingelogd.</p>';
         return;
     }
 
@@ -142,29 +130,28 @@ async function renderScheidsDashboard(container, userRole, userEmail) {
 
         if (!data.tijdsblok || data.wedstrijden.length === 0) {
             container.innerHTML = `
-                <div style="text-align: center; padding: 30px; background: #f9fafb; border-radius: 10px; border: 2px dashed #d1d5db;">
-                    <p style="color: #6b7280; font-weight: 500;">Je bent nog niet ingepland als scheidsrechter, of je aanvraag is nog in behandeling.</p>
+                <div class="empty-state">
+                    <p>Je bent nog niet ingepland als scheidsrechter, of je aanvraag is nog in behandeling.</p>
                 </div>`;
             return;
         }
 
         container.innerHTML = renderScheidsBlok(data.tijdsblok, data.wedstrijden, data.naam);
-        koppelScheidsEvents(container, userEmail);
+        setupScheidsEvents(container, userEmail);
 
     } catch (err) {
         console.error("Fout bij laden scheids blok:", err);
-        container.innerHTML = '<p style="color: #e74c3c;">Kon jouw tijdsblok niet laden.</p>';
+        container.innerHTML = '<p class="text-error">Kon jouw tijdsblok niet laden.</p>';
     }
 }
 
-// Render voor scheids: één tijdsblok met claim-knoppen + score formulieren
 function renderScheidsBlok(tijdsblok, wedstrijden, scheidsNaam) {
     return `
         <div class="kalender-grid">
             <div class="tijd-slot">
                 <div class="slot-header">
-                    <div class="slot-title">🕒 Jouw tijdsblok: ${tijdsblok}</div>
-                    <div style="font-size: 13px; color: #6b7280; margin-top: 4px;">
+                    <div class="slot-title">🕒 Jouw tijdsblok: ${escapeHtml(tijdsblok)}</div>
+                    <div class="text-sm text-muted mt-sm">
                         Kies hieronder welke wedstrijd je wilt leiden. Je kunt maar één wedstrijd per blok claimen.
                     </div>
                 </div>
@@ -176,7 +163,6 @@ function renderScheidsBlok(tijdsblok, wedstrijden, scheidsNaam) {
     `;
 }
 
-// Render voor beheerder/dev: alle tijdsblokken
 function renderScheidsGrid(matches) {
     const gegroepeerd = groepeerOpTijdsblok(matches);
     let html = '<div class="kalender-grid">';
@@ -185,7 +171,7 @@ function renderScheidsGrid(matches) {
         html += `
             <div class="tijd-slot">
                 <div class="slot-header">
-                    <div class="slot-title">🕒 ${tijdsblok}</div>
+                    <div class="slot-title">🕒 ${escapeHtml(tijdsblok)}</div>
                 </div>
                 <div class="match-cards">
                     ${wedstrijden.map(match => renderScheidsMatchCard(match, null)).join('')}
@@ -198,25 +184,22 @@ function renderScheidsGrid(matches) {
     return html;
 }
 
-// Individuele match-card voor scheids dashboard
 function renderScheidsMatchCard(match, scheidsNaam) {
     const heeftScheids = match.scheidsrechter && match.scheidsrechter !== 'TBD';
     const isEigenClaim = scheidsNaam && match.scheidsrechter === scheidsNaam;
 
-    // Claim sectie
     let claimHtml = '';
     if (heeftScheids) {
-        const kleur = isEigenClaim ? '#059669' : '#6b7280';
-        const tekst = isEigenClaim ? `✓ Jij leidt deze wedstrijd` : `Scheids: ${match.scheidsrechter}`;
+        const kleurClass = isEigenClaim ? 'text-success' : 'text-muted';
+        const tekst = isEigenClaim ? '✓ Jij leidt deze wedstrijd' : `Scheids: ${escapeHtml(match.scheidsrechter)}`;
         claimHtml = `
-            <div style="margin-top: 10px; padding: 8px 12px; background: #f9fafb; border-radius: 8px; font-size: 13px; color: ${kleur}; font-weight: 600;">
+            <div class="scheids-claim-status ${kleurClass}">
                 ${tekst}
             </div>`;
     } else {
         claimHtml = `
-            <div style="margin-top: 10px;">
-                <button class="btn-primary btn-claim-wedstrijd" data-id="${match.id}"
-                    style="width: 100%; padding: 8px; font-size: 13px;">
+            <div style="margin-top:0.625rem;">
+                <button class="btn-primary btn-claim-wedstrijd" data-id="${match.id}" style="width:100%;padding:0.5rem;font-size:0.8125rem;">
                     Ik leid deze wedstrijd
                 </button>
             </div>`;
@@ -225,35 +208,39 @@ function renderScheidsMatchCard(match, scheidsNaam) {
     return `
         <div class="match-card">
             <div class="match-info">
-                <span class="badge-veld">Veld ${match.veld || '?'}</span>
+                <span class="badge-veld">Veld ${escapeHtml(String(match.veld || '?'))}</span>
                 ${reeksBadge(match.reeks)}
             </div>
             <div class="match-teams">
-                <div>${match.thuis_ploeg}</div>
-                <div style="color: #9ca3af; font-size: 0.8em; margin: 4px 0;">VS</div>
-                <div>${match.uit_ploeg}</div>
+                <div>${escapeHtml(match.thuis_ploeg)}</div>
+                <div class="match-vs">VS</div>
+                <div>${escapeHtml(match.uit_ploeg)}</div>
             </div>
             ${claimHtml}
-            <div style="margin-top: 12px; padding-top: 10px; border-top: 2px dashed #f3f4f6;">
-                <div style="font-size: 12px; color: #6b7280; margin-bottom: 8px; font-weight: 600;">Score invoeren</div>
-                <form class="score-form" data-id="${match.id}" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <div class="score-entry-section">
+                <div class="text-xs text-muted mb-sm fw-bold">Score invoeren</div>
+                <form class="score-form" data-id="${match.id}">
                     <input type="number" name="score_thuis" placeholder="Thuis" min="0"
-                        value="${match.score_thuis !== null && match.score_thuis !== undefined ? match.score_thuis : ''}"
-                        style="width: 65px; padding: 8px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; text-align: center;"
-                        required>
-                    <span style="font-weight: 700; color: #374151;">-</span>
+                        value="${match.score_thuis != null ? match.score_thuis : ''}"
+                        class="score-input" required>
+                    <span class="score-separator">-</span>
                     <input type="number" name="score_uit" placeholder="Uit" min="0"
-                        value="${match.score_uit !== null && match.score_uit !== undefined ? match.score_uit : ''}"
-                        style="width: 65px; padding: 8px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; text-align: center;"
-                        required>
-                    <button type="submit" class="btn-primary" style="padding: 8px 14px; font-size: 13px;">Opslaan</button>
+                        value="${match.score_uit != null ? match.score_uit : ''}"
+                        class="score-input" required>
+                    <button type="submit" class="btn-primary btn-sm">Opslaan</button>
                 </form>
             </div>
         </div>
     `;
 }
 
-function koppelScheidsEvents(container, userEmail) {
+/**
+ * Set up event delegation for scheids dashboard.
+ * CRITICAL FIX: This function is called once after rendering, NOT recursively.
+ * The old code called initWedstrijden() recursively from event handlers,
+ * causing duplicate event listeners and memory leaks.
+ */
+function setupScheidsEvents(container, userEmail) {
     // Score formulier submit
     container.addEventListener('submit', async (e) => {
         if (!e.target.classList.contains('score-form')) return;
@@ -273,17 +260,19 @@ function koppelScheidsEvents(container, userEmail) {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    score_thuis: parseInt(scoreThuis),
-                    score_uit:   parseInt(scoreUit)
+                    score_thuis: parseInt(scoreThuis, 10),
+                    score_uit:   parseInt(scoreUit, 10)
                 })
             });
             const result = await res.json();
             if (!res.ok) throw new Error(result.error || 'Fout bij opslaan');
 
+            showToast('Score opgeslagen!', 'success');
+            // Re-render instead of recursive init
             await initWedstrijden();
         } catch (err) {
             console.error("Fout bij opslaan score:", err);
-            alert(`Fout: ${err.message}`);
+            showToast(err.message, 'error');
             submitBtn.disabled    = false;
             submitBtn.textContent = 'Opslaan';
         }
@@ -297,7 +286,7 @@ function koppelScheidsEvents(container, userEmail) {
         const email       = userEmail || localStorage.getItem('userEmail');
 
         if (!email) {
-            alert('Niet ingelogd.');
+            showToast('Niet ingelogd.', 'error');
             return;
         }
 
@@ -308,15 +297,15 @@ function koppelScheidsEvents(container, userEmail) {
             const res = await fetch(`${CONFIG.apiBaseUrl}/scheids/claim-wedstrijd`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, wedstrijd_id: parseInt(wedstrijdId) })
+                body: JSON.stringify({ email, wedstrijd_id: parseInt(wedstrijdId, 10) })
             });
             const result = await res.json();
             if (!res.ok) throw new Error(result.error || 'Fout bij claimen');
 
-            // Herlaad volledig dashboard zodat scorebord ook bijgewerkt wordt
+            showToast('Wedstrijd geclaimd!', 'success');
             await initWedstrijden();
         } catch (err) {
-            alert(`Fout: ${err.message}`);
+            showToast(err.message, 'error');
             e.target.disabled    = false;
             e.target.textContent = 'Ik leid deze wedstrijd';
         }

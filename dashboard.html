@@ -3,17 +3,26 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="KEVOC Toernooi Dashboard — Beheer ploegen, wedstrijden, vrijwilligers en het toernooi schema.">
         <title>KEVOC | Dashboard</title>
+        <link rel="icon" href="favicon.ico">
         <link rel="stylesheet" href="css/dash.css">
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
     <body>
-        <header>
+        <header id="site-header">
             <div class="header-container">
-                <div class="logo-area">
-                    <img src="img/logo.png" alt="Logo" class="logo">    
+                <div class="header-left">
+                    <div class="logo-area">
+                        <img src="img/logo.png" alt="KEVOC Logo" class="logo">
+                    </div>
+                    <!-- Hamburger button — mobile only -->
+                    <button class="hamburger" id="hamburger-btn" aria-label="Menu openen" aria-expanded="false" aria-controls="mobile-drawer">
+                        <span class="hamburger-line"></span>
+                        <span class="hamburger-line"></span>
+                        <span class="hamburger-line"></span>
+                    </button>
                 </div>
-                <nav>
+                <nav class="desktop-nav" id="desktop-nav">
                     <ul id="nav-links"></ul>
                 </nav>
                 <div class="user-menu">
@@ -23,28 +32,47 @@
             </div>
         </header>
 
+        <!-- Mobile drawer overlay -->
+        <div class="drawer-overlay" id="drawer-overlay"></div>
+        <aside class="mobile-drawer" id="mobile-drawer" aria-label="Navigatie menu">
+            <div class="drawer-header">
+                <span class="drawer-title">Menu</span>
+                <button class="drawer-close" id="drawer-close" aria-label="Menu sluiten">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 5L15 15M15 5L5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </button>
+            </div>
+            <nav class="drawer-nav">
+                <ul id="mobile-nav-links"></ul>
+            </nav>
+            <div class="drawer-footer">
+                <span id="mobile-user-display" class="drawer-user"></span>
+                <button id="mobile-logout-btn" class="drawer-logout">Uitloggen</button>
+            </div>
+        </aside>
+
         <main class="dashboard-layout">
+            <h1 class="sr-only">KEVOC Toernooi Dashboard</h1>
 
             <!-- ACTUELE SCORES -->
             <section class="dash-card" data-role="all" id="scores">
                 <h2>Actuele Scores</h2>
                 <div id="scores-container">
-                    <p style="color: #6b7280;">Scores worden geladen...</p>
+                    <p class="text-muted">Scores worden geladen...</p>
                 </div>
             </section>
 
             <!-- SCHEIDSRECHTER DASHBOARD -->
             <section class="dash-card hidden" data-role="scheids,beheerder" id="scheids-dashboard">
                 <h2>Scheidsrechter Dashboard</h2>
-                <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Claim een wedstrijd en vul de uitslag in na afloop.</p>
+                <p class="text-sm text-muted mb-md">Claim een wedstrijd en vul de uitslag in na afloop.</p>
                 <div id="scheids-matches"></div>
             </section>
 
             <!-- PLOEG INSCHRIJVEN -->
             <section class="dash-card" data-role="gebruiker" id="ploeg-inschrijven">
-                <h2>Ploegen & Inschrijven</h2>
+                <h2>Ploegen &amp; Inschrijven</h2>
                 
-                <form class="dash-form" id="form-ploeg" style="margin-bottom: 15px;">
+                <form class="dash-form mb-md" id="form-ploeg">
                     <input type="text" id="ploeg-naam" placeholder="Naam van de ploeg" required>
                     <select id="ploeg-reeks" required>
                         <option value="" disabled selected>Kies een reeks...</option>
@@ -57,15 +85,14 @@
                     <button type="submit" class="btn-primary">Schrijf Ploeg In</button>
                 </form>
                 
-                <div id="ploeg-msg" style="margin-bottom: 20px; font-weight: bold; font-size: 14px;"></div>
+                <div id="ploeg-msg" class="mb-lg fw-bold text-sm"></div>
             </section>
 
-            <section class="dash-card" data-role="beheerder, hulp" id="ploegen-overzicht">
-                <h3 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; color: #2c3e50;">Ingeschreven Ploegen</h3>
+            <section class="dash-card" data-role="beheerder,hulp" id="ploegen-overzicht">
+                <h3 class="card-subtitle">Ingeschreven Ploegen</h3>
                 <ul class="task-list" id="ploegen-lijst"></ul>
-                <div class="export-beheerder" style="margin-top: 12px; text-align: right;">
-                    <a href="http://127.0.0.1:5000/api/export/ploegen" download
-                        class="btn-secondary" style="font-size: 13px; text-decoration: none; display: inline-block; padding: 8px 14px;">
+                <div class="export-beheerder mt-md text-right">
+                    <a href="/api/export/ploegen" download class="btn-secondary export-link">
                         ↓ Exporteer ploegen (.csv)
                     </a>
                 </div>
@@ -90,43 +117,44 @@
                     <select id="vrijwilliger-job" required>
                         <option value="" disabled selected>Kies een jobrol</option>
                         <option value="Coordinator">Coordinator</option>
-                        <option value="Opzetten tafel & T-shirts">Opzetten tafel & T-shirts</option>
+                        <option value="Opzetten tafel &amp; T-shirts">Opzetten tafel &amp; T-shirts</option>
                         <option value="Klaarzetten Velden">Klaarzetten Velden</option>
                         <option value="Scheidsrechter">Scheidsrechter</option>
-                        <option value="Afbreken velden & opruimen zaal">Afbreken velden & opruimen zaal</option>
+                        <option value="Afbreken velden &amp; opruimen zaal">Afbreken velden &amp; opruimen zaal</option>
                     </select>
 
                     <!-- Alleen zichtbaar bij Scheidsrechter: kies een tijdsblok -->
-                    <select id="vrijwilliger-tijdsblok-scheids" style="display: none;">
+                    <select id="vrijwilliger-tijdsblok-scheids" class="hidden-field">
                         <option value="" disabled selected>Kies een tijdsblok...</option>
                     </select>
 
                     <button type="submit" class="btn-primary">Ik kom helpen!</button>
                 </form>
-                <div id="vrijwilligers-msg" style="margin-bottom: 15px; font-weight: bold; font-size: 14px;"></div>
+                <div id="vrijwilligers-msg" class="mb-md fw-bold text-sm"></div>
             </section>
 
             <!-- VRIJWILLIGERS OVERZICHT (beheerder) -->
             <section class="dash-card beheerder-card" data-role="beheerder" id="vrijwilligers-overzicht">
                 <h2>Vrijwilligers Overzicht</h2>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Naam</th>
-                            <th>Tijdslot</th>
-                            <th>Job</th>
-                            <th>Tijdsblok / Info</th>
-                            <th>Status</th>
-                            <th>Actie</th>
-                        </tr>
-                    </thead>
-                    <tbody id="vrijwilligers-lijst">
-                        <tr><td colspan="6">Laden...</td></tr>
-                    </tbody>
-                </table>
-                <div class="export-beheerder" style="margin-top: 12px; text-align: right;">
-                    <a href="http://127.0.0.1:5000/api/export/vrijwilligers" download
-                        class="btn-secondary" style="font-size: 13px; text-decoration: none; display: inline-block; padding: 8px 14px;">
+                <div class="table-scroll-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Naam</th>
+                                <th>Tijdslot</th>
+                                <th>Job</th>
+                                <th>Tijdsblok / Info</th>
+                                <th>Status</th>
+                                <th>Actie</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vrijwilligers-lijst">
+                            <tr><td colspan="6">Laden...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="export-beheerder mt-md text-right">
+                    <a href="/api/export/vrijwilligers" download class="btn-secondary export-link">
                         ↓ Exporteer vrijwilligers (.csv)
                     </a>
                 </div>
@@ -136,24 +164,24 @@
 
             <section class="dash-card admin-card hidden" data-role="beheerder" id="acties">
                 <h2>Acties</h2>
-                <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">
+                <p class="text-sm text-muted mb-md">
                     Maak acties aan, claim ze om aan te geven dat jij ermee bezig bent, en markeer ze als klaar wanneer je klaar bent.
                 </p>
 
-                <form id="form-actie" class="dash-form" style="margin-bottom: 20px; display: flex; gap: 10px;">
-                    <input type="text" id="nieuwe-actie-tekst" placeholder="Nieuwe actie toevoegen..." required style="flex-grow: 1;">
+                <form id="form-actie" class="dash-form mb-lg flex-row">
+                    <input type="text" id="nieuwe-actie-tekst" placeholder="Nieuwe actie toevoegen..." required class="flex-grow">
                     <button type="submit" class="btn-primary" style="white-space: nowrap;">+ Toevoegen</button>
                 </form>
 
                 <ul class="task-list" id="acties-lijst">
-                    <li style="color: #6b7280;">Laden...</li>
+                    <li class="text-muted">Laden...</li>
                 </ul>
 
-                <div style="margin-top: 20px; border-top: 1px solid #f3f4f6; padding-top: 16px;">
-                    <button id="archief-toggle" class="btn-secondary" style="width: 100%; font-size: 13px;">
+                <div class="mt-lg archief-section">
+                    <button id="archief-toggle" class="btn-secondary archief-toggle-btn">
                         Archief bekijken ▾
                     </button>
-                    <div id="archief-blok" style="display: none; margin-top: 12px;">
+                    <div id="archief-blok" class="archief-blok">
                         <ul class="task-list" id="archief-lijst"></ul>
                     </div>
                 </div>
@@ -163,36 +191,34 @@
             <section class="dash-card admin-card hidden" data-role="all" id="toernooi-dashboard">
                 <h2>Toernooi Schema</h2>
                 
-                <div style="margin-bottom: 16px; display: flex; gap: 10px;" class=" dash-card admin-actions hidden" data-role="beheerder">
+                <div class="flex-row mb-md dash-card admin-actions hidden" data-role="beheerder">
                     <button id="btn-genereer" class="btn-primary">Genereer Nieuw Rooster</button>
                     <button id="btn-ververs" class="btn-secondary">Ververs Rooster</button>
                 </div>
 
                 <!-- CSV/Excel Import wedstrijden -->
-                <div style="margin-bottom: 20px; padding: 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;" class="hidden" data-role="beheerder">
-                    <div style="font-weight: 700; font-size: 14px; color: #065f46; margin-bottom: 8px;">
+                <div class="import-box hidden" data-role="beheerder">
+                    <div class="import-title">
                         📥 Wedstrijden importeren via CSV of Excel
                     </div>
-                    <p style="font-size: 13px; color: #374151; margin-bottom: 4px;">
+                    <p class="text-sm mb-sm">
                         Verplichte kolommen: <code>thuis_ploeg</code>, <code>uit_ploeg</code>, <code>tijdsblok</code>, <code>starttijd</code>, <code>reeks</code>, <code>ronde</code>, <code>veld</code>.
                     </p>
-                    <p style="font-size: 13px; color: #374151; margin-bottom: 10px;">
+                    <p class="text-sm mb-md">
                         Optioneel: <code>scheidsrechter</code> (standaard: TBD). Wedstrijden worden <strong>toegevoegd</strong> aan het bestaande schema.
                     </p>
-                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                        <input type="file" id="import-rooster-bestand" accept=".csv,.xlsx,.xls"
-                            style="font-size: 13px; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px;">
+                    <div class="flex-row" style="align-items: center; flex-wrap: wrap;">
+                        <input type="file" id="import-rooster-bestand" accept=".csv,.xlsx,.xls" class="file-input">
                         <button id="btn-import-rooster" class="btn-primary" style="white-space: nowrap;">Importeer wedstrijden</button>
                     </div>
-                    <div id="import-rooster-msg" style="margin-top: 10px; font-size: 13px; font-weight: 600;"></div>
+                    <div id="import-rooster-msg" class="mt-md text-sm fw-bold"></div>
                 </div>
 
                 <div id="rooster-container">
                     <p class="text-muted">Laden van wedstrijdschema...</p>
                 </div>
-                <div class="export-beheerder" style="margin-top: 12px; text-align: right;">
-                    <a href="http://127.0.0.1:5000/api/export/wedstrijden" download
-                        class="btn-secondary" style="font-size: 13px; text-decoration: none; display: inline-block; padding: 8px 14px;">
+                <div class="export-beheerder mt-md text-right">
+                    <a href="/api/export/wedstrijden" download class="btn-secondary export-link">
                         ↓ Exporteer toernooi schema (.csv)
                     </a>
                 </div>
@@ -201,16 +227,15 @@
             <!-- WERKROOSTER INPLANNEN (beheerder) -->
             <section class="dash-card admin-card hidden" data-role="beheerder" id="werkrooster">
                 <h2>Werkrooster</h2>
-                <p style="font-size: 13px; color: #6b7280; margin-bottom: 15px;">Plan geaccepteerde vrijwilligers in op verschillende jobrollen en tijdsloten.</p>
+                <p class="text-sm text-muted mb-md">Plan geaccepteerde vrijwilligers in op verschillende jobrollen en tijdsloten.</p>
 
-                <div id="werkrooster-msg" style="margin-bottom: 15px; font-weight: bold; font-size: 14px;"></div>
+                <div id="werkrooster-msg" class="mb-md fw-bold text-sm"></div>
 
-                <div id="werkrooster-grid" style="overflow-x: auto;">
+                <div id="werkrooster-grid" class="table-scroll-wrapper">
                     <p class="text-muted">Laden van werkrooster...</p>
                 </div>
-                <div class="export-beheerder" style="margin-top: 12px; text-align: right;">
-                    <a href="http://127.0.0.1:5000/api/export/werkrooster" download
-                        class="btn-secondary" style="font-size: 13px; text-decoration: none; display: inline-block; padding: 8px 14px;">
+                <div class="export-beheerder mt-md text-right">
+                    <a href="/api/export/werkrooster" download class="btn-secondary export-link">
                         ↓ Exporteer werkrooster (.csv)
                     </a>
                 </div>
@@ -219,12 +244,12 @@
             <!-- REEKSEN BEHEER (beheerder) -->
             <section class="dash-card admin-card hidden" data-role="beheerder" id="reeksen-beheer">
                 <h2>Actieve Reeksen</h2>
-                <p style="font-size: 13px; color: #6b7280; margin-bottom: 6px;">
+                <p class="text-sm text-muted mb-sm">
                     Klik op een reeks om deze aan of uit te zetten voor dit toernooi. Alleen actieve reeksen zijn zichtbaar bij ploeg-inschrijving.
                 </p>
-                <div id="reeksen-samenvatting" style="font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 16px;"></div>
+                <div id="reeksen-samenvatting" class="text-sm fw-bold mb-md"></div>
                 <div id="reeksen-beheer-lijst">
-                    <p style="color: #6b7280;">Laden...</p>
+                    <p class="text-muted">Laden...</p>
                 </div>
             </section>
 
@@ -232,11 +257,10 @@
             <section class="dash-card admin-card hidden" data-role="beheerder" id="financien">
                 <h2>Betaaloverzicht Ploegen</h2>
                 <div id="betaal-overzicht">
-                    <p style="color: #6b7280;">Laden...</p>
+                    <p class="text-muted">Laden...</p>
                 </div>
-                <div class="export-beheerder" style="margin-top: 12px; text-align: right;">
-                    <a href="http://127.0.0.1:5000/api/export/betaaloverzicht" download
-                        class="btn-secondary" style="font-size: 13px; text-decoration: none; display: inline-block; padding: 8px 14px;">
+                <div class="export-beheerder mt-md text-right">
+                    <a href="/api/export/betaaloverzicht" download class="btn-secondary export-link">
                         ↓ Exporteer betaaloverzicht (.csv)
                     </a>
                 </div>
@@ -253,6 +277,9 @@
                 </div>
             </div>
         </footer>
+
+        <!-- Toast notification container -->
+        <div class="toast-container"></div>
 
         <script type="module" src="js/main.js"></script>
     </body>

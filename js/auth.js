@@ -1,3 +1,5 @@
+import { apiRequest } from './api.js';
+
 export const currentRole = localStorage.getItem('userRole');
 
 export function checkAuth() {
@@ -15,10 +17,7 @@ async function syncRolMetDatabase() {
     if (!email) return;
 
     try {
-        const res = await fetch(`http://127.0.0.1:5000/api/mijn-rol?email=${encodeURIComponent(email)}`);
-        if (!res.ok) return;
-
-        const data = await res.json();
+        const data = await apiRequest(`/mijn-rol?email=${encodeURIComponent(email)}`);
         const huidigeRolInDB = data.role;
         const huidigeRolInStorage = localStorage.getItem('userRole');
 
@@ -31,8 +30,9 @@ async function syncRolMetDatabase() {
     }
 }
 
-export function initAuthUI() {
-    syncRolMetDatabase();
+export async function initAuthUI() {
+    // Await role sync to prevent flash of incorrect UI
+    await syncRolMetDatabase();
 
     const roleTranslations = {
         'beheerder': 'Beheerder',
@@ -53,7 +53,7 @@ export function initAuthUI() {
     // Rollen die hulp-niveau toegang hebben (+ omhoog)
     const HULP_ROLLEN = ['hulp', 'scheids', 'beheerder', 'dev'];
 
-    const cards = document.querySelectorAll('.dash-card');
+    const cards = document.querySelectorAll('.dash-card, [data-role]');
     cards.forEach(card => {
         const requiredRole = card.getAttribute('data-role');
         if (!requiredRole) return;
@@ -66,30 +66,15 @@ export function initAuthUI() {
         if (vereistRollen.includes('all')) {
             isVisible = true;
         } else if (vereistRollen.includes(currentRole)) {
-            // Directe rol match
             isVisible = true;
         } else if (vereistRollen.includes('beheerder') && BEHEERDER_ROLLEN.includes(currentRole)) {
-            // Dev mag alles zien wat voor beheerder is
             isVisible = true;
         } else if (vereistRollen.includes('hulp') && HULP_ROLLEN.includes(currentRole)) {
-            // Beheerder, dev en scheids mogen alles zien wat voor hulp is
             isVisible = true;
         }
 
         card.classList.toggle('hidden', !isVisible);
     });
-
-    // Verberg actie knoppen voor hulp en scheids rol
-    if (currentRole === 'hulp' || currentRole === 'scheids') {
-        document.querySelectorAll('.btn-status').forEach(btn => {
-            btn.style.display = 'none';
-        });
-
-        const genereerBtn = document.getElementById('btn-genereer');
-        if (genereerBtn) {
-            genereerBtn.style.display = 'none';
-        }
-    }
 
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {

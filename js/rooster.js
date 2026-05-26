@@ -1,4 +1,4 @@
-import { CONFIG } from './api.js';
+import { CONFIG, escapeHtml, showToast, reeksBadge } from './api.js';
 
 export async function laadRooster() {
     const roosterContainer = document.getElementById('rooster-container');
@@ -19,7 +19,6 @@ export async function laadRooster() {
 
         // Groepeer alle wedstrijden op hun starttijd/tijdsblok
         const gegroepeerd = data.reduce((acc, match) => {
-            // Gebruik tijdsblok als hoofding (bijv. "10:00-10:30")
             const tijd = match.tijdsblok || match.starttijd; 
             if (!acc[tijd]) acc[tijd] = [];
             acc[tijd].push(match);
@@ -29,15 +28,14 @@ export async function laadRooster() {
         renderRooster(gegroepeerd, roosterContainer);
     } catch (err) {
         console.error("Fout bij ophalen rooster:", err);
-        roosterContainer.innerHTML = `<div class="alert alert-danger">Kon het rooster niet laden: ${err.message}</div>`;
+        roosterContainer.innerHTML = `<div class="alert alert-danger">Kon het rooster niet laden: ${escapeHtml(err.message)}</div>`;
     }
 }
 
-// Hulpfunctie om minuten op te tellen bij een tijd (bijv. "10:00" + 10 = "10:10")
+// Hulpfunctie om minuten op te tellen bij een tijd
 function berekenTijd(startTijdStr, extraMinuten) {
     const [uren, minuten] = startTijdStr.split(':').map(Number);
-    const datum = new Date();
-    datum.setHours(uren, minuten + extraMinuten, 0, 0);
+    const datum = new Date(2000, 0, 1, uren, minuten + extraMinuten);
     return datum.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
 }
 
@@ -45,7 +43,6 @@ function renderRooster(gegroepeerdeData, container) {
     let html = '<div class="kalender-grid">';
 
     for (const [tijd, wedstrijden] of Object.entries(gegroepeerdeData)) {
-        // We pakken de exacte starttijd van de eerste wedstrijd in dit blok
         const startOpwarming = wedstrijden[0].starttijd; 
         const startMatch = berekenTijd(startOpwarming, 10);
         const eindeMatch = berekenTijd(startOpwarming, 55);
@@ -53,35 +50,30 @@ function renderRooster(gegroepeerdeData, container) {
         html += `
             <div class="tijd-slot">
                 <div class="slot-header">
-                    <div class="slot-title"> Blok: ${startOpwarming} - ${eindeMatch}</div>
+                    <div class="slot-title"> Blok: ${escapeHtml(startOpwarming)} - ${escapeHtml(eindeMatch)}</div>
                     
                     <div class="slot-agenda">
-                        <span><span class="tijd-highlight text-orange">${startOpwarming}</span>  Opwarming (10 min)</span>
-                        <span><span class="tijd-highlight text-green">${startMatch}</span>  Start Wedstrijd (45 min)</span>
-                        <span><span class="tijd-highlight text-gray">${eindeMatch}</span>  Veld Vrijmaken</span>
+                        <span><span class="tijd-highlight text-orange">${escapeHtml(startOpwarming)}</span>  Opwarming (10 min)</span>
+                        <span><span class="tijd-highlight text-green">${escapeHtml(startMatch)}</span>  Start Wedstrijd (45 min)</span>
+                        <span><span class="tijd-highlight text-gray">${escapeHtml(eindeMatch)}</span>  Veld Vrijmaken</span>
                     </div>
                 </div>
                 
                 <div class="match-cards">
                     ${wedstrijden.map(match => {
-                        const isSenior = match.reeks.toLowerCase().includes('senior');
-                        const badgeColor = isSenior ? '#e74c3c' : '#3498db';
-                        
                         return `
                         <div class="match-card">
                             <div class="match-info">
-                                <span class="badge-veld">Veld ${match.veld || '?'}</span>
-                                <span style="background: ${badgeColor}; color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.8em; float: right;">
-                                    ${match.reeks} (R. ${match.ronde})
-                                </span>
+                                <span class="badge-veld">Veld ${escapeHtml(String(match.veld || '?'))}</span>
+                                ${reeksBadge(match.reeks)}
                             </div>
                             <div class="match-teams">
-                                <div>${match.thuis_ploeg}</div>
-                                <div style="color: #9ca3af; font-size: 0.8em; margin: 4px 0;">VS</div>
-                                <div>${match.uit_ploeg}</div>
+                                <div>${escapeHtml(match.thuis_ploeg)}</div>
+                                <div class="match-vs">VS</div>
+                                <div>${escapeHtml(match.uit_ploeg)}</div>
                             </div>
-                            <div class="match-info mt-2" style="border-top: 1px solid #f3f4f6; padding-top: 8px;">
-                                Scheids: <strong>${match.scheidsrechter || 'TBD'}</strong>
+                            <div class="match-info match-scheids">
+                                Scheids: <strong>${escapeHtml(match.scheidsrechter || 'TBD')}</strong>
                             </div>
                         </div>
                         `;
@@ -117,14 +109,13 @@ export function initRooster() {
                 const result = await res.json();
                 
                 if (res.ok) {
-                    alert(result.message);
+                    showToast(result.message, 'success');
                     laadRooster(); 
                 } else {
-                    alert(`Fout: ${result.error}`);
+                    showToast(result.error || 'Genereren mislukt.', 'error');
                 }
-            } catch (err) {
-                alert("Er is een netwerkfout opgetreden tijdens het genereren.");
-                console.error(err);
+            } catch {
+                showToast("Er is een netwerkfout opgetreden tijdens het genereren.", 'error');
             } finally {
                 btnGenereer.disabled = false;
                 btnGenereer.innerText = "Genereer Nieuw Rooster";
@@ -145,7 +136,7 @@ export function initRooster() {
         btnImportRooster.addEventListener('click', async () => {
             const bestand = importRoosterInput.files[0];
             if (!bestand) {
-                if (importRoosterMsg) { importRoosterMsg.style.color = '#e74c3c'; importRoosterMsg.textContent = 'Kies eerst een bestand.'; }
+                if (importRoosterMsg) { importRoosterMsg.className = 'mt-md text-sm fw-bold text-error'; importRoosterMsg.textContent = 'Kies eerst een bestand.'; }
                 return;
             }
 
@@ -163,7 +154,7 @@ export function initRooster() {
                 const result = await res.json();
 
                 if (importRoosterMsg) {
-                    importRoosterMsg.style.color = res.ok ? '#059669' : '#e74c3c';
+                    importRoosterMsg.className = `mt-md text-sm fw-bold ${res.ok ? 'text-success' : 'text-error'}`;
                     importRoosterMsg.textContent = result.message;
                 }
 
@@ -171,8 +162,8 @@ export function initRooster() {
                     importRoosterInput.value = '';
                     await laadRooster();
                 }
-            } catch (err) {
-                if (importRoosterMsg) { importRoosterMsg.style.color = '#e74c3c'; importRoosterMsg.textContent = 'Import mislukt — controleer de verbinding.'; }
+            } catch {
+                if (importRoosterMsg) { importRoosterMsg.className = 'mt-md text-sm fw-bold text-error'; importRoosterMsg.textContent = 'Import mislukt — controleer de verbinding.'; }
             } finally {
                 btnImportRooster.disabled    = false;
                 btnImportRooster.textContent = 'Importeer wedstrijden';

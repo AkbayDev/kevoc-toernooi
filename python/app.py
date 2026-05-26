@@ -19,8 +19,12 @@ from routes.reeksen import reeksen_bp
 from routes.acties import acties_bp
 from routes.export import export_bp
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../', static_url_path='')
 CORS(app)
+
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
 
 # Registreer de blueprints en plak er in één keer '/api' voor!
 app.register_blueprint(financien_bp, url_prefix='/api')
